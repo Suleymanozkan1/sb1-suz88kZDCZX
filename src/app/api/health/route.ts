@@ -1,6 +1,7 @@
 import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { usingBlob } from '@/lib/files';
+import { blobTokenSource } from '@/lib/blob-token';
 import { databaseUrlSource } from '@/lib/database-url';
 import { usingDatabase } from '@/lib/store';
 
@@ -20,26 +21,52 @@ async function handleGet() {
   const adminPassword = Boolean(process.env.ADMIN_PASSWORD);
   const adminSecret = Boolean(process.env.ADMIN_SECRET);
 
-  const issues: string[] = [];
+  /**
+   * Engelleyen eksikle yalnızca iyileştirme önerisi aynı listede durunca
+   * çalışan bir kurulum bozukmuş gibi okunuyor. İkisi ayrı sayılır.
+   */
+  const issues: { level: 'engel' | 'oneri'; message: string }[] = [];
+
   if (!adminPassword) {
-    issues.push('ADMIN_PASSWORD tanımlı değil — giriş yapılamaz.');
-  }
-  if (!adminSecret) {
-    issues.push('ADMIN_SECRET tanımlı değil — oturumlar ADMIN_PASSWORD’den türetiliyor.');
+    issues.push({
+      level: 'engel',
+      message: 'ADMIN_PASSWORD tanımlı değil — giriş yapılamaz.',
+    });
   }
   if (!database) {
-    issues.push(
-      'Postgres bağlı değil — veriler kalıcı olmayacak. Vercel’de Storage → Neon ' +
+    issues.push({
+      level: 'engel',
+      message:
+        'Postgres bağlı değil — kayıtlar kalıcı olmaz. Vercel’de Storage → Neon ' +
         '(ya da Supabase / Prisma Postgres) bağlayın; Upstash Redis’tir, Postgres vermez.',
-    );
+    });
   }
   if (!blob) {
-    issues.push('BLOB_READ_WRITE_TOKEN tanımlı değil — yüklenen dosyalar kalıcı olmayacak.');
+    issues.push({
+      level: 'engel',
+      message:
+        'Blob deposu bağlı değil — görsel yüklenemez. Depoyu bağladıysanız yeniden ' +
+        'dağıtın: bağlamak tek başına yetmez, mevcut dağıtım değişkeni görmez.',
+    });
+  }
+  if (!adminSecret) {
+    issues.push({
+      level: 'oneri',
+      message:
+        'ADMIN_SECRET tanımlı değil. Site çalışır; ancak oturum anahtarı ' +
+        'ADMIN_PASSWORD’den türetildiği için o değişkeni değiştirdiğinizde herkesin ' +
+        'oturumu kapanır. Rastgele uzun bir değer eklemeniz önerilir.',
+    });
   }
 
   return NextResponse.json({
-    ok: issues.length === 0,
-    storage: { database, blob, databaseVariable: databaseUrlSource() ?? null },
+    ok: issues.every((issue) => issue.level !== 'engel'),
+    storage: {
+      database,
+      blob,
+      databaseVariable: databaseUrlSource() ?? null,
+      blobVariable: blobTokenSource() ?? null,
+    },
     auth: { adminPassword, adminSecret },
     issues,
   });

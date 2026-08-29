@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { requireSession } from '@/lib/guard';
 import { MAX_PHOTO_BYTES, isGeneratedName, usingBlob } from '@/lib/files';
+import { blobToken } from '@/lib/blob-token';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,9 @@ async function handlePost(request: Request) {
     const response = await handleUpload({
       request,
       body,
+      // Depo başka bir adla bağlanmış olabilir; SDK'nın varsayılan arayışına
+      // bırakmak yerine bulunan belirteç açıkça verilir.
+      token: blobToken(),
       onBeforeGenerateToken: async (pathname) => {
         const [space, ...rest] = pathname.split('/');
         if (space !== 'public' || rest.length !== 1 || !isGeneratedName(rest[0])) {

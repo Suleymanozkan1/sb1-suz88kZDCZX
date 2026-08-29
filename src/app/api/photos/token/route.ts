@@ -2,6 +2,7 @@ import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { MAX_PHOTO_BYTES, isGeneratedName, usingBlob } from '@/lib/files';
+import { blobToken } from '@/lib/blob-token';
 import { getInvitationBySlug } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
@@ -35,6 +36,9 @@ async function handlePost(request: Request) {
     const response = await handleUpload({
       request,
       body,
+      // Depo başka bir adla bağlanmış olabilir; SDK'nın varsayılan arayışına
+      // bırakmak yerine bulunan belirteç açıkça verilir.
+      token: blobToken(),
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         const invitation = await getInvitationBySlug(String(clientPayload ?? ''));
         if (!invitation || !invitation.isActive) {

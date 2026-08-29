@@ -1,13 +1,14 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
+import { blobToken } from './blob-token';
 import { ConfigError } from './errors';
 
 /**
  * Yüklenen dosyaların deposu.
  *
  * İki sürücü vardır ve seçim ortam değişkenine göre yapılır:
- *   • BLOB_READ_WRITE_TOKEN varsa  → Vercel Blob (üretim)
+ *   • Blob belirteci varsa         → Vercel Blob (üretim)
  *   • yoksa                        → data/uploads (yerel geliştirme)
  *
  * Kayıtlarda dosyanın kendisi değil, yalnızca ADI/ANAHTARI saklanır; okuma
@@ -31,7 +32,18 @@ export type Space = 'private' | 'public';
 /** Yüklenebilecek en büyük orijinal dosya. */
 export const MAX_PHOTO_BYTES = 25 * 1024 * 1024;
 
-export const usingBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+export const usingBlob = Boolean(blobToken());
+
+/**
+ * Belirteç her çağrıya açıkça verilir. SDK varsayılan olarak yalnızca
+ * `BLOB_READ_WRITE_TOKEN` adına bakar; depo başka bir adla bağlanmışsa
+ * belirteci bulmuş olmamıza rağmen istekler kimliksiz gider.
+ */
+function token(): string {
+  const value = blobToken();
+  if (!value) throw new ConfigError('Blob deposu bağlı değil.');
+  return value;
+}
 
 const EXTENSIONS: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -95,10 +107,27 @@ function assertWritable(): void {
   if (usingBlob) return;
   if (process.env.VERCEL) {
     throw new ConfigError(
-      'Dosya deposu bağlı değil. Vercel projesinde Storage → Blob oluşturup projeye bağlayın ' +
-        've yeniden dağıtın (BLOB_READ_WRITE_TOKEN).',
+      'Dosya deposu bağlı değil. Vercel projesinde Storage → Blob oluşturup projeye bağlayın, ' +
+        'sonra yeniden dağıtın — depoyu bağlamak tek başına yetmez, mevcut dağıtım ' +
+        'değişkeni görmez.',
     );
   }
+}
+
+/**
+ * Blob'un kendi hataları da çoğunlukla bir yapılandırma sorunudur: belirteç
+ * eski bir depoya ait ya da depo silinmiş olur. Ham hata mesajı arayüze
+ * "yüklenemedi" olarak düşüyordu; sebebi söylemek daha yararlı.
+ */
+function asConfigError(err: unknown): unknown {
+  const message = err instanceof Error ? err.message : '';
+  if (/store does not exist|not found|Access denied|unauthorized|forbidden/i.test(message)) {
+    return new ConfigError(
+      'Blob deposuna erişilemedi — belirteç artık var olmayan bir depoya ait olabilir. ' +
+        'Vercel’de Storage → Blob bağlantısını kontrol edip yeniden dağıtın.',
+    );
+  }
+  return err;
 }
 
 /* ─────────────────────────────────────────────────────────────── yazma */
@@ -113,13 +142,18 @@ export async function saveFile(
 
   if (usingBlob) {
     const { put } = await import('@vercel/blob');
-    // addRandomSuffix kapalı: kayıttaki ad ile depodaki anahtar birebir aynı kalmalı.
-    const blob = await put(key(fileName, space), data, {
-      access: 'public',
-      addRandomSuffix: false,
-      contentType: mimeForFile(fileName),
-    });
-    return blob.url;
+    try {
+      // addRandomSuffix kapalı: kayıttaki ad ile depodaki anahtar birebir aynı kalmalı.
+      const blob = await put(key(fileName, space), data, {
+        access: 'public',
+        addRandomSuffix: false,
+        contentType: mimeForFile(fileName),
+        token: token(),
+      });
+      return blob.url;
+    } catch (err) {
+      throw asConfigError(err);
+    }
   }
 
   const target = resolveSafe(fileName, space);
@@ -132,7 +166,7 @@ export async function saveFile(
     if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
       throw new ConfigError(
         'Dosya sistemi salt-okunur olduğu için yükleme kaydedilemedi. ' +
-          'Kalıcı depolama için Vercel Blob bağlayın (BLOB_READ_WRITE_TOKEN).',
+          'Kalıcı depolama için Vercel Blob bağlayıp yeniden dağıtın.',
       );
     }
     if (code === 'ENOSPC') {
@@ -157,7 +191,7 @@ export async function fileExists(
   if (usingBlob) {
     const { head } = await import('@vercel/blob');
     try {
-      await head(key(fileName, space));
+      await head(key(fileName, space), { token: token() });
       return true;
     } catch {
       return false;
@@ -183,7 +217,7 @@ export async function readFile(
   if (usingBlob) {
     const { head } = await import('@vercel/blob');
     try {
-      const meta = await head(key(fileName, space));
+      const meta = await head(key(fileName, space), { token: token() });
       const response = await fetch(meta.url);
       if (!response.ok) return null;
       return Buffer.from(await response.arrayBuffer());
@@ -214,8 +248,8 @@ export async function removeFiles(
     await Promise.all(
       unique.map(async (name) => {
         try {
-          const meta = await head(key(name, space));
-          await del(meta.url);
+          const meta = await head(key(name, space), { token: token() });
+          await del(meta.url, { token: token() });
         } catch {
           // Dosya zaten yoksa sorun değil.
         }
