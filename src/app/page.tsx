@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { Divider, IconArrow } from '@/components/invitation/Ornaments';
-import { listInvitations } from '@/lib/store';
 
-export const dynamic = 'force-dynamic';
-
-export default async function HomePage() {
-  const invitations = (await listInvitations()).filter((row) => row.isActive);
-
+/**
+ * Karşılama sayfası.
+ *
+ * Burada hiçbir davetiye listelenmez. Eskiden yayındaki davetiyeler çift
+ * adları ve adresleriyle birlikte sıralanıyordu; bu, giriş yapmamış herkese
+ * kimin düğünü olduğunu ve davetiye adreslerini veriyordu. Bir davetiye
+ * yalnızca adresini bilen kişiye açılır.
+ */
+export default function HomePage() {
   return (
     <main
       className="relative flex min-h-screen flex-col items-center justify-center px-[var(--sp-md)] py-[var(--sp-xl)] text-center"
@@ -30,41 +33,6 @@ export default async function HomePage() {
       <div className="mt-[var(--sp-md)]" style={{ color: 'var(--c-gold)' }}>
         <Divider />
       </div>
-
-      {invitations.length > 0 && (
-        <div className="mt-[var(--sp-lg)] w-full max-w-md text-left">
-          <p className="t-label" style={{ color: 'var(--c-on-dark-faint)' }}>
-            Yayındaki Davetiyeler
-          </p>
-          <div className="mt-[var(--sp-sm)]">
-            {invitations.map((row, i) => (
-              <Link
-                key={row.id}
-                href={`/davet/${row.slug}`}
-                className="group relative block py-[var(--sp-sm)]"
-              >
-                <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
-                <span className="t-h2 block" style={{ color: 'var(--c-on-dark)' }}>
-                  {row.groomName}{' '}
-                  <span className="italic" style={{ color: 'var(--c-gold)' }}>
-                    {row.conjunction}
-                  </span>{' '}
-                  {row.brideName}
-                </span>
-                <span
-                  className="mt-1 block font-sans text-xs"
-                  style={{ color: 'var(--c-on-dark-faint)' }}
-                >
-                  /davet/{row.slug}
-                </span>
-                {i === invitations.length - 1 && (
-                  <span className="rule-dark absolute inset-x-0 bottom-0" aria-hidden />
-                )}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
 
       <Link href="/giris" className="cta nudge mt-[var(--sp-lg)]">
         Giriş Yap

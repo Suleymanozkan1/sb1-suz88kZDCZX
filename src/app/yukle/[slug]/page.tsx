@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import PhotoUpload from '@/components/guest/PhotoUpload';
 import { getInvitationBySlug } from '@/lib/store';
 
@@ -8,7 +9,9 @@ type Props = { params: { slug: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const invitation = await getInvitationBySlug(params.slug);
-  if (!invitation) return { title: 'Fotoğraf Yükleme' };
+  // isActive denetimi burada da gerekli: aksi hâlde yayından kaldırılmış bir
+  // davetiyenin çift adları sayfa başlığında görünüyordu.
+  if (!invitation?.isActive) return { title: 'Fotoğraf Yükleme' };
 
   return {
     title: `Fotoğraf Yükle | ${invitation.groomName} ${invitation.conjunction} ${invitation.brideName}`,
@@ -21,23 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function GuestUploadPage({ params }: Props) {
   const invitation = await getInvitationBySlug(params.slug);
 
-  if (!invitation || !invitation.isActive) {
-    return (
-      <main
-        className="flex min-h-screen items-center justify-center px-6 text-center"
-        style={{ background: 'radial-gradient(ellipse at center, var(--c-ember), var(--c-night))' }}
-      >
-        <div>
-          <h1 className="t-display" style={{ color: 'var(--c-on-dark)' }}>
-            Sayfa Bulunamadı
-          </h1>
-          <p className="t-body mt-4" style={{ color: 'var(--c-on-dark-soft)' }}>
-            Bu yükleme bağlantısı geçerli değil.
-          </p>
-        </div>
-      </main>
-    );
-  }
+  if (!invitation?.isActive) notFound();
 
   const names = `${invitation.groomName} ${invitation.conjunction || '&'} ${invitation.brideName}`;
 

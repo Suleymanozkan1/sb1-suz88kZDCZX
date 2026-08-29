@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import InvitationView from '@/components/invitation/InvitationView';
 import { formatDate } from '@/lib/format';
 import { getInvitationBySlug } from '@/lib/store';
@@ -42,24 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function InvitationPage({ params }: Props) {
   const invitation = await load(params.slug);
-
-  if (!invitation) {
-    return (
-      <main
-        className="flex min-h-screen items-center justify-center px-6 text-center"
-        style={{ background: 'radial-gradient(ellipse at center, var(--c-ember), var(--c-night))' }}
-      >
-        <div>
-          <h1 className="t-display" style={{ color: 'var(--c-on-dark)' }}>
-            Davetiye Bulunamadı
-          </h1>
-          <p className="t-body mt-4" style={{ color: 'var(--c-on-dark-soft)' }}>
-            Bu davetiye mevcut değil veya henüz aktif değil.
-          </p>
-        </div>
-      </main>
-    );
-  }
+  if (!invitation) notFound();
 
   return <InvitationView invitation={invitation} />;
 }

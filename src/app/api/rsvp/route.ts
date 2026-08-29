@@ -31,8 +31,16 @@ async function handlePost(request: Request) {
     return NextResponse.json({ error: 'Ad ve telefon zorunludur' }, { status: 400 });
   }
 
+  // Davetiye gerçekten var ve yayında olmalı; aksi hâlde uydurma bir slug ile
+  // hiç kimseye ait olmayan katılım kayıtları açılabiliyordu.
+  const slug = String(body.invitationSlug ?? '');
+  const invitation = await getInvitationBySlug(slug);
+  if (!invitation || !invitation.isActive) {
+    return NextResponse.json({ error: 'Davetiye bulunamadı' }, { status: 404 });
+  }
+
   const rsvp = await createRsvp({
-    invitationSlug: String(body.invitationSlug ?? ''),
+    invitationSlug: invitation.slug,
     name: String(body.name).slice(0, 120),
     phone: String(body.phone).slice(0, 40),
     count: String(body.count ?? '1'),

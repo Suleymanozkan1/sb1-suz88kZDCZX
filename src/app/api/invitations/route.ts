@@ -5,21 +5,30 @@ import { createInvitation, getInvitationBySlug, listInvitations } from '@/lib/st
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Davetiye okuma — her durumda oturum gerektirir.
+ *
+ * Slug ile tek davetiye eskiden herkese açıktı, ama buna gerek yok: davetiye
+ * ve fotoğraf yükleme sayfaları kaydı sunucuda doğrudan depodan okur. Açık
+ * bırakmak, slug deneyerek davetiye içeriğini toplamaya ve yayından
+ * kaldırılmış (pasif) bir davetiyeyi okumaya izin veriyordu — sayfanın kendisi
+ * onu gizlerken.
+ */
 async function handleGet(request: Request) {
-  const slug = new URL(request.url).searchParams.get('slug');
+  const result = requireSession();
+  if ('error' in result) return result.error;
 
-  // Slug ile tek davetiye herkese açıktır — davetiye sayfasının kaynağıdır.
+  const slug = new URL(request.url).searchParams.get('slug');
   if (slug) {
     const invitation = await getInvitationBySlug(slug);
     if (!invitation) {
       return NextResponse.json({ error: 'Davetiye bulunamadı' }, { status: 404 });
     }
+    if (result.session.role !== 'admin' && invitation.ownerId !== result.session.userId) {
+      return NextResponse.json({ error: 'Bu işlem için yetkiniz yok' }, { status: 403 });
+    }
     return NextResponse.json(invitation);
   }
-
-  // Listeleme oturum gerektirir: admin hepsini, kullanıcı yalnızca kendininkileri görür.
-  const result = requireSession();
-  if ('error' in result) return result.error;
 
   const rows = await listInvitations();
   return NextResponse.json(
