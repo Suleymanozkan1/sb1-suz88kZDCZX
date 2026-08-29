@@ -31,7 +31,7 @@ function Entry({ item, index, total }: { item: StoryItem; index: number; total: 
           className="numerals block leading-none"
           style={{
             color: item.highlight ? 'var(--c-gold-deep)' : 'var(--c-on-light-faint)',
-            fontSize: 'clamp(2rem, 4.5vw, 3.25rem)',
+            fontSize: 'clamp(1.5rem, 2.8vw, 2.1rem)',
           }}
         >
           {item.year}

@@ -57,3 +57,24 @@ export function passwordProblem(password: string): string | null {
 export function seedFingerprint(value: string): string {
   return createHash('sha256').update(`seed:${value}`).digest('hex');
 }
+
+/**
+ * Sunucu yapılandırması eksik olduğunda atılır.
+ *
+ * Eskiden ADMIN_PASSWORD tanımlı değilse hesap sessizce "admin" parolasıyla
+ * kuruluyordu. Bu iki kötü sonuç doğuruyordu: yayına açık bir kurulumda
+ * tahmin edilebilir bir parola, ve kendi parolasını deneyen kişiye "parola
+ * hatalı" denmesi — asıl sorun parolanın yanlışlığı değil, değişkenin
+ * dağıtıma ulaşmamış olmasıyken.
+ */
+export class ConfigError extends Error {
+  readonly isConfigError = true;
+  constructor(message: string) {
+    super(message);
+    this.name = 'ConfigError';
+  }
+}
+
+export function isConfigError(error: unknown): error is ConfigError {
+  return error instanceof Error && (error as ConfigError).isConfigError === true;
+}

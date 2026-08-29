@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { Pool } from 'pg';
 import { emptyInvitation } from '../defaults';
-import { hashPassword, seedFingerprint } from '../password';
+import { ConfigError, hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
 import type {
   GuestPhoto,
@@ -336,6 +336,10 @@ export async function ensureAdmin(): Promise<User> {
     return toUser(synced[0]);
   }
 
+  // Varsayılan parolaya düşmek yok: değişken yoksa hesap kurulmaz ve durum
+  // açıkça bildirilir.
+  if (!desired) throw new ConfigError('ADMIN_PASSWORD tanımlı değil. Sunucunun ortam değişkenlerine ekleyip yeniden dağıtın.');
+
   // Eşzamanlı iki istek aynı anda admin oluşturmaya çalışırsa ikincisi çakışır
   // ve mevcut kaydı okur; bu yüzden ekleme çakışmayı yok sayar.
   const rows = await query<UserRow>(
@@ -343,7 +347,7 @@ export async function ensureAdmin(): Promise<User> {
      values ($1, 'admin', 'Yönetici', 'admin', $2, $3)
      on conflict (username) do nothing
      returning *`,
-    [randomUUID(), await hashPassword(desired ?? 'admin'), seed ?? null],
+    [randomUUID(), await hashPassword(desired), seed ?? null],
   );
   if (rows[0]) return toUser(rows[0]);
 

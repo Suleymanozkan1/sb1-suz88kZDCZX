@@ -29,7 +29,7 @@ export function PanelSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-[var(--sp-md)] pt-[var(--sp-md)]">
+    <section className="mt-[var(--sp-md)]">
       <header className="mb-[var(--sp-sm)] flex flex-wrap items-end justify-between gap-[var(--sp-sm)]">
         <div className="min-w-0">
           <div className="flex items-baseline gap-4" style={{ color: 'var(--c-gold)' }}>

@@ -14,6 +14,7 @@ function LoginForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [setupHint, setSetupHint] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function submit(event: React.FormEvent) {
@@ -26,7 +27,10 @@ function LoginForm() {
       router.push(next || (session.role === 'admin' ? '/admin' : '/panel'));
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Giriş yapılamadı');
+      const message = err instanceof Error ? err.message : 'Giriş yapılamadı';
+      setError(message);
+      // Sunucu yapılandırması eksikse bu bir parola hatası değildir.
+      setSetupHint(message.includes('ADMIN_PASSWORD'));
     } finally {
       setBusy(false);
     }
@@ -82,9 +86,17 @@ function LoginForm() {
       </div>
 
       {error && (
-        <p className="t-body mt-[var(--sp-md)]" style={{ color: '#e2a3a3' }}>
-          {error}
-        </p>
+        <div className="mt-[var(--sp-md)]">
+          <p className="t-body" style={{ color: '#e2a3a3' }}>
+            {error}
+          </p>
+          {setupHint && (
+            <p className="t-body mt-2" style={{ color: 'var(--c-on-dark-faint)' }}>
+              Bu bir parola hatası değil — sunucu henüz yapılandırılmamış.
+              Yapılandırmayı <code>/api/health</code> adresinden görebilirsiniz.
+            </p>
+          )}
+        </div>
       )}
 
       <button type="submit" disabled={busy} className="cta nudge mt-[var(--sp-md)]">

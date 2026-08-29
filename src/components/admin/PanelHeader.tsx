@@ -30,7 +30,7 @@ export default function PanelHeader({
   }
 
   return (
-    <header className="pb-[var(--sp-md)]">
+    <header className="pb-[var(--sp-sm)]">
       <div className="flex flex-wrap items-end justify-between gap-[var(--sp-sm)]">
         <div className="min-w-0">
           <p className="t-label" style={{ color: 'var(--c-gold)' }}>
@@ -61,7 +61,7 @@ export default function PanelHeader({
         </div>
       </div>
 
-      <div className="mt-[var(--sp-md)]" style={{ color: 'var(--c-gold)' }}>
+      <div className="mt-[var(--sp-sm)]" style={{ color: 'var(--c-gold)' }}>
         <Divider className="!justify-start" />
       </div>
     </header>

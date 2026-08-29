@@ -237,7 +237,7 @@ export default function UserManager({
             return (
               <Row key={user.id} index={i} last={i === accounts.length - 1}>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <h3 className="t-h2" style={{ color: 'var(--c-on-dark)' }}>
+                  <h3 className="t-lead" style={{ color: 'var(--c-on-dark)' }}>
                     {user.displayName}
                   </h3>
                   <Badge>@{user.username}</Badge>

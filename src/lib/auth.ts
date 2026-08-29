@@ -1,12 +1,30 @@
 import { cookies } from 'next/headers';
-import { createHmac, timingSafeEqual } from 'crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 import type { Session, User } from './types';
+
+const globalKey = globalThis as unknown as { __davetiyeKey?: string };
 
 const COOKIE = 'davetiye_session';
 const MAX_AGE = 60 * 60 * 12;
 
+/**
+ * Oturum çerezini imzalayan anahtar.
+ *
+ * ADMIN_SECRET verilmemişse ADMIN_PASSWORD'den türetilir — sabit bir
+ * varsayılana DÜŞMEZ, aksi hâlde herkesin bildiği bir anahtarla imzalanmış
+ * çerezler kabul edilirdi.
+ */
 function secret(): string {
-  return process.env.ADMIN_SECRET ?? `davetiye:${process.env.ADMIN_PASSWORD ?? 'admin'}`;
+  const explicit = process.env.ADMIN_SECRET;
+  if (explicit) return explicit;
+
+  const derived = process.env.ADMIN_PASSWORD;
+  if (derived) return `davetiye:${derived}`;
+
+  // Hiçbiri yoksa her süreç için rastgele bir anahtar üretilir: oturumlar
+  // açılmaz ama tahmin edilebilir bir imza da oluşmaz.
+  globalKey.__davetiyeKey ??= randomBytes(32).toString('hex');
+  return globalKey.__davetiyeKey;
 }
 
 function sign(payload: string): string {

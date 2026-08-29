@@ -501,7 +501,7 @@ export default function SealCurtain({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.9 }}
               style={{
-                fontSize: 'clamp(1.5rem, 5vw, 2.4rem)',
+                fontSize: 'clamp(1.25rem, 3.6vw, 1.9rem)',
                 color: colors.grad1,
                 textShadow: '0 2px 24px rgba(0,0,0,0.85)',
               }}

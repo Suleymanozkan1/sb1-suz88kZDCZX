@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { AUTH_COOKIE, AUTH_COOKIE_MAX_AGE, currentSession, encodeSession } from '@/lib/auth';
-import { verifyPassword } from '@/lib/password';
+import { isConfigError, verifyPassword } from '@/lib/password';
 import { ensureAdmin, getUserByUsername } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
@@ -16,10 +16,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Kullanıcı adı ve parola gereklidir' }, { status: 400 });
   }
 
-  await ensureAdmin();
-
   // Kullanıcı adı verilmezse eski tek-hesap davranışı için admin denenir.
-  const user = await getUserByUsername(typeof username === 'string' && username.trim() ? username : 'admin');
+  const wanted = typeof username === 'string' && username.trim() ? username : 'admin';
+
+  let user;
+  try {
+    await ensureAdmin();
+    user = await getUserByUsername(wanted);
+  } catch (err) {
+    // Yapılandırma eksiğini "parola hatalı" diye göstermek yanlış yönlendirir.
+    if (isConfigError(err)) {
+      return NextResponse.json({ error: err.message }, { status: 503 });
+    }
+    throw err;
+  }
 
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
     return NextResponse.json({ error: 'Kullanıcı adı veya parola hatalı' }, { status: 401 });

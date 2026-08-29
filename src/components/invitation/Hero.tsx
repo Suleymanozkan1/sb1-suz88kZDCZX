@@ -106,7 +106,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
             className="t-display block italic"
             style={{
               color: 'var(--c-gold)',
-              marginLeft: 'clamp(1.5rem, 7vw, 7rem)',
+              marginLeft: 'clamp(1.25rem, 5vw, 4.5rem)',
               marginTop: 'clamp(-0.75rem, -1.5vw, -0.25rem)',
               marginBottom: 'clamp(-0.75rem, -1.5vw, -0.25rem)',
             }}
@@ -118,7 +118,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
 
           <motion.span
             className="t-hero block"
-            style={{ color: 'var(--c-on-dark)', marginLeft: 'clamp(0.75rem, 4vw, 4rem)' }}
+            style={{ color: 'var(--c-on-dark)', marginLeft: 'clamp(0.5rem, 2.6vw, 2.5rem)' }}
             {...RISE}
             transition={{ delay: 0.95, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           >

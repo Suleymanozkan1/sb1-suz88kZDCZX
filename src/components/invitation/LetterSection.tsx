@@ -77,7 +77,7 @@ export default function LetterSection({ invitation }: { invitation: Invitation }
         {/* davet metni — sayfanın en büyük düz metni, italik ve geniş satır aralığı */}
         <motion.p
           className="t-display mx-auto mt-[var(--sp-md)] italic measure"
-          style={{ color: 'var(--c-on-dark)', fontSize: 'clamp(1.5rem, 3.4vw, 2.6rem)', lineHeight: 1.35 }}
+          style={{ color: 'var(--c-on-dark)', fontSize: 'clamp(1.2rem, 2.3vw, 1.7rem)', lineHeight: 1.45 }}
           {...IN_VIEW}
           transition={{ duration: 1.1, delay: 0.15 }}
         >

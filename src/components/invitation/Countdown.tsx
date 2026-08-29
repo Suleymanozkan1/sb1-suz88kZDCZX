@@ -59,14 +59,14 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
           className="flex flex-col justify-end pr-6 sm:pr-10"
           style={{
             borderLeft: i === 0 ? 'none' : '1px solid var(--c-rule-dark)',
-            paddingLeft: i === 0 ? 0 : 'clamp(1.25rem, 3vw, 2.5rem)',
+            paddingLeft: i === 0 ? 0 : 'clamp(1rem, 2.2vw, 1.75rem)',
           }}
         >
           <span
             className="numerals leading-none"
             style={{
               color: 'var(--c-on-dark)',
-              fontSize: 'clamp(2rem, 5.5vw, 3.75rem)',
+              fontSize: 'clamp(1.6rem, 3.6vw, 2.5rem)',
               fontWeight: 300,
             }}
           >

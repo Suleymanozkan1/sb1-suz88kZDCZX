@@ -41,13 +41,13 @@
   --f-display: var(--font-serif), 'Cormorant Garamond', Georgia, serif;
   --f-body: var(--font-sans), Jost, system-ui, sans-serif;
 
-  --t-hero: clamp(3.25rem, 15vw, 11rem);
-  --t-display: clamp(2.25rem, 7vw, 5.5rem);
-  --t-h2: clamp(1.85rem, 4.5vw, 3.4rem);
-  --t-lead: clamp(1.15rem, 2.2vw, 1.75rem);
-  --t-body: clamp(0.95rem, 1.15vw, 1.0625rem);
-  --t-label: clamp(0.625rem, 0.8vw, 0.75rem);
-  --t-numeral: clamp(1.5rem, 3vw, 2.25rem);
+  --t-hero: clamp(2.75rem, 9.5vw, 7rem);
+  --t-display: clamp(1.85rem, 4.4vw, 3.25rem);
+  --t-h2: clamp(1.35rem, 2.6vw, 1.9rem);
+  --t-lead: clamp(1.05rem, 1.6vw, 1.25rem);
+  --t-body: clamp(0.9rem, 1.05vw, 1rem);
+  --t-label: clamp(0.625rem, 0.75vw, 0.6875rem);
+  --t-numeral: clamp(1.25rem, 2.2vw, 1.75rem);
 
   --ls-hero: -0.035em;
   --ls-display: -0.02em;
@@ -101,16 +101,16 @@ body {
   background: linear-gradient(
     to bottom,
     var(--c-night) 0%,
-    var(--c-night) 12%,
-    var(--c-ink) 14%,
-    var(--c-ember) 15.5%,
-    #4a2f18 16.5%,
-    var(--c-bronze) 17.2%,
-    #9a7550 17.9%,
-    var(--c-tan) 18.6%,
-    #ddc9a8 19.4%,
-    var(--c-sand) 20.4%,
-    var(--c-cream) 22%,
+    var(--c-night) 16%,
+    var(--c-ink) 17.2%,
+    var(--c-ember) 18.2%,
+    #4a2f18 19%,
+    var(--c-bronze) 19.6%,
+    #9a7550 20.2%,
+    var(--c-tan) 20.8%,
+    #ddc9a8 21.4%,
+    var(--c-sand) 22%,
+    var(--c-cream) 23.4%,
     var(--c-cream) 62%,
     var(--c-sand) 70%,
     var(--c-sand) 78.5%,

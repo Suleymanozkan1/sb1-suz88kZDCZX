@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { emptyInvitation } from '../defaults';
-import { hashPassword, seedFingerprint } from '../password';
+import { ConfigError, hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
 import type { GuestPhoto, Invitation, InvitationInput, Rsvp, Role, SafeUser, User } from '../types';
 
@@ -237,13 +237,17 @@ export async function ensureAdmin(): Promise<User> {
     return synced;
   }
 
+  // Varsayılan parolaya düşmek yok: değişken yoksa hesap kurulmaz ve durum
+  // açıkça bildirilir.
+  if (!desired) throw new ConfigError('ADMIN_PASSWORD tanımlı değil. Sunucunun ortam değişkenlerine ekleyip yeniden dağıtın.');
+
   const now = new Date().toISOString();
   const admin: User = {
     id: randomUUID(),
     username: 'admin',
     displayName: 'Yönetici',
     role: 'admin',
-    passwordHash: await hashPassword(desired ?? 'admin'),
+    passwordHash: await hashPassword(desired),
     passwordSeed: seed,
     createdAt: now,
     updatedAt: now,
