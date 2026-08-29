@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Davetiyelerim | Sagra Davetiye',
+  title: 'Davetiyelerim | Sahra Davetiye',
   robots: { index: false, follow: false },
 };
 

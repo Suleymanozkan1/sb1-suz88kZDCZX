@@ -6,7 +6,7 @@
  *
  *   • Okuma-yazma belirteci — `BLOB_READ_WRITE_TOKEN`. Bağlantıya önek
  *     verildiğinde ya da projede birden fazla depo olduğunda ad değişebilir
- *     (`SAGRADAVETIYE_BLOB_READ_WRITE_TOKEN` gibi).
+ *     (`<DEPO_ADI>_BLOB_READ_WRITE_TOKEN` gibi).
  *   • OIDC — `BLOB_STORE_ID` ile birlikte çalışma anında sağlanan
  *     `VERCEL_OIDC_TOKEN`. Bu durumda ortada hiç belirteç değişkeni olmaz.
  *

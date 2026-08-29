@@ -1,4 +1,4 @@
-# Sagra Davetiye
+# Sahra Davetiye
 
 Perde açılışı ve balmumu mühür girişiyle açılan, admin panelinden yönetilen
 premium dijital düğün davetiyesi.
@@ -218,7 +218,7 @@ Tabloları siz oluşturmayacaksınız; uygulama ilk isteğinde kurar.
 **Storage** → **Create** → **Blob** → **Connect**.
 
 Belirteç otomatik eklenir; adı bağlantıya verilen öneke göre değişebilir
-(`BLOB_READ_WRITE_TOKEN`, `SAGRADAVETIYE_BLOB_READ_WRITE_TOKEN` gibi).
+(`BLOB_READ_WRITE_TOKEN`, `<DEPO_ADI>_BLOB_READ_WRITE_TOKEN` gibi).
 Uygulama hepsine bakar (`src/lib/blob-token.ts`).
 
 Depoyu **public** ya da **private** kurmanız fark etmez: yazma sırasında

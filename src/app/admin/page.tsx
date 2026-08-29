@@ -22,7 +22,7 @@ export default async function AdminPage() {
     <div className="mx-auto max-w-4xl px-6 py-12">
       <PanelHeader
         session={session}
-        title="Sagra Davetiye"
+        title="Sahra Davetiye"
         subtitle="Admin Paneli"
         newHref="/admin/new"
       />
