@@ -1,17 +1,23 @@
 /**
- * Blob belirtecinin bulunması.
+ * Blob kimlik bilgisinin bulunması.
  *
- * Vercel bir Blob deposunu projeye bağlarken belirteci genellikle
- * `BLOB_READ_WRITE_TOKEN` adıyla ekler, ama bağlantıya bir önek verildiğinde
- * ya da projede birden fazla depo olduğunda ad değişir
- * (`SAGRADAVETIYE_BLOB_READ_WRITE_TOKEN` gibi). Tek bir ada bakmak, depo
- * gerçekten bağlıyken uygulamanın onu görmemesine yol açıyor — dışarıdan bu,
- * kurulumun eksik görünmesi ve yüklemenin reddedilmesi demek.
+ * Vercel iki ayrı yolla kimlik doğrular ve hangisinin kullanıldığı depoyu
+ * nasıl oluşturduğunuza bağlıdır:
  *
- * Bu yüzden önce bilinen ad, sonra aynı adla biten değişkenler, en sonda da
- * belirtecin kendi biçimi (`vercel_blob_rw_…`) aranır.
+ *   • Okuma-yazma belirteci — `BLOB_READ_WRITE_TOKEN`. Bağlantıya önek
+ *     verildiğinde ya da projede birden fazla depo olduğunda ad değişebilir
+ *     (`SAGRADAVETIYE_BLOB_READ_WRITE_TOKEN` gibi).
+ *   • OIDC — `BLOB_STORE_ID` ile birlikte çalışma anında sağlanan
+ *     `VERCEL_OIDC_TOKEN`. Bu durumda ortada hiç belirteç değişkeni olmaz.
+ *
+ * Yalnızca belirtece bakmak, depo projeye bağlıyken bile "dosya deposu bağlı
+ * değil" denmesine yol açıyordu.
  */
 const TOKEN_PREFIX = 'vercel_blob_rw_';
+
+export type BlobAuth =
+  | { mode: 'token'; token: string; source: string }
+  | { mode: 'oidc'; storeId: string; source: string };
 
 function findToken(): { name: string; value: string } | undefined {
   const direct = process.env.BLOB_READ_WRITE_TOKEN;
@@ -30,11 +36,52 @@ function findToken(): { name: string; value: string } | undefined {
   return undefined;
 }
 
-export function blobToken(): string | undefined {
-  return findToken()?.value;
+function findStoreId(): { name: string; value: string } | undefined {
+  const direct = process.env.BLOB_STORE_ID;
+  if (direct) return { name: 'BLOB_STORE_ID', value: direct };
+
+  const suffixed = Object.entries(process.env).find(
+    ([name, value]) => name.endsWith('BLOB_STORE_ID') && value,
+  );
+  if (suffixed) return { name: suffixed[0], value: suffixed[1] as string };
+
+  return undefined;
+}
+
+export function blobAuth(): BlobAuth | undefined {
+  const token = findToken();
+  if (token) return { mode: 'token', token: token.value, source: token.name };
+
+  // OIDC belirteci çalışma anında sağlanır; depo kimliği varsa SDK onu kullanır.
+  const store = findStoreId();
+  if (store) return { mode: 'oidc', storeId: store.value, source: store.name };
+
+  return undefined;
+}
+
+/**
+ * SDK çağrılarına verilecek kimlik seçenekleri.
+ *
+ * Belirteç her çağrıya açıkça verilir: SDK varsayılan olarak yalnızca
+ * `BLOB_READ_WRITE_TOKEN` adına bakar, depo başka bir adla bağlanmışsa
+ * belirteci bulmuş olmamıza rağmen istekler kimliksiz giderdi.
+ */
+export function blobAuthOptions(): { token?: string; storeId?: string } {
+  const auth = blobAuth();
+  if (!auth) return {};
+  return auth.mode === 'token' ? { token: auth.token } : { storeId: auth.storeId };
+}
+
+/**
+ * Tarayıcıdan doğrudan yükleme yalnızca okuma-yazma belirteci varken
+ * mümkündür: istemci jetonu ondan türetilir. OIDC kipinde dosya sunucu
+ * ucundan geçmek zorundadır.
+ */
+export function canMintClientToken(): boolean {
+  return blobAuth()?.mode === 'token';
 }
 
 /** Hangi değişkenin kullanıldığı — kurulum teşhisinde gösterilir. */
 export function blobTokenSource(): string | undefined {
-  return findToken()?.name;
+  return blobAuth()?.source;
 }

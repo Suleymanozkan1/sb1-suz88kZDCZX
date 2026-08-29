@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { IconClose, IconImage } from '@/components/invitation/Ornaments';
-import { newFileName, supportsDirectUpload, uploadDirect } from '@/lib/upload-client';
+import { describeLimit, newFileName, uploadDirect, uploadLimits } from '@/lib/upload-client';
 
 const TOKEN_URL = '/api/upload/token';
 
@@ -19,7 +19,15 @@ const TOKEN_URL = '/api/upload/token';
  * kullanılamaz.
  */
 async function uploadImage(file: File): Promise<string> {
-  if (await supportsDirectUpload(TOKEN_URL)) {
+  const limits = await uploadLimits(TOKEN_URL);
+
+  // Sınır sunucudan gelir: sunucudan geçen yolda Vercel'in istek gövdesi
+  // sınırı geçerlidir ve aşan dosya işleve hiç ulaşmaz.
+  if (file.size > limits.maxBytes) {
+    throw new Error(`${file.name} ${describeLimit(limits.maxBytes)} sınırını aşıyor`);
+  }
+
+  if (limits.direct) {
     const { url } = await uploadDirect(file, {
       tokenUrl: TOKEN_URL,
       space: 'public',
@@ -39,8 +47,6 @@ async function uploadImage(file: File): Promise<string> {
   const { url } = await response.json();
   return url as string;
 }
-
-const MAX_BYTES = 25 * 1024 * 1024;
 
 export default function ImageUploader({
   label,
@@ -67,10 +73,6 @@ export default function ImageUploader({
     const accepted: string[] = [];
     try {
       for (const file of Array.from(files)) {
-        if (file.size > MAX_BYTES) {
-          setError(`${file.name} 25 MB sınırını aşıyor.`);
-          continue;
-        }
         accepted.push(await uploadImage(file));
       }
     } catch (err) {

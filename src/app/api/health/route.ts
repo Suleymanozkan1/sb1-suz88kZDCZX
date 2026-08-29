@@ -1,7 +1,7 @@
 import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { usingBlob } from '@/lib/files';
-import { blobTokenSource } from '@/lib/blob-token';
+import { blobAuth, blobTokenSource } from '@/lib/blob-token';
 import { databaseUrlSource } from '@/lib/database-url';
 import { usingDatabase } from '@/lib/store';
 
@@ -15,6 +15,19 @@ export const dynamic = 'force-dynamic';
  * görmediğini tek istekte anlaşılır kılmak — aksi hâlde eksik yapılandırma
  * kendini "parola hatalı" gibi ilgisiz bir hata olarak gösteriyor.
  */
+/**
+ * Depolamayla ilgili ortam değişkenlerinin ADLARI.
+ *
+ * Yalnızca ad döner, değer asla. Bir depo panelde bağlı görünürken uygulamaya
+ * ulaşmadığında tek çözüm dağıtımın gerçekte hangi değişkenleri gördüğünü
+ * görmekti; bunu tahmin etmek yerine listelemek çok daha hızlı.
+ */
+function storageVariableNames(): string[] {
+  return Object.keys(process.env)
+    .filter((name) => /BLOB|POSTGRES|DATABASE|^PG[A-Z]*$|NEON/.test(name))
+    .sort();
+}
+
 async function handleGet() {
   const database = usingDatabase;
   const blob = usingBlob;
@@ -66,6 +79,9 @@ async function handleGet() {
       blob,
       databaseVariable: databaseUrlSource() ?? null,
       blobVariable: blobTokenSource() ?? null,
+      blobAuthMode: blobAuth()?.mode ?? null,
+      // Yalnızca adlar — hiçbir değer, belirteç ya da bağlantı dizesi dönmez.
+      variableNames: storageVariableNames(),
     },
     auth: { adminPassword, adminSecret },
     issues,

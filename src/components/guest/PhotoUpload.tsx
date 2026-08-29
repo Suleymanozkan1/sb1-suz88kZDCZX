@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Divider,
   IconArrow,
@@ -9,7 +9,13 @@ import {
   IconCheck,
   IconClose,
 } from '@/components/invitation/Ornaments';
-import { newFileName, supportsDirectUpload, uploadDirect } from '@/lib/upload-client';
+import {
+  describeLimit,
+  newFileName,
+  uploadDirect,
+  uploadLimits,
+  type UploadLimits,
+} from '@/lib/upload-client';
 
 interface Queued {
   id: string;
@@ -19,7 +25,6 @@ interface Queued {
   error?: string;
 }
 
-const MAX_BYTES = 25 * 1024 * 1024;
 const THUMB_EDGE = 720;
 
 /**
@@ -138,8 +143,18 @@ export default function PhotoUpload({
   const [busy, setBusy] = useState(false);
   const [doneCount, setDoneCount] = useState(0);
 
+  // Gerçek sınır yola bağlıdır (doğrudan yükleme mi, sunucudan mı), bu yüzden
+  // sunucudan sorulur. Gelene kadar dosya eklemek engellenmez.
+  const [limits, setLimits] = useState<UploadLimits>();
+  useEffect(() => {
+    uploadLimits(TOKEN_URL).then(setLimits);
+  }, []);
+
   function addFiles(files: FileList | null) {
     if (!files?.length) return;
+
+    const max = limits?.maxBytes ?? 25 * 1024 * 1024;
+    const tooBig = (file: File) => file.size > max;
 
     const next: Queued[] = [];
     for (const file of Array.from(files)) {
@@ -148,8 +163,8 @@ export default function PhotoUpload({
         id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2)}`,
         file,
         preview: URL.createObjectURL(file),
-        status: file.size > MAX_BYTES ? 'hata' : 'bekliyor',
-        error: file.size > MAX_BYTES ? '25 MB sınırını aşıyor' : undefined,
+        status: tooBig(file) ? 'hata' : 'bekliyor',
+        error: tooBig(file) ? `${describeLimit(max)} sınırını aşıyor` : undefined,
       });
     }
     setQueue((q) => [...q, ...next]);
@@ -171,6 +186,11 @@ export default function PhotoUpload({
       setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'yükleniyor' } : x)));
 
       try {
+        const current = limits ?? (await uploadLimits(TOKEN_URL));
+        if (item.file.size > current.maxBytes) {
+          throw new Error(`${describeLimit(current.maxBytes)} sınırını aşıyor`);
+        }
+
         const { blob, width, height } = await makeThumbnail(item.file);
         const meta = { slug, uploaderName, note, width, height };
 
@@ -178,7 +198,7 @@ export default function PhotoUpload({
         // kaydın kendisi gönderilir. Telefon fotoğrafları Vercel'in 4,5 MB
         // istek sınırını aştığı için sunucudan geçen yol büyük dosyalarda
         // işlemeye hiç ulaşmıyordu.
-        const response = (await supportsDirectUpload(TOKEN_URL))
+        const response = current.direct
           ? await uploadThroughBlob(item.file, blob, meta)
           : await uploadThroughServer(item.file, blob, meta);
 

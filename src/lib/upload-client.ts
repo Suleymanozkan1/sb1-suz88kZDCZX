@@ -39,19 +39,37 @@ export function newFileName(mimeType: string, suffix = ''): string {
   return `${uuid}${suffix}.${extensionFor(mimeType)}`;
 }
 
-/** Sunucunun doğrudan yüklemeyi destekleyip desteklemediği; sayfa başına bir kez sorulur. */
-const probes = new Map<string, Promise<boolean>>();
+/**
+ * Sunucunun bildirdiği yükleme koşulları; sayfa başına bir kez sorulur.
+ *
+ * `maxBytes` sunucudan gelir çünkü gerçek sınır yola bağlıdır: doğrudan
+ * yüklemede 25 MB, sunucudan geçen yolda Vercel'in 4,5 MB istek sınırı.
+ */
+export interface UploadLimits {
+  direct: boolean;
+  maxBytes: number;
+}
 
-export function supportsDirectUpload(tokenUrl: string): Promise<boolean> {
+const FALLBACK: UploadLimits = { direct: false, maxBytes: 25 * 1024 * 1024 };
+const probes = new Map<string, Promise<UploadLimits>>();
+
+export function uploadLimits(tokenUrl: string): Promise<UploadLimits> {
   let probe = probes.get(tokenUrl);
   if (!probe) {
     probe = fetch(tokenUrl, { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : { direct: false }))
-      .then((body) => Boolean(body.direct))
-      .catch(() => false);
+      .then((r) => (r.ok ? r.json() : FALLBACK))
+      .then((body) => ({
+        direct: Boolean(body.direct),
+        maxBytes: Number(body.maxBytes) || FALLBACK.maxBytes,
+      }))
+      .catch(() => FALLBACK);
     probes.set(tokenUrl, probe);
   }
   return probe;
+}
+
+export function describeLimit(maxBytes: number): string {
+  return `${Math.round(maxBytes / 1024 / 1024)} MB`;
 }
 
 /**

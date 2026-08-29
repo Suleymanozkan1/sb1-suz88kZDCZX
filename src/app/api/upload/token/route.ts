@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { requireSession } from '@/lib/guard';
 import { MAX_PHOTO_BYTES, isGeneratedName, usingBlob } from '@/lib/files';
-import { blobToken } from '@/lib/blob-token';
+import { blobAuth, canMintClientToken } from '@/lib/blob-token';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,15 +21,28 @@ export const dynamic = 'force-dynamic';
  * Üzerine yazma kapalıdır, yani var olan bir dosya değiştirilemez.
  */
 async function handleGet() {
-  return NextResponse.json({ direct: usingBlob, maxBytes: MAX_PHOTO_BYTES });
+  // Doğrudan yükleme istemci jetonu gerektirir; jeton yalnızca okuma-yazma
+  // belirtecinden türetilebilir. OIDC kipinde dosya sunucu ucundan geçer.
+  const direct = usingBlob && canMintClientToken();
+
+  // Sunucudan geçen yolda Vercel'in 4,5 MB istek gövdesi sınırı geçerlidir;
+  // bunu 25 MB diye bildirmek, sınırı aşan dosyada sebebi görünmeyen bir
+  // hataya yol açıyordu.
+  const maxBytes = direct || !process.env.VERCEL ? MAX_PHOTO_BYTES : 4 * 1024 * 1024;
+
+  return NextResponse.json({ direct, maxBytes });
 }
 
 async function handlePost(request: Request) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
-  if (!usingBlob) {
-    return NextResponse.json({ error: 'Blob deposu bağlı değil' }, { status: 503 });
+  const credentials = blobAuth();
+  if (credentials?.mode !== 'token') {
+    return NextResponse.json(
+      { error: 'Doğrudan yükleme için Blob okuma-yazma belirteci gerekir' },
+      { status: 503 },
+    );
   }
 
   let body: HandleUploadBody;
@@ -45,7 +58,7 @@ async function handlePost(request: Request) {
       body,
       // Depo başka bir adla bağlanmış olabilir; SDK'nın varsayılan arayışına
       // bırakmak yerine bulunan belirteç açıkça verilir.
-      token: blobToken(),
+      token: credentials.token,
       onBeforeGenerateToken: async (pathname) => {
         const [space, ...rest] = pathname.split('/');
         if (space !== 'public' || rest.length !== 1 || !isGeneratedName(rest[0])) {
