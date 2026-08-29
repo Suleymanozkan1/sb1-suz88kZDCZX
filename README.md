@@ -49,6 +49,7 @@ yönlendirilir. Çift hesabı `/admin`'e gitmeye çalışırsa `/panel`'e döner
 - Her davetiyenin sahibi, katılım ve fotoğraf sayısı listede görünür
 - **Hesap yönetimi**: her çift için hesap açma (parola otomatik üretilir ve bir kez
   gösterilir), parola sıfırlama, hesabı silme
+- **Hesap ayarları**: kendi parolasını değiştirme (admin ve çift hesapları)
 - Hesap silindiğinde davetiyeleri, katılım bildirimleri ve yüklenen tüm
   fotoğrafları (disktekiler dahil) birlikte silinir
 - Tüm misafir fotoğraflarının galerisi
@@ -59,6 +60,7 @@ yönlendirilir. Çift hesabı `/admin`'e gitmeye çalışırsa `/panel`'e döner
 - Kendi **özel albümü**: masadaki QR koddan yüklenen fotoğraflar
 - Fotoğrafı büyütme, **orijinali (yüksek çözünürlük) indirme**, tümünü ZIP indirme
 - Kendi davetiyelerine gelen katılım bildirimleri
+- **Hesap ayarları**: kendi parolasını değiştirme
 
 ### QR kodlar
 
@@ -105,13 +107,34 @@ npm run build && npm start
 
 | Değişken | Açıklama | Varsayılan |
 | --- | --- | --- |
-| `ADMIN_PASSWORD` | Admin hesabı ilk oluşturulurken kullanılan parola | `admin` |
+| `ADMIN_PASSWORD` | Admin parolası — sıfırlama kolu (aşağıya bakın) | `admin` |
 | `ADMIN_SECRET` | Oturum çerezini imzalayan gizli dize | Şifreden türetilir |
 | `POSTGRES_URL` | Varsa SQL sürücüsü devreye girer | — (dosya sürücüsü) |
 | `BLOB_READ_WRITE_TOKEN` | Varsa dosyalar Vercel Blob'a yazılır | — (yerel disk) |
 
 İlk ikisini üretimde mutlaka ayarlayın. Son ikisi Vercel'de depolama
 bağladığınızda otomatik eklenir.
+
+### Parolalar
+
+Herkes kendi parolasını **panelden** değiştirir: giriş yaptıktan sonra
+**Hesap Ayarları → Parolamı Değiştir**. Bu hem admin hem çift hesapları için
+geçerlidir ve mevcut parolayı sorar.
+
+Admin ayrıca çift hesaplarının parolasını sıfırlayabilir (yeni parola bir kez
+gösterilir).
+
+`ADMIN_PASSWORD` bir **sıfırlama koludur**, sabit bir parola değil:
+
+- Hesap yoksa onunla oluşturulur.
+- Değeri **değiştirirseniz** admin parolası bir kez ona sıfırlanır — parolayı
+  unuttuysanız kurtarma yolu budur.
+- Değer aynı kaldığı sürece dokunulmaz, yani panelden değiştirdiğiniz parola
+  yeniden başlatmada **ezilmez**.
+
+> Parolayı unuttunuz mu? `ADMIN_PASSWORD`'ü **yeni bir değere** ayarlayıp
+> yeniden başlatın (Vercel'de: değişkeni güncelleyin → Redeploy). Aynı eski
+> değeri yazmak işe yaramaz; değerin değişmesi gerekir.
 
 ## Veri saklama
 
@@ -188,9 +211,9 @@ sonra devreye girer.
 `https://<projeniz>.vercel.app/giris` → kullanıcı adı `admin`, parola
 4. adımda verdiğiniz `ADMIN_PASSWORD`.
 
-> `ADMIN_PASSWORD` yalnızca admin hesabı **ilk kez oluşturulurken** kullanılır.
-> Sonradan değiştirmek parolayı değiştirmez; parolayı unutursanız Postgres'te
-> `delete from users where role = 'admin';` çalıştırıp yeniden dağıtın.
+> Parolayı sonradan **Hesap Ayarları → Parolamı Değiştir** ile değiştirin.
+> Unutursanız `ADMIN_PASSWORD`'ü yeni bir değere ayarlayıp **Redeploy** edin —
+> veritabanına dokunmanız gerekmez.
 
 ### Maliyet
 
@@ -213,6 +236,7 @@ fotoğraflarıyla çok daha fazlası demektir.
 | `GET` | `/api/rsvp` | Admin | Katılım bildirimlerini listele |
 | `DELETE` | `/api/rsvp?id=...` | Admin | Katılım bildirimini sil |
 | `POST` / `DELETE` | `/api/auth` | — | Giriş / çıkış |
+| `PUT` | `/api/auth/password` | Oturum | Kendi parolasını değiştir |
 | `POST` | `/api/upload` | Oturum | Davetiye görseli yükle (public alan) |
 | `GET` | `/api/files/[name]` | — | Davetiye görselini servis et (public alan) |
 | `GET` / `POST` | `/api/users` | Admin | Hesapları listele / hesap aç |

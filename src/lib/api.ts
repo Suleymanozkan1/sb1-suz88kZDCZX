@@ -64,6 +64,18 @@ export function login(username: string, password: string): Promise<{ ok: true; s
   }).then(json<{ ok: true; session: Session }>);
 }
 
+/** Oturum sahibinin kendi parolasını değiştirmesi. */
+export function changeOwnPassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<{ ok: true }> {
+  return fetch('/api/auth/password', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  }).then(json<{ ok: true }>);
+}
+
 /* ------------------------------------------------------------------ hesaplar */
 
 export function listUsers(): Promise<SafeUser[]> {

@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { Pool } from 'pg';
 import { emptyInvitation } from '../defaults';
-import { hashPassword } from '../password';
+import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
 import type {
   GuestPhoto,
@@ -49,9 +49,12 @@ const SCHEMA = `
     display_name text not null,
     role text not null,
     password_hash text not null,
+    password_seed text,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
   );
+  -- Mevcut kurulumlar için: sütun sonradan eklendi.
+  alter table users add column if not exists password_seed text;
 
   create table if not exists invitations (
     id text primary key,
@@ -284,6 +287,7 @@ type UserRow = {
   display_name: string;
   role: Role;
   password_hash: string;
+  password_seed: string | null;
   created_at: Date;
   updated_at: Date;
 };
@@ -294,6 +298,7 @@ const toUser = (row: UserRow): User => ({
   displayName: row.display_name,
   role: row.role,
   passwordHash: row.password_hash,
+  passwordSeed: row.password_seed ?? undefined,
   createdAt: iso(row.created_at),
   updatedAt: iso(row.updated_at),
 });
@@ -305,22 +310,48 @@ export function toSafeUser(user: User): SafeUser {
 
 const normalizeUsername = (input: string): string => slugify(input).replace(/-/g, '');
 
+/**
+ * Admin hesabını hazırlar.
+ *
+ * ADMIN_PASSWORD bir SIFIRLAMA KOLUDUR, sabit bir parola değil:
+ *   • Hesap yoksa onunla oluşturulur.
+ *   • Ortam değeri DEĞİŞTİYSE parola bir kez ona sıfırlanır (parolayı
+ *     unutursanız kurtarma yolu budur — veritabanına dokunmak gerekmez).
+ *   • Değer aynıysa dokunulmaz — panelden değiştirdiğiniz parola ezilmez.
+ */
 export async function ensureAdmin(): Promise<User> {
+  const desired = process.env.ADMIN_PASSWORD;
+  const seed = desired ? seedFingerprint(desired) : undefined;
   const existing = await query<UserRow>("select * from users where role = 'admin' limit 1");
-  if (existing[0]) return toUser(existing[0]);
+
+  if (existing[0]) {
+    const admin = toUser(existing[0]);
+    if (!seed || admin.passwordSeed === seed) return admin;
+
+    const synced = await query<UserRow>(
+      `update users set password_hash = $2, password_seed = $3, updated_at = now()
+        where id = $1 returning *`,
+      [admin.id, await hashPassword(desired as string), seed],
+    );
+    return toUser(synced[0]);
+  }
 
   // Eşzamanlı iki istek aynı anda admin oluşturmaya çalışırsa ikincisi çakışır
   // ve mevcut kaydı okur; bu yüzden ekleme çakışmayı yok sayar.
   const rows = await query<UserRow>(
-    `insert into users (id, username, display_name, role, password_hash)
-     values ($1, 'admin', 'Yönetici', 'admin', $2)
+    `insert into users (id, username, display_name, role, password_hash, password_seed)
+     values ($1, 'admin', 'Yönetici', 'admin', $2, $3)
      on conflict (username) do nothing
      returning *`,
-    [randomUUID(), await hashPassword(process.env.ADMIN_PASSWORD ?? 'admin')],
+    [randomUUID(), await hashPassword(desired ?? 'admin'), seed ?? null],
   );
   if (rows[0]) return toUser(rows[0]);
 
   const again = await query<UserRow>("select * from users where role = 'admin' limit 1");
+  if (!again[0]) {
+    // 'admin' kullanıcı adı bir çift hesabına verilmişse buraya düşülür.
+    throw new Error("'admin' kullanıcı adı başka bir hesap tarafından kullanılıyor.");
+  }
   return toUser(again[0]);
 }
 

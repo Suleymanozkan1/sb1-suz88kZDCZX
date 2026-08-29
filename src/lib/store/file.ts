@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { emptyInvitation } from '../defaults';
-import { hashPassword } from '../password';
+import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
 import type { GuestPhoto, Invitation, InvitationInput, Rsvp, Role, SafeUser, User } from '../types';
 
@@ -209,13 +209,33 @@ function normalizeUsername(input: string): string {
 }
 
 /**
- * Admin hesabını hazırlar. Hiç kullanıcı yoksa ADMIN_PASSWORD ile bir admin
- * oluşturur; varsa dokunmaz (panelden değiştirilen parola korunur).
+ * Admin hesabını hazırlar.
+ *
+ * ADMIN_PASSWORD bir SIFIRLAMA KOLUDUR, sabit bir parola değil:
+ *   • Hesap yoksa onunla oluşturulur.
+ *   • Ortam değeri DEĞİŞTİYSE parola bir kez ona sıfırlanır (parolayı
+ *     unutursanız kurtarma yolu budur).
+ *   • Değer aynıysa dokunulmaz — böylece panelden değiştirdiğiniz parola
+ *     her yeniden başlatmada ezilmez.
  */
 export async function ensureAdmin(): Promise<User> {
   const rows = await loadUsers();
+  const desired = process.env.ADMIN_PASSWORD;
+  const seed = desired ? seedFingerprint(desired) : undefined;
   const existing = rows.find((r) => r.role === 'admin');
-  if (existing) return existing;
+
+  if (existing) {
+    if (!seed || existing.passwordSeed === seed) return existing;
+
+    const synced: User = {
+      ...existing,
+      passwordHash: await hashPassword(desired as string),
+      passwordSeed: seed,
+      updatedAt: new Date().toISOString(),
+    };
+    await saveUsers(rows.map((r) => (r.id === existing.id ? synced : r)));
+    return synced;
+  }
 
   const now = new Date().toISOString();
   const admin: User = {
@@ -223,7 +243,8 @@ export async function ensureAdmin(): Promise<User> {
     username: 'admin',
     displayName: 'Yönetici',
     role: 'admin',
-    passwordHash: await hashPassword(process.env.ADMIN_PASSWORD ?? 'admin'),
+    passwordHash: await hashPassword(desired ?? 'admin'),
+    passwordSeed: seed,
     createdAt: now,
     updatedAt: now,
   };

@@ -36,9 +36,11 @@ function formatWhen(iso: string): string {
 export default function PhotoGallery({
   invitations,
   canDelete = true,
+  n = 5,
 }: {
   invitations: Invitation[];
   canDelete?: boolean;
+  n?: number;
 }) {
   const [photos, setPhotos] = useState<GuestPhoto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +100,7 @@ export default function PhotoGallery({
 
   return (
     <PanelSection
-      n={4}
+      n={n}
       label="Albüm"
       title="Misafir Fotoğrafları"
       lead={`${visible.length} fotoğraf · ${formatBytes(totalBytes)} · masadaki QR koddan yüklenir`}

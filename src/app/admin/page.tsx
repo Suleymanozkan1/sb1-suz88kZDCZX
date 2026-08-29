@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import AccountSettings from '@/components/admin/AccountSettings';
 import InvitationList from '@/components/admin/InvitationList';
 import PanelHeader from '@/components/admin/PanelHeader';
 import PhotoGallery from '@/components/panel/PhotoGallery';
@@ -29,9 +30,9 @@ export default async function AdminPage() {
 
       <UserManager initial={users} invitations={invitations} />
 
-      <div className="mt-14">
-        <PhotoGallery invitations={invitations} />
-      </div>
+      <AccountSettings session={session} n={4} />
+
+      <PhotoGallery invitations={invitations} />
     </div>
   );
 }

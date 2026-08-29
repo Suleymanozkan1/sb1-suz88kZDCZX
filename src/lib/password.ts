@@ -1,4 +1,4 @@
-import { randomBytes, scrypt as scryptCb, timingSafeEqual } from 'crypto';
+import { createHash, randomBytes, scrypt as scryptCb, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
 
 const scrypt = promisify(scryptCb) as (
@@ -44,4 +44,16 @@ export function passwordProblem(password: string): string | null {
     return 'Parola çok uzun.';
   }
   return null;
+}
+
+/**
+ * ADMIN_PASSWORD'ün parmak izi.
+ *
+ * Parolanın kendisi değil, yalnızca "bu ortam değeri daha önce uygulandı mı"
+ * sorusunu yanıtlayan bir özet saklanır. Değer değişince iz de değişir ve
+ * parola bir kez sıfırlanır; panelden yapılan değişiklikler ize dokunmadığı
+ * için yeniden başlatmada ezilmez.
+ */
+export function seedFingerprint(value: string): string {
+  return createHash('sha256').update(`seed:${value}`).digest('hex');
 }

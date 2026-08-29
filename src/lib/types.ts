@@ -139,6 +139,12 @@ export interface User {
   role: Role;
   /** scrypt türevi: "tuz:hash" */
   passwordHash: string;
+  /**
+   * ADMIN_PASSWORD'ün parmak izi (yalnızca admin hesabında).
+   * Ortam değişkeni DEĞİŞTİĞİNDE parolayı bir kez sıfırlamak için tutulur;
+   * panelden yapılan değişiklikler bu izi bozmadığı için ezilmez.
+   */
+  passwordSeed?: string;
   createdAt: string;
   updatedAt: string;
 }

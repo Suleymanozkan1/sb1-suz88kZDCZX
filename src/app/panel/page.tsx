@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import AccountSettings from '@/components/admin/AccountSettings';
 import InvitationList from '@/components/admin/InvitationList';
 import PanelHeader from '@/components/admin/PanelHeader';
 import PhotoGallery from '@/components/panel/PhotoGallery';
@@ -26,9 +27,9 @@ export default async function PanelPage() {
 
       <InvitationList initial={invitations} session={session} />
 
-      <div className="mt-14">
-        <PhotoGallery invitations={invitations} />
-      </div>
+      <AccountSettings session={session} n={3} />
+
+      <PhotoGallery invitations={invitations} n={4} />
     </div>
   );
 }
