@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { AUTH_COOKIE, AUTH_COOKIE_MAX_AGE, currentSession, encodeSession } from '@/lib/auth';
 import { isConfigError, verifyPassword } from '@/lib/password';
@@ -5,11 +6,11 @@ import { ensureAdmin, getUserByUsername } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+async function handleGet() {
   return NextResponse.json({ session: currentSession() });
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   const { username, password } = await request.json();
 
   if (typeof password !== 'string') {
@@ -50,8 +51,12 @@ export async function POST(request: Request) {
   return response;
 }
 
-export async function DELETE() {
+async function handleDelete() {
   const response = NextResponse.json({ ok: true });
   response.cookies.delete(AUTH_COOKIE);
   return response;
 }
+
+export const GET = withConfig(handleGet);
+export const POST = withConfig(handlePost);
+export const DELETE = withConfig(handleDelete);

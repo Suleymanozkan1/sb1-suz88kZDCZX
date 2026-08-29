@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { mimeForFile, readFile } from '@/lib/files';
 
@@ -13,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * Vercel'de görseller doğrudan Blob adresinden servis edilir ve bu uç
  * kullanılmaz; yerel geliştirmede diskten okur.
  */
-export async function GET(_request: Request, { params }: { params: { name: string } }) {
+async function handleGet(_request: Request, { params }: { params: { name: string } }) {
   const data = await readFile(params.name, 'public');
   if (!data) return NextResponse.json({ error: 'Dosya bulunamadı' }, { status: 404 });
 
@@ -25,3 +26,5 @@ export async function GET(_request: Request, { params }: { params: { name: strin
     },
   });
 }
+
+export const GET = withConfig(handleGet);

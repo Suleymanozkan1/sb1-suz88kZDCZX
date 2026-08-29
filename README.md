@@ -151,6 +151,24 @@ kendisi yapar — kodda değişiklik gerekmez.
 içindedir. Böylece `npm run dev` hiçbir servis kurmadan çalışır, üretimde ise
 veriler kalıcı olur.
 
+**İkisi de üretimde zorunludur.** Vercel'de dosya sistemi salt-okunurdur ve
+her istek ayrı bir örneğe düşebilir; dosya sürücüsüyle açılan bir davetiye
+yalnızca o örneğin belleğinde kalır ve bir sonraki istekte "bulunamadı" olur.
+Bu yüzden `POSTGRES_URL` ya da `BLOB_READ_WRITE_TOKEN` bağlı değilken uygulama
+sessizce devam etmez: işlem 503 ve sebebi söyleyen bir mesajla durur, eksikler
+`/api/health` ile admin panelinin üstünde listelenir.
+
+### Büyük dosyalar sunucudan geçmez
+
+Vercel işlevlerine gelen istek gövdesi 4,5 MB ile sınırlıdır; telefonla
+çekilmiş bir fotoğraf bunu rahatça aşar ve istek işleve hiç ulaşmaz. Bu yüzden
+Blob bağlıyken dosya tarayıcıdan **doğrudan** depoya yüklenir
+(`src/lib/upload-client.ts`), sunucuya yalnızca kaydın kendisi gönderilir.
+Jetonu veren uçlar (`/api/upload/token`, `/api/photos/token`) hedef adı, tür ve
+boyut sınırını doğrular, üzerine yazmaya izin vermez; misafir jetonu ancak
+davetiye gerçekten varsa ve açıksa verilir. Blob bağlı değilse (yerel
+geliştirme) dosya eskisi gibi sunucu ucundan geçer.
+
 Postgres şeması ilk sorguda kendiliğinden oluşturulur; ayrı bir migration
 adımı yoktur. Davetiyenin sık değişen alanları tek bir `jsonb` sütununda
 durur, yalnızca sorgulanan alanlar (`slug`, `owner_id`, `is_active`) ayrı

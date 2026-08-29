@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
 import { mimeForFile, readFile } from '@/lib/files';
@@ -12,7 +13,7 @@ type Params = { params: { id: string } };
  * varsayılan olarak dokunulmamış orijinali (yüksek çözünürlük) verir.
  * `?download=1` tarayıcıyı indirmeye yönlendirir.
  */
-export async function GET(request: Request, { params }: Params) {
+async function handleGet(request: Request, { params }: Params) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -61,3 +62,5 @@ export async function GET(request: Request, { params }: Params) {
 
   return new NextResponse(new Uint8Array(data), { headers });
 }
+
+export const GET = withConfig(handleGet);

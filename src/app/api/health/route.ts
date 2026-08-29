@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { usingBlob } from '@/lib/files';
 import { usingDatabase } from '@/lib/store';
@@ -12,7 +13,7 @@ export const dynamic = 'force-dynamic';
  * görmediğini tek istekte anlaşılır kılmak — aksi hâlde eksik yapılandırma
  * kendini "parola hatalı" gibi ilgisiz bir hata olarak gösteriyor.
  */
-export async function GET() {
+async function handleGet() {
   const database = usingDatabase;
   const blob = usingBlob;
   const adminPassword = Boolean(process.env.ADMIN_PASSWORD);
@@ -39,3 +40,5 @@ export async function GET() {
     issues,
   });
 }
+
+export const GET = withConfig(handleGet);

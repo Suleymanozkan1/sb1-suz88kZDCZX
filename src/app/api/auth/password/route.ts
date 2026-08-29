@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { AUTH_COOKIE, AUTH_COOKIE_MAX_AGE, encodeSession } from '@/lib/auth';
 import { requireSession } from '@/lib/guard';
@@ -12,7 +13,7 @@ export const dynamic = 'force-dynamic';
  * Mevcut parola sorulur: çerezi ele geçiren biri parolayı da değiştirip
  * hesabı tamamen devralamasın diye.
  */
-export async function PUT(request: Request) {
+async function handlePut(request: Request) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -46,3 +47,5 @@ export async function PUT(request: Request) {
   });
   return response;
 }
+
+export const PUT = withConfig(handlePut);

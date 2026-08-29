@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
 import { deleteInvitation, getInvitation, updateInvitation } from '@/lib/store';
@@ -14,7 +15,7 @@ async function canAccess(session: Session, invitationId: string): Promise<boolea
   return invitation?.ownerId === session.userId;
 }
 
-export async function GET(_request: Request, { params }: Params) {
+async function handleGet(_request: Request, { params }: Params) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -29,7 +30,7 @@ export async function GET(_request: Request, { params }: Params) {
   return NextResponse.json(invitation);
 }
 
-export async function PUT(request: Request, { params }: Params) {
+async function handlePut(request: Request, { params }: Params) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -44,7 +45,7 @@ export async function PUT(request: Request, { params }: Params) {
   return NextResponse.json(updated);
 }
 
-export async function DELETE(_request: Request, { params }: Params) {
+async function handleDelete(_request: Request, { params }: Params) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -58,3 +59,7 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
   return NextResponse.json({ ok: true });
 }
+
+export const GET = withConfig(handleGet);
+export const PUT = withConfig(handlePut);
+export const DELETE = withConfig(handleDelete);

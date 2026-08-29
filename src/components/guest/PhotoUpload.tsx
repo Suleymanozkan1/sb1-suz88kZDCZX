@@ -9,6 +9,7 @@ import {
   IconCheck,
   IconClose,
 } from '@/components/invitation/Ornaments';
+import { newFileName, supportsDirectUpload, uploadDirect } from '@/lib/upload-client';
 
 interface Queued {
   id: string;
@@ -56,6 +57,71 @@ async function makeThumbnail(
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+const TOKEN_URL = '/api/photos/token';
+
+interface UploadMeta {
+  slug: string;
+  uploaderName: string;
+  note: string;
+  width: number;
+  height: number;
+}
+
+/** Dosya tarayıcıdan doğrudan depoya gider; sunucuya yalnızca kayıt gönderilir. */
+async function uploadThroughBlob(
+  file: File,
+  thumb: Blob | null,
+  meta: UploadMeta,
+): Promise<Response> {
+  const original = await uploadDirect(file, {
+    tokenUrl: TOKEN_URL,
+    space: 'private',
+    fileName: newFileName(file.type),
+    clientPayload: meta.slug,
+  });
+
+  let thumbName = original.fileName;
+  if (thumb) {
+    const uploaded = await uploadDirect(thumb, {
+      tokenUrl: TOKEN_URL,
+      space: 'private',
+      fileName: newFileName('image/jpeg', '-thumb'),
+      clientPayload: meta.slug,
+    });
+    thumbName = uploaded.fileName;
+  }
+
+  return fetch('/api/photos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...meta,
+      fileName: original.fileName,
+      thumbName,
+      mimeType: file.type,
+      size: file.size,
+    }),
+  });
+}
+
+/** Dosya sunucu ucundan geçer — yerel geliştirmede kullanılan yol. */
+async function uploadThroughServer(
+  file: File,
+  thumb: Blob | null,
+  meta: UploadMeta,
+): Promise<Response> {
+  const form = new FormData();
+  form.set('slug', meta.slug);
+  form.set('file', file);
+  form.set('uploaderName', meta.uploaderName);
+  form.set('note', meta.note);
+  form.set('width', String(meta.width));
+  form.set('height', String(meta.height));
+  if (thumb) form.set('thumb', new File([thumb], 'thumb.jpg', { type: 'image/jpeg' }));
+
+  return fetch('/api/photos', { method: 'POST', body: form });
 }
 
 export default function PhotoUpload({
@@ -106,20 +172,19 @@ export default function PhotoUpload({
 
       try {
         const { blob, width, height } = await makeThumbnail(item.file);
+        const meta = { slug, uploaderName, note, width, height };
 
-        const form = new FormData();
-        form.set('slug', slug);
-        form.set('file', item.file);
-        form.set('uploaderName', uploaderName);
-        form.set('note', note);
-        form.set('width', String(width));
-        form.set('height', String(height));
-        if (blob) form.set('thumb', new File([blob], 'thumb.jpg', { type: 'image/jpeg' }));
+        // Blob bağlıysa dosya doğrudan depoya gider ve sunucuya yalnızca
+        // kaydın kendisi gönderilir. Telefon fotoğrafları Vercel'in 4,5 MB
+        // istek sınırını aştığı için sunucudan geçen yol büyük dosyalarda
+        // işlemeye hiç ulaşmıyordu.
+        const response = (await supportsDirectUpload(TOKEN_URL))
+          ? await uploadThroughBlob(item.file, blob, meta)
+          : await uploadThroughServer(item.file, blob, meta);
 
-        const response = await fetch('/api/photos', { method: 'POST', body: form });
         if (!response.ok) {
           const body = await response.json().catch(() => ({}));
-          throw new Error(body.error ?? 'Yüklenemedi');
+          throw new Error(body.error ?? `Yüklenemedi (${response.status})`);
         }
 
         setQueue((q) => q.map((x) => (x.id === item.id ? { ...x, status: 'yüklendi' } : x)));

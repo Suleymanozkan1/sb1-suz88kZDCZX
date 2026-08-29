@@ -1,7 +1,8 @@
 import { randomUUID } from 'crypto';
 import { Pool } from 'pg';
 import { emptyInvitation } from '../defaults';
-import { ConfigError, hashPassword, seedFingerprint } from '../password';
+import { ConfigError } from '../errors';
+import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
 import type {
   GuestPhoto,

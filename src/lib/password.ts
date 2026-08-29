@@ -59,7 +59,8 @@ export function seedFingerprint(value: string): string {
 }
 
 /**
- * Sunucu yapılandırması eksik olduğunda atılır.
+ * Yapılandırma hatası `errors.ts` içinde tanımlıdır; burada yalnızca eski
+ * çağrı yerleri kırılmasın diye yeniden dışa verilir.
  *
  * Eskiden ADMIN_PASSWORD tanımlı değilse hesap sessizce "admin" parolasıyla
  * kuruluyordu. Bu iki kötü sonuç doğuruyordu: yayına açık bir kurulumda
@@ -67,14 +68,4 @@ export function seedFingerprint(value: string): string {
  * hatalı" denmesi — asıl sorun parolanın yanlışlığı değil, değişkenin
  * dağıtıma ulaşmamış olmasıyken.
  */
-export class ConfigError extends Error {
-  readonly isConfigError = true;
-  constructor(message: string) {
-    super(message);
-    this.name = 'ConfigError';
-  }
-}
-
-export function isConfigError(error: unknown): error is ConfigError {
-  return error instanceof Error && (error as ConfigError).isConfigError === true;
-}
+export { ConfigError, isConfigError } from './errors';

@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/guard';
 import { generatePassword, passwordProblem } from '@/lib/password';
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 type Params = { params: { id: string } };
 
-export async function PUT(request: Request, { params }: Params) {
+async function handlePut(request: Request, { params }: Params) {
   const result = requireAdmin();
   if ('error' in result) return result.error;
 
@@ -31,7 +32,7 @@ export async function PUT(request: Request, { params }: Params) {
   return NextResponse.json({ user, password });
 }
 
-export async function DELETE(_request: Request, { params }: Params) {
+async function handleDelete(_request: Request, { params }: Params) {
   const result = requireAdmin();
   if ('error' in result) return result.error;
 
@@ -48,3 +49,6 @@ export async function DELETE(_request: Request, { params }: Params) {
     );
   }
 }
+
+export const PUT = withConfig(handlePut);
+export const DELETE = withConfig(handleDelete);

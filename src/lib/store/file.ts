@@ -2,7 +2,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import { emptyInvitation } from '../defaults';
-import { ConfigError, hashPassword, seedFingerprint } from '../password';
+import { ConfigError } from '../errors';
+import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
 import type { GuestPhoto, Invitation, InvitationInput, Rsvp, Role, SafeUser, User } from '../types';
 
@@ -13,8 +14,11 @@ import type { GuestPhoto, Invitation, InvitationInput, Rsvp, Role, SafeUser, Use
  * ile hiçbir servis açmadan çalışılabilir. POSTGRES_URL tanımlıysa devreye
  * `sql.ts` girer; seçim `index.ts` içinde yapılır.
  *
- * Salt-okunur dosya sistemlerinde (Vercel) yazma sessizce başarısız olur ve
- * veriler kalıcı olmaz — üretimde SQL sürücüsü kullanılmalıdır.
+ * Bu sürücü Vercel'de çalışamaz: dosya sistemi salt-okunurdur ve her istek
+ * ayrı bir örneğe düşebilir. Eskiden yazma hatası yutuluyor, kayıt yalnızca
+ * o örneğin belleğinde kalıyordu; davetiye "oluşturuldu" görünüp bir sonraki
+ * istekte "bulunamadı" oluyordu. Artık yazma denemesi açık bir yapılandırma
+ * hatasıyla durur — üretimde SQL sürücüsü kullanılmalıdır.
  */
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -48,12 +52,25 @@ async function readFile<T>(file: string): Promise<T[]> {
   }
 }
 
+const NO_DATABASE =
+  'Veritabanı bağlı değil, bu yüzden kayıt kalıcı olmuyor. Vercel projesinde ' +
+  'Storage → Postgres oluşturup projeye bağlayın ve yeniden dağıtın (POSTGRES_URL).';
+
 async function writeFile<T>(file: string, rows: T[]): Promise<void> {
+  // Vercel'de bu sürücüyle yazmak anlamsızdır: kayıt yalnızca o örneğin
+  // belleğinde kalır ve bir sonraki istek onu göremez. Sessizce başarılı
+  // görünmek yerine sebebi söylenir.
+  if (process.env.VERCEL) throw new ConfigError(NO_DATABASE);
+
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(file, JSON.stringify(rows, null, 2), 'utf8');
-  } catch {
-    // Salt-okunur dosya sistemi: bellekteki kopyayla devam edilir.
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
+      throw new ConfigError(NO_DATABASE);
+    }
+    throw err;
   }
 }
 

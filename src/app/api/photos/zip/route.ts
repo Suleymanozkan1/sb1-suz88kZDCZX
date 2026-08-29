@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
 import { readFile } from '@/lib/files';
@@ -8,7 +9,7 @@ import type { GuestPhoto } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 
 /** Galerinin tamamını tek bir ZIP olarak, orijinal çözünürlükte indirir. */
-export async function GET(request: Request) {
+async function handleGet(request: Request) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -64,3 +65,5 @@ export async function GET(request: Request) {
     },
   });
 }
+
+export const GET = withConfig(handleGet);

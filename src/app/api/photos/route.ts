@@ -1,11 +1,15 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
 import {
   MAX_PHOTO_BYTES,
+  fileExists,
+  isGeneratedName,
   isSupportedImage,
   newFileName,
   saveFile,
 } from '@/lib/files';
+import { isConfigError } from '@/lib/errors';
 import {
   createPhoto,
   getInvitation,
@@ -17,7 +21,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 /** Galeri listesi: admin hepsini, kullanıcı yalnızca kendi davetiyelerininkini görür. */
-export async function GET(request: Request) {
+async function handleGet(request: Request) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -45,7 +49,12 @@ export async function GET(request: Request) {
  * Misafir yüklemesi — oturum gerektirmez. Masadaki QR kod bu uca bağlıdır.
  * `file` orijinali (yüksek çözünürlük), `thumb` galeri önizlemesidir.
  */
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
+  // Dosya doğrudan depoya yüklendiyse gövde JSON'dur ve yalnızca kaydı taşır.
+  if (request.headers.get('content-type')?.includes('application/json')) {
+    return createFromUploadedFiles(request);
+  }
+
   let form: FormData;
   try {
     form = await request.formData();
@@ -73,16 +82,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const original = Buffer.from(await file.arrayBuffer());
   const fileName = newFileName(file.type);
-  await saveFile(fileName, original);
-
-  // Önizleme istemcide üretilir; gelmezse orijinal hem tam boy hem önizleme olur.
-  const thumb = form.get('thumb');
   let thumbName = fileName;
-  if (thumb instanceof File && thumb.size > 0 && isSupportedImage(thumb.type)) {
-    thumbName = newFileName(thumb.type, '-thumb');
-    await saveFile(thumbName, Buffer.from(await thumb.arrayBuffer()));
+  try {
+    await saveFile(fileName, Buffer.from(await file.arrayBuffer()));
+
+    // Önizleme istemcide üretilir; gelmezse orijinal hem tam boy hem önizleme olur.
+    const thumb = form.get('thumb');
+    if (thumb instanceof File && thumb.size > 0 && isSupportedImage(thumb.type)) {
+      thumbName = newFileName(thumb.type, '-thumb');
+      await saveFile(thumbName, Buffer.from(await thumb.arrayBuffer()));
+    }
+  } catch (err) {
+    if (isConfigError(err)) {
+      return NextResponse.json({ error: err.message }, { status: 503 });
+    }
+    throw err;
   }
 
   const photo = await createPhoto({
@@ -101,3 +116,56 @@ export async function POST(request: Request) {
   // Misafire fotoğrafın kendisini geri sızdırmamak için sade bir yanıt döner.
   return NextResponse.json({ ok: true, id: photo.id }, { status: 201 });
 }
+
+/**
+ * Dosyalar tarayıcıdan doğrudan depoya yüklendiğinde çağrılır; burada
+ * yalnızca kayıt açılır.
+ *
+ * Kayıt açılmadan önce dosyanın depoda gerçekten durduğu doğrulanır —
+ * aksi hâlde uydurma bir adla galeride açılmayan satırlar oluşturulabilirdi.
+ */
+async function createFromUploadedFiles(request: Request) {
+  let body: Record<string, unknown>;
+  try {
+    body = (await request.json()) as Record<string, unknown>;
+  } catch {
+    return NextResponse.json({ error: 'Geçersiz yükleme' }, { status: 400 });
+  }
+
+  const invitation = await getInvitationBySlug(String(body.slug ?? ''));
+  if (!invitation || !invitation.isActive) {
+    return NextResponse.json({ error: 'Davetiye bulunamadı' }, { status: 404 });
+  }
+
+  const fileName = String(body.fileName ?? '');
+  const thumbName = String(body.thumbName ?? '') || fileName;
+  if (!isGeneratedName(fileName) || !isGeneratedName(thumbName)) {
+    return NextResponse.json({ error: 'Geçersiz dosya adı' }, { status: 400 });
+  }
+  if (!(await fileExists(fileName))) {
+    return NextResponse.json({ error: 'Fotoğraf depoya ulaşmadı' }, { status: 400 });
+  }
+
+  const mimeType = String(body.mimeType ?? '');
+  if (!isSupportedImage(mimeType)) {
+    return NextResponse.json({ error: 'Yalnızca fotoğraf yükleyebilirsiniz' }, { status: 400 });
+  }
+
+  const photo = await createPhoto({
+    invitationId: invitation.id,
+    invitationSlug: invitation.slug,
+    uploaderName: String(body.uploaderName ?? '').slice(0, 120),
+    note: String(body.note ?? '').slice(0, 500),
+    fileName,
+    thumbName: (await fileExists(thumbName)) ? thumbName : fileName,
+    mimeType,
+    size: Number(body.size ?? 0) || 0,
+    width: Number(body.width ?? 0) || 0,
+    height: Number(body.height ?? 0) || 0,
+  });
+
+  return NextResponse.json({ ok: true, id: photo.id }, { status: 201 });
+}
+
+export const GET = withConfig(handleGet);
+export const POST = withConfig(handlePost);

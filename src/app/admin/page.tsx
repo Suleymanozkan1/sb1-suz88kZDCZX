@@ -3,6 +3,7 @@ import AccountSettings from '@/components/admin/AccountSettings';
 import InvitationList from '@/components/admin/InvitationList';
 import PanelHeader from '@/components/admin/PanelHeader';
 import PhotoGallery from '@/components/panel/PhotoGallery';
+import SetupNotice from '@/components/admin/SetupNotice';
 import UserManager from '@/components/admin/UserManager';
 import { currentSession } from '@/lib/auth';
 import { listInvitations, listUsers } from '@/lib/store';
@@ -25,6 +26,8 @@ export default async function AdminPage() {
         subtitle="Admin Paneli"
         newHref="/admin/new"
       />
+
+      <SetupNotice />
 
       <InvitationList initial={invitations} session={session} users={users} />
 

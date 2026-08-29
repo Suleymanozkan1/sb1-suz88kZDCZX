@@ -1,10 +1,11 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
 import { createRsvp, deleteRsvp, getInvitationBySlug, listRsvps } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function handleGet(request: Request) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
   return NextResponse.json(own.filter((r) => r !== null));
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   const body = await request.json();
 
   if (!body?.name?.trim() || !body?.phone?.trim()) {
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
   return NextResponse.json(rsvp, { status: 201 });
 }
 
-export async function DELETE(request: Request) {
+async function handleDelete(request: Request) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -63,3 +64,7 @@ export async function DELETE(request: Request) {
   }
   return NextResponse.json({ ok: true });
 }
+
+export const GET = withConfig(handleGet);
+export const POST = withConfig(handlePost);
+export const DELETE = withConfig(handleDelete);

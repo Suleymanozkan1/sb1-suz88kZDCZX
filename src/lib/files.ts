@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
+import { ConfigError } from './errors';
 
 /**
  * Yüklenen dosyaların deposu.
@@ -70,7 +71,35 @@ function resolveSafe(fileName: string, space: Space): string | null {
   return path.join(UPLOAD_DIR, space, base);
 }
 
-const key = (fileName: string, space: Space) => `${space}/${fileName}`;
+export const key = (fileName: string, space: Space) => `${space}/${fileName}`;
+
+/**
+ * Bir adın bu uygulamanın ürettiği ada benzeyip benzemediğini söyler.
+ *
+ * Doğrudan tarayıcıdan yüklemede hedef yolu istemci seçer, bu yüzden sunucu
+ * jetonu vermeden önce adın beklenen kalıpta olduğunu doğrular: rastgele bir
+ * UUID, isteğe bağlı `-thumb` eki ve bilinen bir uzantı.
+ */
+export function isGeneratedName(fileName: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(-thumb)?\.[a-z]{3,4}$/.test(
+    fileName,
+  );
+}
+
+/**
+ * Vercel'de dosya sistemi salt-okunurdur; Blob bağlanmamışsa yükleme
+ * kaçınılmaz olarak başarısız olur. Bunu bir yazma hatası olarak bırakmak
+ * kullanıcıya "görsel yüklenemedi" gibi sebebi gizleyen bir mesaj gösteriyordu.
+ */
+function assertWritable(): void {
+  if (usingBlob) return;
+  if (process.env.VERCEL) {
+    throw new ConfigError(
+      'Dosya deposu bağlı değil. Vercel projesinde Storage → Blob oluşturup projeye bağlayın ' +
+        've yeniden dağıtın (BLOB_READ_WRITE_TOKEN).',
+    );
+  }
+}
 
 /* ─────────────────────────────────────────────────────────────── yazma */
 
@@ -80,6 +109,8 @@ export async function saveFile(
   data: Buffer,
   space: Space = 'private',
 ): Promise<string> {
+  assertWritable();
+
   if (usingBlob) {
     const { put } = await import('@vercel/blob');
     // addRandomSuffix kapalı: kayıttaki ad ile depodaki anahtar birebir aynı kalmalı.
@@ -93,9 +124,54 @@ export async function saveFile(
 
   const target = resolveSafe(fileName, space);
   if (!target) throw new Error('Geçersiz dosya adı');
-  await fs.mkdir(path.dirname(target), { recursive: true });
-  await fs.writeFile(target, data);
+  try {
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, data);
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
+      throw new ConfigError(
+        'Dosya sistemi salt-okunur olduğu için yükleme kaydedilemedi. ' +
+          'Kalıcı depolama için Vercel Blob bağlayın (BLOB_READ_WRITE_TOKEN).',
+      );
+    }
+    if (code === 'ENOSPC') {
+      throw new ConfigError('Sunucuda yer kalmadı; yükleme kaydedilemedi.');
+    }
+    throw err;
+  }
   return `/api/files/${fileName}`;
+}
+
+/**
+ * Dosyanın depoda gerçekten durup durmadığını söyler.
+ *
+ * Tarayıcıdan doğrudan yüklemede kaydı oluşturan istek ile dosyayı yazan
+ * istek ayrıdır; kayıt açılmadan önce dosyanın yerinde olduğu doğrulanır,
+ * aksi hâlde galeride açılmayan satırlar birikir.
+ */
+export async function fileExists(
+  fileName: string,
+  space: Space = 'private',
+): Promise<boolean> {
+  if (usingBlob) {
+    const { head } = await import('@vercel/blob');
+    try {
+      await head(key(fileName, space));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  const target = resolveSafe(fileName, space);
+  if (!target) return false;
+  try {
+    await fs.access(target);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────── okuma */

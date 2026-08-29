@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
 import { removeFiles } from '@/lib/files';
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 type Params = { params: { id: string } };
 
-export async function DELETE(_request: Request, { params }: Params) {
+async function handleDelete(_request: Request, { params }: Params) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -25,3 +26,5 @@ export async function DELETE(_request: Request, { params }: Params) {
   await removeFiles([photo.fileName, photo.thumbName].filter((n, i, a) => a.indexOf(n) === i));
   return NextResponse.json({ ok: true });
 }
+
+export const DELETE = withConfig(handleDelete);

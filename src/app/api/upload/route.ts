@@ -1,6 +1,8 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
 import { MAX_PHOTO_BYTES, isSupportedImage, newFileName, saveFile } from '@/lib/files';
+import { isConfigError } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * adres saklanır — aksi hâlde her davetiye satırı megabaytlarca büyür ve
  * sayfa yüklemesi yavaşlar.
  */
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -37,10 +39,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const url = await saveFile(
-    newFileName(file.type),
-    Buffer.from(await file.arrayBuffer()),
-    'public',
-  );
-  return NextResponse.json({ url }, { status: 201 });
+  try {
+    const url = await saveFile(
+      newFileName(file.type),
+      Buffer.from(await file.arrayBuffer()),
+      'public',
+    );
+    return NextResponse.json({ url }, { status: 201 });
+  } catch (err) {
+    // Depo yapılandırılmamışsa sebep söylenir; aksi hâlde bu, sebebi
+    // görünmeyen bir "görsel yüklenemedi" olarak kalıyordu.
+    if (isConfigError(err)) {
+      return NextResponse.json({ error: err.message }, { status: 503 });
+    }
+    throw err;
+  }
 }
+
+export const POST = withConfig(handlePost);

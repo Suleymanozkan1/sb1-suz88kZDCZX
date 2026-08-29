@@ -1,3 +1,4 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/guard';
 import { generatePassword, passwordProblem } from '@/lib/password';
@@ -5,13 +6,13 @@ import { createUser, listUsers } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+async function handleGet() {
   const result = requireAdmin();
   if ('error' in result) return result.error;
   return NextResponse.json(await listUsers());
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   const result = requireAdmin();
   if ('error' in result) return result.error;
 
@@ -40,3 +41,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const GET = withConfig(handleGet);
+export const POST = withConfig(handlePost);

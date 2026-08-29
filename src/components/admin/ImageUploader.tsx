@@ -3,6 +3,9 @@
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { IconClose, IconImage } from '@/components/invitation/Ornaments';
+import { newFileName, supportsDirectUpload, uploadDirect } from '@/lib/upload-client';
+
+const TOKEN_URL = '/api/upload/token';
 
 /**
  * Görseli depoya yükler ve adresini döndürür.
@@ -10,15 +13,28 @@ import { IconClose, IconImage } from '@/components/invitation/Ornaments';
  * Eskiden dosya base64'e çevrilip kaydın içine gömülüyordu; bu, her davetiye
  * satırını megabaytlarca büyütüyor ve sayfa yüklemesini yavaşlatıyordu.
  * Artık dosya bir kez yüklenir, kayıtta yalnızca adresi durur.
+ *
+ * Blob bağlıysa dosya tarayıcıdan doğrudan depoya gider; sunucudan geçen yol
+ * Vercel'in 4,5 MB istek sınırına takıldığı için büyük görsellerde
+ * kullanılamaz.
  */
 async function uploadImage(file: File): Promise<string> {
+  if (await supportsDirectUpload(TOKEN_URL)) {
+    const { url } = await uploadDirect(file, {
+      tokenUrl: TOKEN_URL,
+      space: 'public',
+      fileName: newFileName(file.type),
+    });
+    return url;
+  }
+
   const form = new FormData();
   form.set('file', file);
 
   const response = await fetch('/api/upload', { method: 'POST', body: form });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body.error ?? 'Görsel yüklenemedi');
+    throw new Error(body.error ?? `Görsel yüklenemedi (${response.status})`);
   }
   const { url } = await response.json();
   return url as string;

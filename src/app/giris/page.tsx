@@ -30,7 +30,7 @@ function LoginForm() {
       const message = err instanceof Error ? err.message : 'Giriş yapılamadı';
       setError(message);
       // Sunucu yapılandırması eksikse bu bir parola hatası değildir.
-      setSetupHint(message.includes('ADMIN_PASSWORD'));
+      setSetupHint(/ADMIN_PASSWORD|POSTGRES_URL|BLOB_READ_WRITE_TOKEN/.test(message));
     } finally {
       setBusy(false);
     }

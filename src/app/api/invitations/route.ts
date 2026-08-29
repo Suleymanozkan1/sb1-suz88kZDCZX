@@ -1,10 +1,11 @@
+import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
 import { createInvitation, getInvitationBySlug, listInvitations } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function handleGet(request: Request) {
   const slug = new URL(request.url).searchParams.get('slug');
 
   // Slug ile tek davetiye herkese açıktır — davetiye sayfasının kaynağıdır.
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
   );
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   const result = requireSession();
   if ('error' in result) return result.error;
 
@@ -43,3 +44,6 @@ export async function POST(request: Request) {
 
   return NextResponse.json(await createInvitation(body, ownerId), { status: 201 });
 }
+
+export const GET = withConfig(handleGet);
+export const POST = withConfig(handlePost);
