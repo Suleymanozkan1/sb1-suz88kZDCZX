@@ -4,17 +4,27 @@ import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { IconClose, IconImage } from '@/components/invitation/Ornaments';
 
-/** Dosyayı base64 data URI'ye çevirir; seçilen görsel kayıtla birlikte saklanır. */
-function readAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error('Dosya okunamadı'));
-    reader.readAsDataURL(file);
-  });
+/**
+ * Görseli depoya yükler ve adresini döndürür.
+ *
+ * Eskiden dosya base64'e çevrilip kaydın içine gömülüyordu; bu, her davetiye
+ * satırını megabaytlarca büyütüyor ve sayfa yüklemesini yavaşlatıyordu.
+ * Artık dosya bir kez yüklenir, kayıtta yalnızca adresi durur.
+ */
+async function uploadImage(file: File): Promise<string> {
+  const form = new FormData();
+  form.set('file', file);
+
+  const response = await fetch('/api/upload', { method: 'POST', body: form });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error ?? 'Görsel yüklenemedi');
+  }
+  const { url } = await response.json();
+  return url as string;
 }
 
-const MAX_BYTES = 4 * 1024 * 1024;
+const MAX_BYTES = 25 * 1024 * 1024;
 
 export default function ImageUploader({
   label,
@@ -30,22 +40,30 @@ export default function ImageUploader({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
   const images = Array.isArray(value) ? value : value ? [value] : [];
 
   async function handleFiles(files: FileList | null) {
     if (!files?.length) return;
     setError('');
+    setBusy(true);
 
     const accepted: string[] = [];
-    for (const file of Array.from(files)) {
-      if (file.size > MAX_BYTES) {
-        setError(`${file.name} 4 MB sınırını aşıyor.`);
-        continue;
+    try {
+      for (const file of Array.from(files)) {
+        if (file.size > MAX_BYTES) {
+          setError(`${file.name} 25 MB sınırını aşıyor.`);
+          continue;
+        }
+        accepted.push(await uploadImage(file));
       }
-      accepted.push(await readAsDataUrl(file));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Görsel yüklenemedi');
+    } finally {
+      setBusy(false);
     }
-    if (accepted.length === 0) return;
 
+    if (accepted.length === 0) return;
     onChange(multiple ? [...images, ...accepted] : accepted[0]);
   }
 
@@ -70,6 +88,7 @@ export default function ImageUploader({
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
+        disabled={busy}
         className="group flex w-full flex-col items-center justify-center px-4 py-[var(--sp-md)] transition-colors duration-500"
         style={{ border: '1px dashed rgba(176, 141, 63, 0.35)', color: 'var(--c-on-dark-soft)' }}
       >
@@ -79,7 +98,7 @@ export default function ImageUploader({
         >
           <IconImage size={22} />
         </span>
-        <span className="t-body mt-3">Tıklayın veya sürükleyin</span>
+        <span className="t-body mt-3">{busy ? 'Yükleniyor…' : 'Tıklayın veya sürükleyin'}</span>
         {multiple && (
           <span className="t-label mt-1" style={{ color: 'var(--c-on-dark-faint)' }}>
             Birden fazla fotoğraf ekleyin

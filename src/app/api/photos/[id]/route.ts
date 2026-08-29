@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
-import { removePhotoFiles } from '@/lib/photoFiles';
+import { removeFiles } from '@/lib/files';
 import { deletePhoto, getInvitation, getPhoto } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
@@ -22,6 +22,6 @@ export async function DELETE(_request: Request, { params }: Params) {
   }
 
   await deletePhoto(params.id);
-  await removePhotoFiles([photo.fileName, photo.thumbName].filter((n, i, a) => a.indexOf(n) === i));
+  await removeFiles([photo.fileName, photo.thumbName].filter((n, i, a) => a.indexOf(n) === i));
   return NextResponse.json({ ok: true });
 }

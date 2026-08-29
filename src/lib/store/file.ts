@@ -1,18 +1,20 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
-import { emptyInvitation } from './defaults';
-import { hashPassword } from './password';
-import { slugify } from './slug';
-import type { GuestPhoto, Invitation, InvitationInput, Rsvp, Role, SafeUser, User } from './types';
+import { emptyInvitation } from '../defaults';
+import { hashPassword } from '../password';
+import { slugify } from '../slug';
+import type { GuestPhoto, Invitation, InvitationInput, Rsvp, Role, SafeUser, User } from '../types';
 
 /**
- * Dosya tabanlı basit kalıcı depo.
+ * Dosya tabanlı depo — yerel geliştirme sürücüsü.
  *
- * Yerelde ve kendi sunucunuzda `data/*.json` dosyalarına yazar. Salt-okunur
- * dosya sistemine sahip ortamlarda (ör. Vercel serverless) yazma sessizce
- * başarısız olur ve süreç ömrü boyunca bellekteki kopya kullanılır — kalıcı
- * kayıt için bu modülü bir veritabanı sürücüsüyle değiştirmek yeterlidir.
+ * `data/*.json` dosyalarına yazar. Kurulum gerektirmediği için `npm run dev`
+ * ile hiçbir servis açmadan çalışılabilir. POSTGRES_URL tanımlıysa devreye
+ * `sql.ts` girer; seçim `index.ts` içinde yapılır.
+ *
+ * Salt-okunur dosya sistemlerinde (Vercel) yazma sessizce başarısız olur ve
+ * veriler kalıcı olmaz — üretimde SQL sürücüsü kullanılmalıdır.
  */
 
 const DATA_DIR = path.join(process.cwd(), 'data');

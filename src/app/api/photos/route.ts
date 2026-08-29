@@ -4,8 +4,8 @@ import {
   MAX_PHOTO_BYTES,
   isSupportedImage,
   newFileName,
-  savePhotoFile,
-} from '@/lib/photoFiles';
+  saveFile,
+} from '@/lib/files';
 import {
   createPhoto,
   getInvitation,
@@ -75,14 +75,14 @@ export async function POST(request: Request) {
 
   const original = Buffer.from(await file.arrayBuffer());
   const fileName = newFileName(file.type);
-  await savePhotoFile(fileName, original);
+  await saveFile(fileName, original);
 
   // Önizleme istemcide üretilir; gelmezse orijinal hem tam boy hem önizleme olur.
   const thumb = form.get('thumb');
   let thumbName = fileName;
   if (thumb instanceof File && thumb.size > 0 && isSupportedImage(thumb.type)) {
     thumbName = newFileName(thumb.type, '-thumb');
-    await savePhotoFile(thumbName, Buffer.from(await thumb.arrayBuffer()));
+    await saveFile(thumbName, Buffer.from(await thumb.arrayBuffer()));
   }
 
   const photo = await createPhoto({

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
-import { readPhotoFile } from '@/lib/photoFiles';
+import { readFile } from '@/lib/files';
 import { getInvitation, listPhotos, listPhotosForOwner } from '@/lib/store';
 import { zipStream, type ZipEntry } from '@/lib/zip';
 import type { GuestPhoto } from '@/lib/types';
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
   // Dosyalar akış ilerledikçe okunur; tüm galeri aynı anda belleğe alınmaz.
   async function* entries(): AsyncGenerator<ZipEntry> {
     for (const [index, photo] of photos.entries()) {
-      const data = await readPhotoFile(photo.fileName);
+      const data = await readFile(photo.fileName);
       if (!data) continue;
 
       const who = photo.uploaderName

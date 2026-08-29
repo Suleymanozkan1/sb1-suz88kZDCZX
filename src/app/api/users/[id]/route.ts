@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/guard';
 import { generatePassword, passwordProblem } from '@/lib/password';
 import { deleteUser, updateUser } from '@/lib/store';
-import { removePhotoFiles } from '@/lib/photoFiles';
+import { removeFiles } from '@/lib/files';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +39,7 @@ export async function DELETE(_request: Request, { params }: Params) {
     const { removed, files } = await deleteUser(params.id);
     if (!removed) return NextResponse.json({ error: 'Hesap bulunamadı' }, { status: 404 });
 
-    await removePhotoFiles(files);
+    await removeFiles(files);
     return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json(

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
-import { mimeForFile, readPhotoFile } from '@/lib/photoFiles';
+import { mimeForFile, readFile } from '@/lib/files';
 import { getInvitation, getPhoto } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: Params) {
   const wantsThumb = url.searchParams.get('size') === 'thumb';
   const fileName = wantsThumb ? photo.thumbName : photo.fileName;
 
-  const data = await readPhotoFile(fileName);
+  const data = await readFile(fileName);
   if (!data) return NextResponse.json({ error: 'Dosya bulunamadı' }, { status: 404 });
 
   const headers = new Headers({
@@ -41,9 +41,22 @@ export async function GET(request: Request, { params }: Params) {
 
   if (url.searchParams.get('download') === '1') {
     const stamp = photo.createdAt.slice(0, 10);
-    const who = photo.uploaderName ? `-${photo.uploaderName.replace(/[^\p{L}\p{N}]+/gu, '-')}` : '';
     const ext = fileName.split('.').pop();
-    headers.set('Content-Disposition', `attachment; filename="dugun-${stamp}${who}-${photo.id.slice(0, 8)}.${ext}"`);
+    const short = photo.id.slice(0, 8);
+
+    const who = photo.uploaderName
+      ? `-${photo.uploaderName.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '')}`
+      : '';
+    const full = `dugun-${stamp}${who}-${short}.${ext}`;
+
+    // HTTP başlıkları yalnızca ISO-8859-1 taşır; "Yıldız" gibi bir ad başlığa
+    // doğrudan yazılırsa istek çöker. ASCII bir yedek ad ve RFC 5987 ile
+    // kodlanmış tam ad birlikte gönderilir.
+    const ascii = `dugun-${stamp}-${short}.${ext}`;
+    headers.set(
+      'Content-Disposition',
+      `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(full)}`,
+    );
   }
 
   return new NextResponse(new Uint8Array(data), { headers });

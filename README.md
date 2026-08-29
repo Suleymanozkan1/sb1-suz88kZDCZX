@@ -105,38 +105,99 @@ npm run build && npm start
 
 | Değişken | Açıklama | Varsayılan |
 | --- | --- | --- |
-| `ADMIN_PASSWORD` | Admin paneli şifresi | `admin` |
+| `ADMIN_PASSWORD` | Admin hesabı ilk oluşturulurken kullanılan parola | `admin` |
 | `ADMIN_SECRET` | Oturum çerezini imzalayan gizli dize | Şifreden türetilir |
+| `POSTGRES_URL` | Varsa SQL sürücüsü devreye girer | — (dosya sürücüsü) |
+| `BLOB_READ_WRITE_TOKEN` | Varsa dosyalar Vercel Blob'a yazılır | — (yerel disk) |
 
-Üretimde her ikisini de mutlaka ayarlayın. `ADMIN_PASSWORD` yalnızca ilk
-çalıştırmada admin hesabını oluştururken kullanılır; `ADMIN_SECRET` oturum
-çerezini imzalar ve değiştirilirse açık oturumlar düşer.
-
-### Güvenlik notu
-
-Fotoğraf yükleme ucu, masadaki QR'ı okutan herkesin girişsiz kullanabilmesi için
-kasıtlı olarak açıktır. Korumalar: davetiye aktif olmalı, yalnızca görsel MIME
-türleri kabul edilir ve dosya başına 25 MB sınırı vardır. Halka açık bir kurulumda
-bu ucun önüne ayrıca hız sınırlama (rate limit) koymanız önerilir.
+İlk ikisini üretimde mutlaka ayarlayın. Son ikisi Vercel'de depolama
+bağladığınızda otomatik eklenir.
 
 ## Veri saklama
 
-| Ne | Nerede |
+Uygulama iki depolama sürücüsüyle gelir ve seçimi ortam değişkenlerine göre
+kendisi yapar — kodda değişiklik gerekmez.
+
+| Ortam | Kayıtlar | Dosyalar |
+| --- | --- | --- |
+| Yerel geliştirme | `data/*.json` | `data/uploads/` |
+| Üretim | Postgres (`POSTGRES_URL`) | Vercel Blob (`BLOB_READ_WRITE_TOKEN`) |
+
+`POSTGRES_URL` tanımlıysa SQL sürücüsü, değilse dosya sürücüsü devreye girer
+(`src/lib/store/index.ts`). Aynı mantık dosyalar için `src/lib/files.ts`
+içindedir. Böylece `npm run dev` hiçbir servis kurmadan çalışır, üretimde ise
+veriler kalıcı olur.
+
+Postgres şeması ilk sorguda kendiliğinden oluşturulur; ayrı bir migration
+adımı yoktur. Davetiyenin sık değişen alanları tek bir `jsonb` sütununda
+durur, yalnızca sorgulanan alanlar (`slug`, `owner_id`, `is_active`) ayrı
+sütundadır — yeni bir davetiye alanı eklemek şema değişikliği gerektirmez.
+
+### Dosyalarda iki ayrı isim alanı
+
+Bu ayrım bir güvenlik sınırıdır:
+
+- **private** — misafirlerin yüklediği fotoğraflar. Yalnızca yetki denetimi
+  yapan `/api/photos/[id]/file` ucundan okunur, adresi hiç dışarı verilmez.
+- **public** — davetiyede görünen kapak/galeri/mühür görselleri. Doğrudan
+  servis edilir.
+
+Genel uç (`/api/files/[name]`) yalnızca `public` alanını okur; sızan bir dosya
+adı özel bir fotoğrafı açığa çıkaramaz.
+
+## Vercel'e kurulum
+
+### 1. Projeyi içe aktarın
+
+<https://vercel.com/new> → GitHub deponuzu seçin → **Import**. Next.js
+otomatik algılanır, ayar değiştirmeniz gerekmez.
+
+İlk dağıtım hata vermeden tamamlanır ama veriler henüz kalıcı değildir —
+depolamayı bağlayana kadar öyle kalır.
+
+### 2. Postgres bağlayın
+
+Proje sayfasında **Storage** → **Create Database** → **Postgres** → bölge
+olarak Frankfurt (`fra1`) önerilir → **Connect**.
+
+Vercel `POSTGRES_URL` değişkenini projeye kendisi ekler. Tabloları siz
+oluşturmayacaksınız; uygulama ilk isteğinde kurar.
+
+### 3. Blob bağlayın
+
+**Storage** → **Create** → **Blob** → **Connect**.
+
+`BLOB_READ_WRITE_TOKEN` yine otomatik eklenir.
+
+### 4. İki değişkeni elle girin
+
+**Settings** → **Environment Variables**:
+
+| Değişken | Değer |
 | --- | --- |
-| Hesaplar | `data/users.json` (parolalar scrypt ile özetlenir) |
-| Davetiyeler | `data/invitations.json` |
-| Katılım bildirimleri | `data/rsvps.json` |
-| Fotoğraf kayıtları | `data/photos.json` |
-| Fotoğraf dosyaları | `data/uploads/` (orijinaller, dokunulmadan) |
+| `ADMIN_PASSWORD` | Admin hesabının parolası |
+| `ADMIN_SECRET` | `openssl rand -base64 32` çıktısı |
 
-Hepsi `.gitignore` içindedir. Fotoğraf dosya adları sunucuda yeniden üretilir;
-istemciden gelen ad hiç kullanılmaz.
+### 5. Yeniden dağıtın
 
-**Not:** Vercel gibi salt-okunur/geçici dosya sistemine sahip ortamlarda yazma
-işlemi sessizce başarısız olur ve veriler yalnızca süreç ömrü boyunca bellekte
-kalır. Kalıcı kayıt için `src/lib/store.ts` içindeki fonksiyonları bir veritabanı
-sürücüsüyle (MongoDB, Postgres, Supabase vb.) değiştirmeniz yeterlidir — API
-rotaları ve arayüz bu modülün dışına bağımlı değildir.
+**Deployments** → son dağıtım → **Redeploy**. Yeni değişkenler ancak bundan
+sonra devreye girer.
+
+### 6. Giriş yapın
+
+`https://<projeniz>.vercel.app/giris` → kullanıcı adı `admin`, parola
+4. adımda verdiğiniz `ADMIN_PASSWORD`.
+
+> `ADMIN_PASSWORD` yalnızca admin hesabı **ilk kez oluşturulurken** kullanılır.
+> Sonradan değiştirmek parolayı değiştirmez; parolayı unutursanız Postgres'te
+> `delete from users where role = 'admin';` çalıştırıp yeniden dağıtın.
+
+### Maliyet
+
+Vercel Hobby planı, Postgres ve Blob'un ücretsiz katmanları bir düğün için
+fazlasıyla yeter. Blob'un ücretsiz katmanı 1 GB depolama verir — 25 MB
+sınırıyla yaklaşık 40 tam çözünürlüklü fotoğraf, sıkıştırılmış telefon
+fotoğraflarıyla çok daha fazlası demektir.
 
 ## API
 
@@ -152,6 +213,8 @@ rotaları ve arayüz bu modülün dışına bağımlı değildir.
 | `GET` | `/api/rsvp` | Admin | Katılım bildirimlerini listele |
 | `DELETE` | `/api/rsvp?id=...` | Admin | Katılım bildirimini sil |
 | `POST` / `DELETE` | `/api/auth` | — | Giriş / çıkış |
+| `POST` | `/api/upload` | Oturum | Davetiye görseli yükle (public alan) |
+| `GET` | `/api/files/[name]` | — | Davetiye görselini servis et (public alan) |
 | `GET` / `POST` | `/api/users` | Admin | Hesapları listele / hesap aç |
 | `PUT` / `DELETE` | `/api/users/[id]` | Admin | Parola sıfırla / hesabı sil |
 | `POST` | `/api/photos` | — | **Misafir fotoğraf yükleme** (QR akışı) |
@@ -163,4 +226,4 @@ rotaları ve arayüz bu modülün dışına bağımlı değildir.
 ## Teknolojiler
 
 Next.js 14 (App Router) · TypeScript · Tailwind CSS · Framer Motion ·
-Cormorant Garamond + Jost · qrcode
+Cormorant Garamond + Jost · qrcode · pg · Vercel Blob
