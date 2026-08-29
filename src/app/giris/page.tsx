@@ -42,7 +42,7 @@ function LoginForm() {
     >
       <div className="mb-[var(--sp-lg)]">
         <p className="t-label" style={{ color: 'var(--c-gold)' }}>
-          Düğün Davetiyeleri
+          Sagra Davetiye
         </p>
         <h1 className="t-display mt-3" style={{ color: 'var(--c-on-dark)' }}>
           Giriş

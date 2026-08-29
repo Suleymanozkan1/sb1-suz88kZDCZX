@@ -18,7 +18,7 @@ const sans = Jost({
 });
 
 export const metadata: Metadata = {
-  title: 'Dijital Düğün Davetiyesi',
+  title: 'Sagra Davetiye',
   description:
     'Perde açılışı, balmumu mühür ve katılım formuyla premium dijital düğün davetiyesi.',
 };

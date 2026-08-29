@@ -1,4 +1,4 @@
-# Dijital Düğün Davetiyesi
+# Sagra Davetiye
 
 Perde açılışı ve balmumu mühür girişiyle açılan, admin panelinden yönetilen
 premium dijital düğün davetiyesi.

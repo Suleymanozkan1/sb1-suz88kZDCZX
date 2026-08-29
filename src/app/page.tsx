@@ -18,9 +18,9 @@ export default async function HomePage() {
         Dijital Davetiye
       </p>
       <h1 className="t-hero mt-4" style={{ color: 'var(--c-on-dark)' }}>
-        Düğün
+        Sagra
         <span className="block italic" style={{ color: 'var(--c-gold)' }}>
-          Davetiyesi
+          Davetiye
         </span>
       </h1>
       <p className="t-body mt-[var(--sp-md)] measure" style={{ color: 'var(--c-on-dark-soft)' }}>
