@@ -1,5 +1,6 @@
 'use client';
 
+import { slugify } from '@/lib/slug';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useState } from 'react';
 import { Action, Badge, ConfirmModal, EmptyState, Meta, PanelSection, Row } from './ui';
@@ -186,8 +187,18 @@ export default function UserManager({
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="field t-lead"
-                  placeholder="alperenayse"
+                  placeholder="alperen-ayse"
                 />
+                {/*
+                  Ad sadeleştirilerek kaydedilir. Ne kaydedileceği yazarken
+                  görünmezse, yönetici yazdığı adı çifte verip giriş
+                  yapılamamasına yol açabiliyor.
+                */}
+                {username && slugify(username) !== username && (
+                  <span className="t-label mt-1 block" style={{ color: 'var(--c-on-dark-faint)' }}>
+                    Kaydedilecek ad: {slugify(username) || '—'}
+                  </span>
+                )}
               </label>
               <label className="block">
                 <span className="field-label">Görünen Ad</span>

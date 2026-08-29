@@ -311,7 +311,12 @@ export function toSafeUser(user: User): SafeUser {
   return safe;
 }
 
-const normalizeUsername = (input: string): string => slugify(input).replace(/-/g, '');
+/**
+ * Kullanıcı adı sadeleştirilir ama tire korunur: çift hesaplarında
+ * "ahmet-zeynep" doğal bir addır ve tireyi sessizce silmek, yöneticinin
+ * yazdığı adla kaydedilen adın ayrışmasına yol açıyordu.
+ */
+const normalizeUsername = (input: string): string => slugify(input);
 
 /**
  * Admin hesabını hazırlar.

@@ -222,8 +222,13 @@ export function toSafeUser(user: User): SafeUser {
   return safe;
 }
 
+/**
+ * Kullanıcı adı sadeleştirilir ama tire korunur: çift hesaplarında
+ * "ahmet-zeynep" doğal bir addır ve tireyi sessizce silmek, yöneticinin
+ * yazdığı adla kaydedilen adın ayrışmasına yol açıyordu.
+ */
 function normalizeUsername(input: string): string {
-  return slugify(input).replace(/-/g, '');
+  return slugify(input);
 }
 
 /**
