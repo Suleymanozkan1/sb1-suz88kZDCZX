@@ -1,26 +1,41 @@
 import { NextResponse } from 'next/server';
-import { AUTH_COOKIE, checkPassword, isAuthenticated, sessionToken } from '@/lib/auth';
+import { AUTH_COOKIE, AUTH_COOKIE_MAX_AGE, currentSession, encodeSession } from '@/lib/auth';
+import { verifyPassword } from '@/lib/password';
+import { ensureAdmin, getUserByUsername } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return NextResponse.json({ authenticated: isAuthenticated() });
+  return NextResponse.json({ session: currentSession() });
 }
 
 export async function POST(request: Request) {
-  const { password } = await request.json();
+  const { username, password } = await request.json();
 
-  if (typeof password !== 'string' || !checkPassword(password)) {
-    return NextResponse.json({ error: 'Şifre hatalı' }, { status: 401 });
+  if (typeof password !== 'string') {
+    return NextResponse.json({ error: 'Kullanıcı adı ve parola gereklidir' }, { status: 400 });
   }
 
-  const response = NextResponse.json({ ok: true });
-  response.cookies.set(AUTH_COOKIE, sessionToken(), {
+  await ensureAdmin();
+
+  // Kullanıcı adı verilmezse eski tek-hesap davranışı için admin denenir.
+  const user = await getUserByUsername(typeof username === 'string' && username.trim() ? username : 'admin');
+
+  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    return NextResponse.json({ error: 'Kullanıcı adı veya parola hatalı' }, { status: 401 });
+  }
+
+  const response = NextResponse.json({
+    ok: true,
+    session: { userId: user.id, username: user.username, displayName: user.displayName, role: user.role },
+  });
+
+  response.cookies.set(AUTH_COOKIE, encodeSession(user), {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     path: '/',
-    maxAge: 60 * 60 * 12,
+    maxAge: AUTH_COOKIE_MAX_AGE,
   });
   return response;
 }

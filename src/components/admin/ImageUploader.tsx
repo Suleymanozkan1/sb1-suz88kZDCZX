@@ -53,6 +53,15 @@ export default function ImageUploader({
     else onChange('');
   }
 
+  /** Galeri sırası davetiyede birebir kullanıldığı için elle değiştirilebilir. */
+  function move(index: number, delta: number) {
+    const target = index + delta;
+    if (!multiple || target < 0 || target >= images.length) return;
+    const next = [...images];
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  }
+
   return (
     <div>
       <span className="field-label">{label}</span>
@@ -70,7 +79,7 @@ export default function ImageUploader({
         <span className="font-serif text-2xl" style={{ color: '#C9A84C' }}>
           ＋
         </span>
-        <span className="mt-2 font-sans text-xs">Tıklayın veya sürükleyin</span>
+        <span className="mt-2 font-sans text-xs">📁 Tıklayın veya sürükleyin</span>
         {multiple && (
           <span className="mt-1 font-sans text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
             Birden fazla fotoğraf ekleyin
@@ -125,6 +134,31 @@ export default function ImageUploader({
               >
                 ✕
               </button>
+
+              {multiple && images.length > 1 && (
+                <div className="absolute inset-x-1 bottom-1 flex justify-between opacity-0 transition-opacity group-hover:opacity-100">
+                  <button
+                    type="button"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0}
+                    aria-label="Sola taşı"
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs disabled:opacity-30"
+                    style={{ background: 'rgba(0,0,0,0.7)', color: '#E8D5A3' }}
+                  >
+                    ←
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(i, 1)}
+                    disabled={i === images.length - 1}
+                    aria-label="Sağa taşı"
+                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs disabled:opacity-30"
+                    style={{ background: 'rgba(0,0,0,0.7)', color: '#E8D5A3' }}
+                  >
+                    →
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

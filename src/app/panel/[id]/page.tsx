@@ -7,11 +7,13 @@ export const dynamic = 'force-dynamic';
 
 export default async function EditInvitationPage({ params }: { params: { id: string } }) {
   const session = currentSession();
-  if (!session) redirect(`/giris?next=/admin/${params.id}`);
-  if (session.role !== 'admin') redirect(`/panel/${params.id}`);
+  if (!session) redirect(`/giris?next=/panel/${params.id}`);
 
   const invitation = await getInvitation(params.id);
   if (!invitation) notFound();
 
-  return <InvitationForm existing={invitation} backHref="/admin" />;
+  // Başka bir hesabın davetiyesi bu panelden düzenlenemez.
+  if (session.role !== 'admin' && invitation.ownerId !== session.userId) redirect('/panel');
+
+  return <InvitationForm existing={invitation} backHref="/panel" />;
 }

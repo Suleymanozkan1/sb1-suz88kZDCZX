@@ -9,6 +9,14 @@ import type { Invitation } from '@/lib/types';
 
 type Phase = 'idle' | 'cracking' | 'burst' | 'parting' | 'revealed' | 'done';
 
+/** Efekt sesini bir kez çalar; tarayıcı engellerse sessizce geçer. */
+function playCue(src: string, volume: number) {
+  if (!src) return;
+  const audio = new Audio(src);
+  audio.volume = Math.min(Math.max(volume, 0), 100) / 100;
+  void audio.play().catch(() => undefined);
+}
+
 /* ---------------------------------------------------------------- toz zerreleri */
 
 function DustMotes({ active, count = 35 }: { active: boolean; count?: number }) {
@@ -340,12 +348,19 @@ export default function SealCurtain({
   }, [onOpened]);
 
   const open = useCallback(() => {
+    const volume = invitation.soundEnabled ? invitation.soundVolume : 0;
+
     setPhase('cracking');
+    playCue(invitation.sealBreakSound, volume);
+
     window.setTimeout(() => setPhase('burst'), 450);
-    window.setTimeout(() => setPhase('parting'), 1100);
+    window.setTimeout(() => {
+      setPhase('parting');
+      playCue(invitation.envelopeOpenSound, volume);
+    }, 1100);
     window.setTimeout(() => setPhase('revealed'), 2600);
     window.setTimeout(finish, 3600);
-  }, [finish]);
+  }, [finish, invitation.sealBreakSound, invitation.envelopeOpenSound, invitation.soundEnabled, invitation.soundVolume]);
 
   /* Escape ile atla */
   useEffect(() => {

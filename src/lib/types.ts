@@ -46,6 +46,9 @@ export interface Invitation {
   id: string;
   slug: string;
 
+  /** Davetiyeyi yöneten kullanıcı hesabı. */
+  ownerId: string;
+
   /* Çift bilgileri */
   brideName: string;
   groomName: string;
@@ -89,6 +92,8 @@ export interface Invitation {
   soundEnabled: boolean;
   soundVolume: number;
   backgroundMusicUrl: string;
+  sealBreakSound: string;
+  envelopeOpenSound: string;
 
   /* İçerik blokları */
   storySectionTitle: string;
@@ -120,5 +125,51 @@ export interface Rsvp {
   count: string;
   note: string;
   attending: boolean;
+  createdAt: string;
+}
+
+/* ------------------------------------------------------------------ hesaplar */
+
+export type Role = 'admin' | 'user';
+
+export interface User {
+  id: string;
+  username: string;
+  displayName: string;
+  role: Role;
+  /** scrypt türevi: "tuz:hash" */
+  passwordHash: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Parola özeti taşımayan, arayüze gönderilebilen kullanıcı kaydı. */
+export type SafeUser = Omit<User, 'passwordHash'>;
+
+export interface Session {
+  userId: string;
+  username: string;
+  displayName: string;
+  role: Role;
+}
+
+/* ------------------------------------------------- misafirlerin yüklediği fotoğraflar */
+
+export interface GuestPhoto {
+  id: string;
+  invitationId: string;
+  invitationSlug: string;
+  /** Fotoğrafı yükleyen misafirin adı (isteğe bağlı). */
+  uploaderName: string;
+  note: string;
+  /** Orijinal dosyanın diskteki adı — yüksek çözünürlük burada saklanır. */
+  fileName: string;
+  /** Galeri ızgarası için küçük önizleme dosyası. */
+  thumbName: string;
+  mimeType: string;
+  /** Orijinal dosyanın bayt cinsinden boyutu. */
+  size: number;
+  width: number;
+  height: number;
   createdAt: string;
 }

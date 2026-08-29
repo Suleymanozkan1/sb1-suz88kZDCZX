@@ -45,8 +45,8 @@ export default async function HomePage() {
         </div>
       )}
 
-      <Link href="/admin" className="btn-gold mt-12">
-        Admin Paneli
+      <Link href="/giris" className="btn-gold mt-12">
+        Giriş Yap
       </Link>
     </main>
   );

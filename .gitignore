@@ -12,3 +12,6 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 data/invitations.json
 data/rsvps.json
+data/users.json
+data/photos.json
+data/uploads/

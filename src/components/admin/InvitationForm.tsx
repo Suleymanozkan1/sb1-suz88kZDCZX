@@ -16,6 +16,7 @@ import {
   SEAL_OPTIONS,
   THEME_OPTIONS,
   emptyInvitation,
+  type InvitationDraft,
 } from '@/lib/defaults';
 import { slugify } from '@/lib/slug';
 import type {
@@ -43,7 +44,7 @@ const STEPS = [
   'Hikayemiz',
 ] as const;
 
-type Draft = Omit<Invitation, 'id' | 'createdAt' | 'updatedAt'>;
+type Draft = InvitationDraft;
 
 function Field({
   label,
@@ -147,7 +148,13 @@ function RowActions({ onRemove }: { onRemove: () => void }) {
   );
 }
 
-export default function InvitationForm({ existing }: { existing?: Invitation }) {
+export default function InvitationForm({
+  existing,
+  backHref = '/admin',
+}: {
+  existing?: Invitation;
+  backHref?: string;
+}) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -156,7 +163,7 @@ export default function InvitationForm({ existing }: { existing?: Invitation }) 
 
   const [draft, setDraft] = useState<Draft>(() => {
     if (!existing) return emptyInvitation();
-    const { id, createdAt, updatedAt, ...rest } = existing;
+    const { id, ownerId, createdAt, updatedAt, ...rest } = existing;
     return rest;
   });
 
@@ -182,7 +189,7 @@ export default function InvitationForm({ existing }: { existing?: Invitation }) 
     try {
       if (existing) {
         await api.updateInvitation(existing.id, draft);
-        router.push('/admin');
+        router.push(backHref);
         router.refresh();
       } else {
         const created = await api.createInvitation(draft);
@@ -433,6 +440,18 @@ export default function InvitationForm({ existing }: { existing?: Invitation }) 
         value={draft.backgroundMusicUrl}
         placeholder="Ses dosyası URL'si veya yolunu girin"
         onChange={(v) => set('backgroundMusicUrl', v)}
+      />
+      <Field
+        label="Mühür Kırılma Sesi"
+        value={draft.sealBreakSound}
+        placeholder="Ses dosyası URL'si (boş bırakılırsa çalınmaz)"
+        onChange={(v) => set('sealBreakSound', v)}
+      />
+      <Field
+        label="Zarf Açılma Sesi"
+        value={draft.envelopeOpenSound}
+        placeholder="Ses dosyası URL'si (boş bırakılırsa çalınmaz)"
+        onChange={(v) => set('envelopeOpenSound', v)}
       />
       <label className="block">
         <span className="field-label">Ses Seviyesi — %{draft.soundVolume}</span>
@@ -712,7 +731,7 @@ export default function InvitationForm({ existing }: { existing?: Invitation }) 
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       <header className="mb-8">
-        <Link href="/admin" className="font-sans text-xs uppercase tracking-[0.2em]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+        <Link href={backHref} className="font-sans text-xs uppercase tracking-[0.2em]" style={{ color: 'rgba(255,255,255,0.4)' }}>
           ← Geri
         </Link>
         <h1 className="mt-3 font-serif text-3xl font-light" style={{ color: '#E8D5A3' }}>
@@ -735,7 +754,7 @@ export default function InvitationForm({ existing }: { existing?: Invitation }) 
                 color: i === step ? '#E8D5A3' : 'rgba(255,255,255,0.45)',
               }}
             >
-              {i + 1}. {name}
+              {i < step ? '✓' : `${i + 1}.`} {name}
             </button>
           ))}
         </div>

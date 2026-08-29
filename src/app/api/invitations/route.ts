@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isAuthenticated } from '@/lib/auth';
+import { requireSession } from '@/lib/guard';
 import { createInvitation, getInvitationBySlug, listInvitations } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   const slug = new URL(request.url).searchParams.get('slug');
 
+  // Slug ile tek davetiye herkese açıktır — davetiye sayfasının kaynağıdır.
   if (slug) {
     const invitation = await getInvitationBySlug(slug);
     if (!invitation) {
@@ -15,21 +16,30 @@ export async function GET(request: Request) {
     return NextResponse.json(invitation);
   }
 
-  return NextResponse.json(await listInvitations());
+  // Listeleme oturum gerektirir: admin hepsini, kullanıcı yalnızca kendininkileri görür.
+  const result = requireSession();
+  if ('error' in result) return result.error;
+
+  const rows = await listInvitations();
+  return NextResponse.json(
+    result.session.role === 'admin' ? rows : rows.filter((r) => r.ownerId === result.session.userId),
+  );
 }
 
 export async function POST(request: Request) {
-  if (!isAuthenticated()) {
-    return NextResponse.json({ error: 'Yetkisiz' }, { status: 401 });
-  }
+  const result = requireSession();
+  if ('error' in result) return result.error;
 
   const body = await request.json();
   if (!body?.brideName?.trim() || !body?.groomName?.trim()) {
-    return NextResponse.json(
-      { error: 'Gelin ve damat adı zorunludur' },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: 'Gelin ve damat adı zorunludur' }, { status: 400 });
   }
 
-  return NextResponse.json(await createInvitation(body), { status: 201 });
+  // Admin başka bir hesap adına davetiye açabilir; kullanıcı yalnızca kendi adına.
+  const ownerId =
+    result.session.role === 'admin' && typeof body.ownerId === 'string' && body.ownerId
+      ? body.ownerId
+      : result.session.userId;
+
+  return NextResponse.json(await createInvitation(body, ownerId), { status: 201 });
 }

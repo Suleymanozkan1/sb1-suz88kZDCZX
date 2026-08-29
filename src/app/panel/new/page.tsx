@@ -6,8 +6,6 @@ export const dynamic = 'force-dynamic';
 
 export default function NewInvitationPage() {
   const session = currentSession();
-  if (!session) redirect('/giris?next=/admin/new');
-  if (session.role !== 'admin') redirect('/panel/new');
-
-  return <InvitationForm backHref="/admin" />;
+  if (!session) redirect('/giris?next=/panel/new');
+  return <InvitationForm backHref="/panel" />;
 }

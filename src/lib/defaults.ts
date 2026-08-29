@@ -142,8 +142,18 @@ export const DEFAULT_GALLERY = [
 export const DEFAULT_MUSIC =
   'https://assets.mixkit.co/music/preview/mixkit-romantic-piano-252.mp3';
 
+/** Giriş animasyonunun efekt sesleri — boş bırakılırsa çalınmaz. */
+export const DEFAULT_SEAL_SOUND = '';
+export const DEFAULT_ENVELOPE_SOUND = '';
+
+/** Davetiye formunun üzerinde çalıştığı alanlar (kimlik ve sahiplik hariç). */
+export type InvitationDraft = Omit<
+  Invitation,
+  'id' | 'ownerId' | 'createdAt' | 'updatedAt'
+>;
+
 /** Formda ve önizlemede kullanılan boş davetiye taslağı. */
-export function emptyInvitation(): Omit<Invitation, 'id' | 'createdAt' | 'updatedAt'> {
+export function emptyInvitation(): InvitationDraft {
   return {
     slug: '',
     brideName: '',
@@ -176,6 +186,8 @@ export function emptyInvitation(): Omit<Invitation, 'id' | 'createdAt' | 'update
     soundEnabled: true,
     soundVolume: 50,
     backgroundMusicUrl: DEFAULT_MUSIC,
+    sealBreakSound: DEFAULT_SEAL_SOUND,
+    envelopeOpenSound: DEFAULT_ENVELOPE_SOUND,
     storySectionTitle: 'Hikayemiz',
     storySectionSubtitle: 'Bizim',
     storyItems: DEFAULT_STORY_ITEMS,
@@ -193,6 +205,7 @@ export function emptyInvitation(): Omit<Invitation, 'id' | 'createdAt' | 'update
 export const DEMO_INVITATION: Invitation = {
   ...emptyInvitation(),
   id: 'demo',
+  ownerId: 'demo',
   slug: 'ayse-mehmet',
   brideName: 'Ayşe',
   groomName: 'Mehmet',

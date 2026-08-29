@@ -1,4 +1,4 @@
-import type { Invitation, InvitationInput, Rsvp } from './types';
+import type { GuestPhoto, Invitation, InvitationInput, Rsvp, SafeUser, Session } from './types';
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -56,12 +56,81 @@ export async function deleteRsvp(id: string): Promise<void> {
   await json(await fetch(`/api/rsvp?id=${encodeURIComponent(id)}`, { method: 'DELETE' }));
 }
 
-export function login(password: string): Promise<{ ok: true }> {
+export function login(username: string, password: string): Promise<{ ok: true; session: Session }> {
   return fetch('/api/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
-  }).then(json<{ ok: true }>);
+    body: JSON.stringify({ username, password }),
+  }).then(json<{ ok: true; session: Session }>);
+}
+
+/* ------------------------------------------------------------------ hesaplar */
+
+export function listUsers(): Promise<SafeUser[]> {
+  return fetch('/api/users', { cache: 'no-store' }).then(json<SafeUser[]>);
+}
+
+export function createUser(input: {
+  username: string;
+  displayName: string;
+  password?: string;
+}): Promise<{ user: SafeUser; password: string }> {
+  return fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  }).then(json<{ user: SafeUser; password: string }>);
+}
+
+export function resetUserPassword(
+  id: string,
+  password?: string,
+): Promise<{ user: SafeUser; password: string }> {
+  return fetch(`/api/users/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ resetPassword: true, password }),
+  }).then(json<{ user: SafeUser; password: string }>);
+}
+
+export function renameUser(id: string, displayName: string): Promise<{ user: SafeUser }> {
+  return fetch(`/api/users/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ displayName }),
+  }).then(json<{ user: SafeUser }>);
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  await json(await fetch(`/api/users/${id}`, { method: 'DELETE' }));
+}
+
+/* --------------------------------------------------------- misafir fotoğrafları */
+
+export function listPhotos(invitationId?: string): Promise<GuestPhoto[]> {
+  const query = invitationId ? `?invitationId=${encodeURIComponent(invitationId)}` : '';
+  return fetch(`/api/photos${query}`, { cache: 'no-store' }).then(json<GuestPhoto[]>);
+}
+
+export async function deletePhoto(id: string): Promise<void> {
+  await json(await fetch(`/api/photos/${id}`, { method: 'DELETE' }));
+}
+
+/** Galeri önizlemesi ve tam çözünürlüklü indirme adresleri. */
+export function photoThumbUrl(id: string): string {
+  return `/api/photos/${id}/file?size=thumb`;
+}
+
+export function photoFullUrl(id: string): string {
+  return `/api/photos/${id}/file`;
+}
+
+export function photoDownloadUrl(id: string): string {
+  return `/api/photos/${id}/file?download=1`;
+}
+
+export function photosZipUrl(invitationId?: string): string {
+  return invitationId ? `/api/photos/zip?invitationId=${encodeURIComponent(invitationId)}` : '/api/photos/zip';
 }
 
 export async function logout(): Promise<void> {
