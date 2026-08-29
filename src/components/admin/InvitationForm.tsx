@@ -1,5 +1,7 @@
 'use client';
 
+import SoundPicker from './SoundPicker';
+import { ENVELOPE_SOUNDS, MUSIC_TRACKS, SEAL_SOUNDS } from '@/lib/music';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -434,23 +436,28 @@ export default function InvitationForm({
     /* 7 — Ses Ayarları */
     <div key="sound" className="space-y-4">
       <Toggle label="Ses Aktif" checked={draft.soundEnabled} onChange={(v) => set('soundEnabled', v)} />
-      <Field
+      <SoundPicker
         label="Arka Plan Müziği"
+        hint="Davetiye açıldığında çalar. Seçmeden önce dinleyebilirsiniz."
+        presets={MUSIC_TRACKS}
         value={draft.backgroundMusicUrl}
-        placeholder="Ses dosyası URL'si veya yolunu girin"
         onChange={(v) => set('backgroundMusicUrl', v)}
+        allowNone
       />
-      <Field
+      <SoundPicker
         label="Mühür Kırılma Sesi"
+        hint="Mühür kırılırken bir kez çalar."
+        presets={SEAL_SOUNDS}
         value={draft.sealBreakSound}
-        placeholder="Ses dosyası URL'si (boş bırakılırsa çalınmaz)"
         onChange={(v) => set('sealBreakSound', v)}
+        allowNone
       />
-      <Field
+      <SoundPicker
         label="Zarf Açılma Sesi"
+        presets={ENVELOPE_SOUNDS}
         value={draft.envelopeOpenSound}
-        placeholder="Ses dosyası URL'si (boş bırakılırsa çalınmaz)"
         onChange={(v) => set('envelopeOpenSound', v)}
+        allowNone
       />
       <label className="block">
         <span className="field-label">Ses Seviyesi — %{draft.soundVolume}</span>

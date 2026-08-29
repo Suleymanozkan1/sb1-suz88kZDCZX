@@ -46,7 +46,7 @@ function auth(): { token?: string; storeId?: string } {
   return options;
 }
 
-const EXTENSIONS: Record<string, string> = {
+const IMAGE_EXTENSIONS: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
@@ -55,8 +55,30 @@ const EXTENSIONS: Record<string, string> = {
   'image/avif': 'avif',
 };
 
+/** Kendi müziğini yükleyenler için; tarayıcıların yaygın olarak çalabildiği türler. */
+const AUDIO_EXTENSIONS: Record<string, string> = {
+  'audio/mpeg': 'mp3',
+  'audio/mp3': 'mp3',
+  'audio/mp4': 'm4a',
+  'audio/x-m4a': 'm4a',
+  'audio/aac': 'aac',
+  'audio/ogg': 'ogg',
+  'audio/wav': 'wav',
+  'audio/x-wav': 'wav',
+  'audio/webm': 'weba',
+};
+
+const EXTENSIONS: Record<string, string> = { ...IMAGE_EXTENSIONS, ...AUDIO_EXTENSIONS };
+
+export const AUDIO_TYPES = Object.keys(AUDIO_EXTENSIONS);
+export const IMAGE_TYPES = Object.keys(IMAGE_EXTENSIONS);
+
 export function isSupportedImage(mimeType: string): boolean {
-  return mimeType in EXTENSIONS;
+  return mimeType in IMAGE_EXTENSIONS;
+}
+
+export function isSupportedAudio(mimeType: string): boolean {
+  return mimeType in AUDIO_EXTENSIONS;
 }
 
 export function extensionFor(mimeType: string): string {

@@ -2,7 +2,7 @@ import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { requireSession } from '@/lib/guard';
-import { MAX_PHOTO_BYTES, isGeneratedName, usingBlob } from '@/lib/files';
+import { AUDIO_TYPES, IMAGE_TYPES, MAX_PHOTO_BYTES, isGeneratedName, usingBlob } from '@/lib/files';
 import { blobAuth, canMintClientToken } from '@/lib/blob-token';
 
 export const dynamic = 'force-dynamic';
@@ -65,7 +65,7 @@ async function handlePost(request: Request) {
           throw new Error('Geçersiz hedef');
         }
         return {
-          allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/heic', 'image/heif'],
+          allowedContentTypes: [...IMAGE_TYPES, ...AUDIO_TYPES],
           maximumSizeInBytes: MAX_PHOTO_BYTES,
           addRandomSuffix: false,
           allowOverwrite: false,

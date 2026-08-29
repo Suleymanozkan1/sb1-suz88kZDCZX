@@ -47,9 +47,12 @@ export default function MusicPlayer({
 
   return (
     <>
-      <audio ref={audioRef} loop preload="none">
-        <source src={src} type="audio/mpeg" />
-      </audio>
+      {/*
+        Tür belirtilmiyor: sabit `audio/mpeg` yazılıydı ve kendi dosyasını
+        yükleyen biri m4a/ogg/wav koyduğunda tarayıcı kaynağı reddediyordu.
+        Adresi doğrudan vermek, türü tarayıcının belirlemesini sağlar.
+      */}
+      <audio ref={audioRef} src={src} loop preload="none" />
 
       <button
         type="button"

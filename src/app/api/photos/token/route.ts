@@ -1,7 +1,7 @@
 import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
-import { MAX_PHOTO_BYTES, isGeneratedName, usingBlob } from '@/lib/files';
+import { IMAGE_TYPES, MAX_PHOTO_BYTES, isGeneratedName, usingBlob } from '@/lib/files';
 import { blobAuth, canMintClientToken } from '@/lib/blob-token';
 import { getInvitationBySlug } from '@/lib/store';
 
@@ -64,7 +64,8 @@ async function handlePost(request: Request) {
         }
 
         return {
-          allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/heic', 'image/heif'],
+          // Misafir yüklemesi yalnızca fotoğraftır.
+          allowedContentTypes: IMAGE_TYPES,
           maximumSizeInBytes: MAX_PHOTO_BYTES,
           addRandomSuffix: false,
           allowOverwrite: false,

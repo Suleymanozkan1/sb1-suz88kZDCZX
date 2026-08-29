@@ -139,12 +139,14 @@ export const DEFAULT_GALLERY = [
   'https://images.unsplash.com/photo-1470217957101-da7150b9b681?w=900&q=85',
 ];
 
-export const DEFAULT_MUSIC =
-  'https://assets.mixkit.co/music/preview/mixkit-romantic-piano-252.mp3';
-
-/** Giriş animasyonunun efekt sesleri — boş bırakılırsa çalınmaz. */
-export const DEFAULT_SEAL_SOUND = '';
-export const DEFAULT_ENVELOPE_SOUND = '';
+/**
+ * Sesler artık projenin kendi dosyalarıdır (`public/muzik/`).
+ * Önceki varsayılan dışarıya bağlı bir adresti ve bugün 403 döndüğü için
+ * hiçbir davetiyede müzik çalmıyordu.
+ */
+export const DEFAULT_MUSIC = '/muzik/piyano-sakin.mp3';
+export const DEFAULT_SEAL_SOUND = '/muzik/muhur-kirilma.mp3';
+export const DEFAULT_ENVELOPE_SOUND = '/muzik/zarf-acilma.mp3';
 
 /** Davetiye formunun üzerinde çalıştığı alanlar (kimlik ve sahiplik hariç). */
 export type InvitationDraft = Omit<

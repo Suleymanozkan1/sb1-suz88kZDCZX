@@ -1,7 +1,13 @@
 import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
-import { MAX_PHOTO_BYTES, isSupportedImage, newFileName, saveFile } from '@/lib/files';
+import {
+  MAX_PHOTO_BYTES,
+  isSupportedAudio,
+  isSupportedImage,
+  newFileName,
+  saveFile,
+} from '@/lib/files';
 import { isConfigError } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
@@ -29,8 +35,12 @@ async function handlePost(request: Request) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: 'Dosya seçilmedi' }, { status: 400 });
   }
-  if (!isSupportedImage(file.type)) {
-    return NextResponse.json({ error: 'Yalnızca görsel yükleyebilirsiniz' }, { status: 400 });
+  // Kapak/galeri görselleri ve kendi müziğini yükleyenler aynı uçtan geçer.
+  if (!isSupportedImage(file.type) && !isSupportedAudio(file.type)) {
+    return NextResponse.json(
+      { error: 'Yalnızca görsel veya ses dosyası yükleyebilirsiniz' },
+      { status: 400 },
+    );
   }
   if (file.size > MAX_PHOTO_BYTES) {
     return NextResponse.json(
