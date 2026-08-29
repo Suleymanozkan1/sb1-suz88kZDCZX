@@ -22,15 +22,17 @@
   --c-gold-light: #e2cd97;
   --c-gold-deep: #6b5119;
 
-  /* Koyu zeminde metin */
+  /* Metin tonları.
+     Opaklıklar göze göre değil ÖLÇÜLEREK seçildi: en soluk ton bile küçük
+     punto için WCAG AA'nın (4.5:1) üstünde kalmalı. Daha düşük opaklıklar
+     hoş görünüyordu ama meta satırlarını okunmaz kılıyordu. */
   --c-on-dark: #f2e9d8;
-  --c-on-dark-soft: rgba(242, 233, 216, 0.62);
-  --c-on-dark-faint: rgba(242, 233, 216, 0.34);
+  --c-on-dark-soft: rgba(242, 233, 216, 0.74);
+  --c-on-dark-faint: rgba(242, 233, 216, 0.56);
 
-  /* Açık zeminde metin */
   --c-on-light: #241a10;
-  --c-on-light-soft: rgba(36, 26, 16, 0.66);
-  --c-on-light-faint: rgba(36, 26, 16, 0.38);
+  --c-on-light-soft: rgba(36, 26, 16, 0.8);
+  --c-on-light-faint: rgba(36, 26, 16, 0.66);
 
   --c-rule: rgba(176, 141, 63, 0.28);
   --c-rule-dark: rgba(226, 205, 151, 0.22);

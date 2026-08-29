@@ -92,10 +92,7 @@ export default function ContactSection({ invitation }: { invitation: Invitation 
           </motion.p>
         )}
 
-        <p
-          className="t-label mt-[var(--sp-lg)]"
-          style={{ color: 'rgba(242, 233, 216, 0.22)' }}
-        >
+        <p className="t-label mt-[var(--sp-lg)]" style={{ color: 'var(--c-on-dark-faint)' }}>
           Sevgiyle hazırlandı
         </p>
       </div>

@@ -47,13 +47,13 @@ export default async function InvitationPage({ params }: Props) {
     return (
       <main
         className="flex min-h-screen items-center justify-center px-6 text-center"
-        style={{ background: 'radial-gradient(ellipse at center, #2a1f14, #0d0805)' }}
+        style={{ background: 'radial-gradient(ellipse at center, var(--c-ember), var(--c-night))' }}
       >
         <div>
-          <h1 className="font-serif text-3xl font-light" style={{ color: '#E8D5A3' }}>
+          <h1 className="t-display" style={{ color: 'var(--c-on-dark)' }}>
             Davetiye Bulunamadı
           </h1>
-          <p className="mt-4 font-sans text-sm font-light" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          <p className="t-body mt-4" style={{ color: 'var(--c-on-dark-soft)' }}>
             Bu davetiye mevcut değil veya henüz aktif değil.
           </p>
         </div>

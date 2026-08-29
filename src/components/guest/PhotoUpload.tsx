@@ -2,6 +2,13 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRef, useState } from 'react';
+import {
+  Divider,
+  IconArrow,
+  IconCamera,
+  IconCheck,
+  IconClose,
+} from '@/components/invitation/Ornaments';
 
 interface Queued {
   id: string;
@@ -132,28 +139,36 @@ export default function PhotoUpload({
 
   return (
     <div className="mx-auto w-full max-w-lg px-6 py-12">
-      <div className="mb-10 text-center">
-        <span className="font-serif text-2xl" style={{ color: '#C9A84C' }}>
-          ✦
-        </span>
-        <h1 className="t-display mt-4" style={{ color: 'var(--c-on-dark)' }}>{coupleNames}</h1>
-        <p
-          className="mt-4 font-sans text-sm font-light leading-relaxed"
-          style={{ color: 'rgba(255,255,255,0.6)' }}
-        >
+      <div className="mb-[var(--sp-lg)] text-center">
+        <p className="t-label" style={{ color: 'var(--c-gold)' }}>
+          Fotoğraflarınız
+        </p>
+        <h1 className="t-display mt-4" style={{ color: 'var(--c-on-dark)' }}>
+          {coupleNames}
+        </h1>
+        <div className="mt-[var(--sp-md)]" style={{ color: 'var(--c-gold)' }}>
+          <Divider />
+        </div>
+        <p className="t-body mx-auto mt-[var(--sp-md)] measure" style={{ color: 'var(--c-on-dark-soft)' }}>
           Çektiğiniz fotoğrafları bizimle paylaşın — düğün albümümüzde yerini alsın.
         </p>
       </div>
 
       {doneCount > 0 && (
         <motion.div
-          className="mb-6 rounded-2xl px-5 py-4 text-center"
+          className="mb-[var(--sp-md)] flex items-center justify-center gap-3 py-[var(--sp-sm)]"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)' }}
+          style={{
+            borderTop: '1px solid rgba(176, 141, 63, 0.3)',
+            borderBottom: '1px solid rgba(176, 141, 63, 0.3)',
+          }}
         >
-          <p className="font-serif text-lg font-light" style={{ color: '#E8D5A3' }}>
-            {doneCount} fotoğraf yüklendi — teşekkürler! 🌸
+          <span style={{ color: 'var(--c-gold-light)' }}>
+            <IconCheck size={18} />
+          </span>
+          <p className="t-lead" style={{ color: 'var(--c-gold-light)' }}>
+            <span className="numerals">{doneCount}</span> fotoğraf yüklendi — teşekkürler
           </p>
         </motion.div>
       )}
@@ -165,11 +180,11 @@ export default function PhotoUpload({
         id="uploader-name"
         value={uploaderName}
         onChange={(e) => setUploaderName(e.target.value)}
-        className="field"
+        className="field t-lead"
         placeholder="Adınızı yazabilirsiniz"
       />
 
-      <div className="mt-4">
+      <div className="mt-[var(--sp-md)]">
         <label className="field-label" htmlFor="uploader-note">
           Notunuz (İsteğe Bağlı)
         </label>
@@ -178,7 +193,7 @@ export default function PhotoUpload({
           rows={2}
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="field resize-none"
+          className="field t-body resize-none"
           placeholder="Bir dilek bırakmak ister misiniz?"
         />
       </div>
@@ -186,16 +201,20 @@ export default function PhotoUpload({
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="mt-6 flex w-full flex-col items-center justify-center rounded-2xl px-4 py-10 transition-all"
+        className="group mt-[var(--sp-md)] flex w-full flex-col items-center justify-center px-4 py-[var(--sp-lg)] transition-colors duration-500"
         style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px dashed rgba(201,168,76,0.35)',
-          color: 'rgba(255,255,255,0.6)',
+          border: '1px dashed rgba(176, 141, 63, 0.4)',
+          color: 'var(--c-on-dark-soft)',
         }}
       >
-        <span className="text-3xl">📸</span>
-        <span className="mt-3 font-sans text-sm">Fotoğraf Seç veya Çek</span>
-        <span className="mt-1 font-sans text-[11px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <span
+          className="transition-transform duration-500 group-hover:-translate-y-1"
+          style={{ color: 'var(--c-gold)' }}
+        >
+          <IconCamera size={30} />
+        </span>
+        <span className="t-lead mt-4">Fotoğraf Seç veya Çek</span>
+        <span className="t-label mt-2" style={{ color: 'var(--c-on-dark-faint)' }}>
           Birden fazla seçebilirsiniz · en fazla 25 MB
         </span>
       </button>
@@ -215,7 +234,7 @@ export default function PhotoUpload({
       <AnimatePresence>
         {queue.length > 0 && (
           <motion.div
-            className="mt-6 grid grid-cols-3 gap-3"
+            className="mt-[var(--sp-md)] grid grid-cols-3 gap-[var(--sp-xs)]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
@@ -223,7 +242,7 @@ export default function PhotoUpload({
               <motion.div
                 key={item.id}
                 layout
-                className="relative aspect-square overflow-hidden rounded-xl"
+                className="relative aspect-square overflow-hidden"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
@@ -234,13 +253,13 @@ export default function PhotoUpload({
                 <div
                   className="absolute inset-x-0 bottom-0 px-1.5 py-1 text-center font-sans text-[10px]"
                   style={{
-                    background: 'rgba(0,0,0,0.7)',
+                    background: 'rgba(9,6,3,0.8)',
                     color:
                       item.status === 'yüklendi'
-                        ? '#86efac'
+                        ? '#9ed7a8'
                         : item.status === 'hata'
-                          ? '#f0a3a3'
-                          : '#E8D5A3',
+                          ? '#e2a3a3'
+                          : 'var(--c-gold-light)',
                   }}
                 >
                   {item.status === 'hata' ? item.error : item.status}
@@ -251,10 +270,10 @@ export default function PhotoUpload({
                     type="button"
                     onClick={() => removeAt(item.id)}
                     aria-label="Kaldır"
-                    className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full text-xs"
-                    style={{ background: 'rgba(0,0,0,0.7)', color: '#f0a3a3' }}
+                    className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center transition-transform duration-500 hover:rotate-90"
+                    style={{ background: 'rgba(9,6,3,0.75)', color: '#e2a3a3' }}
                   >
-                    ✕
+                    <IconClose size={12} />
                   </button>
                 )}
               </motion.div>
@@ -264,15 +283,18 @@ export default function PhotoUpload({
       </AnimatePresence>
 
       {pending > 0 && (
-        <button type="button" onClick={uploadAll} disabled={busy} className="btn-gold mt-6 w-full">
-          {busy ? 'Yükleniyor…' : `${pending} Fotoğrafı Gönder`}
+        <button
+          type="button"
+          onClick={uploadAll}
+          disabled={busy}
+          className="cta nudge mt-[var(--sp-md)] w-full justify-center"
+        >
+          {busy ? 'Yükleniyor' : `${pending} Fotoğrafı Gönder`}
+          <IconArrow size={14} />
         </button>
       )}
 
-      <p
-        className="mt-10 text-center font-sans text-[11px] leading-relaxed"
-        style={{ color: 'rgba(255,255,255,0.3)' }}
-      >
+      <p className="t-body mt-[var(--sp-lg)] text-center" style={{ color: 'var(--c-on-dark-faint)' }}>
         Fotoğraflar yalnızca çiftin özel albümünde görünür.
       </p>
     </div>

@@ -8,9 +8,10 @@ export const metadata: Metadata = {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="min-h-screen"
-      style={{ background: 'linear-gradient(180deg, #120c06 0%, #0d0805 100%)' }}
+      className="relative min-h-screen"
+      style={{ background: 'linear-gradient(180deg, var(--c-ink) 0%, var(--c-night) 60%)' }}
     >
+      <div className="grain" aria-hidden />
       {children}
     </div>
   );

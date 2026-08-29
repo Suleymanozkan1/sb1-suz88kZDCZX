@@ -2,6 +2,13 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Action, EmptyState, PanelSection } from '@/components/admin/ui';
+import {
+  IconArrow,
+  IconCamera,
+  IconClose,
+  IconDownload,
+} from '@/components/invitation/Ornaments';
 import * as api from '@/lib/api';
 import type { GuestPhoto, Invitation } from '@/lib/types';
 
@@ -90,30 +97,28 @@ export default function PhotoGallery({
   const current = open !== null ? visible[open] : null;
 
   return (
-    <section>
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="font-serif text-2xl font-light" style={{ color: '#E8D5A3' }}>
-            Misafir Fotoğrafları
-          </h2>
-          <p className="mt-1 font-sans text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            {visible.length} fotoğraf · {formatBytes(totalBytes)} · masadaki QR koddan yüklenir
-          </p>
-        </div>
-
-        {visible.length > 0 && (
+    <PanelSection
+      n={4}
+      label="Albüm"
+      title="Misafir Fotoğrafları"
+      lead={`${visible.length} fotoğraf · ${formatBytes(totalBytes)} · masadaki QR koddan yüklenir`}
+      action={
+        visible.length > 0 ? (
           <a
             href={api.photosZipUrl(filter === 'all' ? undefined : filter)}
-            className="btn-gold"
+            className="cta nudge"
             download
           >
-            Tümünü İndir (ZIP)
+            <IconDownload size={14} />
+            Tümünü İndir
+            <IconArrow size={14} />
           </a>
-        )}
-      </div>
+        ) : undefined
+      }
+    >
 
       {invitations.length > 1 && (
-        <div className="mb-5 flex flex-wrap gap-2">
+        <div className="mb-[var(--sp-md)] flex flex-wrap gap-[var(--sp-md)]">
           {[{ id: 'all', label: 'Tümü' }, ...invitations.map((inv) => ({
             id: inv.id,
             label: `${inv.groomName} ${inv.conjunction} ${inv.brideName}`,
@@ -122,48 +127,51 @@ export default function PhotoGallery({
               key={option.id}
               type="button"
               onClick={() => setFilter(option.id)}
-              className="rounded-full px-4 py-2 font-sans text-xs transition-all"
+              className="relative pb-2 font-sans text-sm transition-colors duration-300"
               style={{
-                background: filter === option.id ? 'rgba(201,168,76,0.18)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${filter === option.id ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.12)'}`,
-                color: filter === option.id ? '#E8D5A3' : 'rgba(255,255,255,0.5)',
+                color: filter === option.id ? 'var(--c-gold-light)' : 'var(--c-on-dark-faint)',
               }}
             >
               {option.label}
+              <span
+                className="absolute inset-x-0 bottom-0 h-px origin-left transition-transform duration-500"
+                style={{
+                  background: 'currentColor',
+                  transform: filter === option.id ? 'scaleX(1)' : 'scaleX(0)',
+                }}
+                aria-hidden
+              />
             </button>
           ))}
         </div>
       )}
 
       {error && (
-        <p className="mb-4 font-sans text-sm" style={{ color: '#f0a3a3' }}>
+        <p className="t-body mb-4" style={{ color: '#e2a3a3' }}>
           {error}
         </p>
       )}
 
       {loading ? (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-[var(--sp-sm)] sm:grid-cols-3 lg:grid-cols-4">
           {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <div key={i} className="aspect-square animate-pulse rounded-xl bg-white/5" />
+            <div key={i} className="aspect-square animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
           ))}
         </div>
       ) : visible.length === 0 ? (
-        <div className="admin-card py-14 text-center">
-          <p className="font-serif text-lg font-light" style={{ color: '#E8D5A3' }}>
-            Henüz fotoğraf yok
-          </p>
-          <p className="mt-2 font-sans text-sm font-light" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Masalara koyduğunuz QR kodu okutan misafirlerin fotoğrafları burada birikir.
-          </p>
-        </div>
+        <EmptyState
+          icon={IconCamera}
+          title="Henüz fotoğraf yok"
+          lead="Masalara koyduğunuz QR kodu okutan misafirlerin fotoğrafları burada birikir."
+        />
       ) : (
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+        <div className="columns-2 gap-[var(--sp-sm)] sm:columns-3 lg:columns-4">
           {visible.map((photo, i) => (
             <motion.button
               key={photo.id}
               type="button"
               onClick={() => setOpen(i)}
-              className="group relative aspect-square overflow-hidden rounded-xl"
+              className="group relative mb-[var(--sp-sm)] block w-full break-inside-avoid overflow-hidden"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: Math.min(i, 12) * 0.03 }}
@@ -175,12 +183,12 @@ export default function PhotoGallery({
                 src={api.photoThumbUrl(photo.id)}
                 alt={photo.uploaderName || `Fotoğraf ${i + 1}`}
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="block w-full transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
               />
               {photo.uploaderName && (
                 <span
-                  className="absolute inset-x-0 bottom-0 truncate px-2 py-1 text-left font-sans text-[10px] opacity-0 transition-opacity group-hover:opacity-100"
-                  style={{ background: 'rgba(0,0,0,0.7)', color: '#E8D5A3' }}
+                  className="absolute inset-x-0 bottom-0 truncate px-3 py-2 text-left font-sans text-[11px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  style={{ background: 'rgba(9,6,3,0.75)', color: 'var(--c-gold-light)' }}
                 >
                   {photo.uploaderName}
                 </span>
@@ -195,7 +203,7 @@ export default function PhotoGallery({
         {current && (
           <motion.div
             className="fixed inset-0 z-[900] flex items-center justify-center p-4"
-            style={{ background: 'rgba(8,5,3,0.95)', backdropFilter: 'blur(8px)' }}
+            style={{ background: 'rgba(9,6,3,0.96)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -219,38 +227,34 @@ export default function PhotoGallery({
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-serif text-lg font-light" style={{ color: '#E8D5A3' }}>
+                  <p className="t-lead" style={{ color: 'var(--c-on-dark)' }}>
                     {current.uploaderName || 'İsimsiz misafir'}
                   </p>
-                  <p className="font-sans text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  <p className="numerals font-sans text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
                     {formatWhen(current.createdAt)}
                     {current.width > 0 ? ` · ${current.width}×${current.height}` : ''} ·{' '}
                     {formatBytes(current.size)}
                   </p>
                   {current.note && (
-                    <p className="mt-1 font-serif text-sm italic" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                    <p className="t-body mt-1 italic" style={{ color: 'var(--c-on-dark-soft)' }}>
                       “{current.note}”
                     </p>
                   )}
                 </div>
 
                 <div className="flex gap-2">
-                  <a href={api.photoDownloadUrl(current.id)} download className="btn-gold">
+                  <a
+                    href={api.photoDownloadUrl(current.id)}
+                    download
+                    className="cta nudge"
+                  >
+                    <IconDownload size={14} />
                     Orijinali İndir
                   </a>
                   {canDelete && (
-                    <button
-                      type="button"
-                      onClick={() => remove(current.id)}
-                      className="rounded-full px-5 py-3 font-sans text-sm uppercase tracking-[0.15em]"
-                      style={{
-                        background: 'rgba(239,68,68,0.1)',
-                        border: '1px solid rgba(239,68,68,0.25)',
-                        color: '#f0a3a3',
-                      }}
-                    >
+                    <Action danger onClick={() => remove(current.id)}>
                       Sil
-                    </button>
+                    </Action>
                   )}
                 </div>
               </div>
@@ -260,10 +264,10 @@ export default function PhotoGallery({
               type="button"
               onClick={close}
               aria-label="Kapat"
-              className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full text-white"
-              style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+              className="absolute right-6 top-6 transition-transform duration-500 hover:rotate-90"
+              style={{ color: 'var(--c-on-dark-soft)' }}
             >
-              ✕
+              <IconClose size={20} />
             </button>
 
             {visible.length > 1 && (
@@ -275,10 +279,12 @@ export default function PhotoGallery({
                     e.stopPropagation();
                     step(-1);
                   }}
-                  className="absolute left-3 flex h-11 w-11 items-center justify-center rounded-full text-white sm:left-6"
-                  style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+                  className="absolute left-3 sm:left-6"
+                  style={{ color: 'var(--c-on-dark-soft)' }}
                 >
-                  ‹
+                  <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden>
+                    <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="1" fill="none" />
+                  </svg>
                 </button>
                 <button
                   type="button"
@@ -287,16 +293,18 @@ export default function PhotoGallery({
                     e.stopPropagation();
                     step(1);
                   }}
-                  className="absolute right-3 flex h-11 w-11 items-center justify-center rounded-full text-white sm:right-6"
-                  style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
+                  className="absolute right-3 sm:right-6"
+                  style={{ color: 'var(--c-on-dark-soft)' }}
                 >
-                  ›
+                  <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden>
+                    <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="1" fill="none" />
+                  </svg>
                 </button>
               </>
             )}
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </PanelSection>
   );
 }

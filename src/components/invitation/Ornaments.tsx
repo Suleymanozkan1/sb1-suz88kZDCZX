@@ -190,6 +190,125 @@ export function resolveIcon(glyph: string | undefined, index = 0): IconName {
   return FALLBACK[index % FALLBACK.length];
 }
 
+/* ──────────────────────────────────────────────────── panel ikonları */
+
+export function IconUser({ size = 22, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <circle {...stroke} cx="12" cy="8.5" r="3.8" />
+      <path {...stroke} d="M4.5 20.5c0-3.9 3.4-6.4 7.5-6.4s7.5 2.5 7.5 6.4" />
+    </svg>
+  );
+}
+
+export function IconTrash({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="M4 6.5h16M9.5 6.5V4h5v2.5M6.5 6.5 7.5 20h9l1-13.5" />
+      <path {...stroke} d="M10.5 10v6M13.5 10v6" />
+    </svg>
+  );
+}
+
+export function IconKey({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <circle {...stroke} cx="8" cy="12" r="4" />
+      <path {...stroke} d="M12 12h8M17 12v3M20 12v2.5" />
+    </svg>
+  );
+}
+
+export function IconPlus({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+export function IconDownload({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14" />
+    </svg>
+  );
+}
+
+export function IconQr({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <rect {...stroke} x="3.5" y="3.5" width="6.5" height="6.5" />
+      <rect {...stroke} x="14" y="3.5" width="6.5" height="6.5" />
+      <rect {...stroke} x="3.5" y="14" width="6.5" height="6.5" />
+      <path {...stroke} d="M14 14h3v3h-3zM20.5 14v3M17.5 20.5h3" />
+    </svg>
+  );
+}
+
+export function IconEye({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="M2.5 12S6 6.5 12 6.5 21.5 12 21.5 12 18 17.5 12 17.5 2.5 12 2.5 12Z" />
+      <circle {...stroke} cx="12" cy="12" r="2.8" />
+    </svg>
+  );
+}
+
+export function IconPencil({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3Z" />
+      <path {...stroke} d="m15 7 2 2" />
+    </svg>
+  );
+}
+
+export function IconPower({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="M12 3.5v8" />
+      <path {...stroke} d="M17.5 6.8a7.5 7.5 0 1 1-11 0" />
+    </svg>
+  );
+}
+
+export function IconWarning({ size = 26, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="M12 3.5 21.5 20h-19L12 3.5Z" />
+      <path {...stroke} d="M12 10v4.5" />
+      <circle cx="12" cy="17.4" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function IconImage({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <rect {...stroke} x="3" y="5" width="18" height="14" rx="1.5" />
+      <circle {...stroke} cx="8.5" cy="10" r="1.6" />
+      <path {...stroke} d="m3.5 17 5-4.5 4 3.5 3.5-3 4.5 4" />
+    </svg>
+  );
+}
+
+export function IconCheck({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="m5 12.5 4.5 4.5L19 7" />
+    </svg>
+  );
+}
+
+export function IconClose({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden>
+      <path {...stroke} d="M5 5l14 14M19 5 5 19" />
+    </svg>
+  );
+}
+
 /* ────────────────────────────────────────────────────── süsleme öğeleri */
 
 /** İki yana sönümlenen çizgi ve ortasında küçük bir eşkenar dörtgen. */

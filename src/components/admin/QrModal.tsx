@@ -1,8 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
+import { Action, Modal } from './ui';
+import { IconDownload } from '@/components/invitation/Ornaments';
 import type { Invitation } from '@/lib/types';
 
 type Kind = 'davet' | 'yukle';
@@ -63,75 +64,64 @@ export default function QrModal({
   }
 
   return (
-    <motion.div
-      className="fixed inset-0 z-[900] flex items-center justify-center p-6"
-      style={{ background: 'rgba(0,0,0,0.7)' }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-    >
-      <motion.div
-        className="w-full max-w-sm rounded-2xl p-8 text-center"
-        style={{ background: '#150e07', border: '1px solid rgba(201,168,76,0.25)' }}
-        initial={{ scale: 0.94 }}
-        animate={{ scale: 1 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="mb-5 font-serif text-xl font-light" style={{ color: '#E8D5A3' }}>
-          QR Kod
-        </h3>
+    <Modal onClose={onClose}>
+      <p className="t-label" style={{ color: 'var(--c-gold)' }}>
+        QR Kod
+      </p>
 
-        <div className="mb-5 flex gap-2">
-          {KINDS.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => setKind(option.id)}
-              className="flex-1 rounded-xl px-3 py-2 font-sans text-xs transition-all"
+      <div className="mt-[var(--sp-sm)] flex gap-[var(--sp-md)]">
+        {KINDS.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            onClick={() => setKind(option.id)}
+            className="relative pb-2 font-sans text-sm transition-colors duration-300"
+            style={{
+              color: kind === option.id ? 'var(--c-gold-light)' : 'var(--c-on-dark-faint)',
+            }}
+          >
+            {option.label}
+            <span
+              className="absolute inset-x-0 bottom-0 h-px origin-left transition-transform duration-500"
               style={{
-                background: kind === option.id ? 'rgba(201,168,76,0.18)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${kind === option.id ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.12)'}`,
-                color: kind === option.id ? '#E8D5A3' : 'rgba(255,255,255,0.5)',
+                background: 'currentColor',
+                transform: kind === option.id ? 'scaleX(1)' : 'scaleX(0)',
               }}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+              aria-hidden
+            />
+          </button>
+        ))}
+      </div>
 
+      <div className="mt-[var(--sp-md)]">
         {dataUrl ? (
           // QR görseli data URI olduğu için next/image optimizasyonuna gerek yok.
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={dataUrl} alt="QR Kod" className="mx-auto w-56 rounded-xl" />
+          <img src={dataUrl} alt="QR Kod" className="mx-auto w-52" />
         ) : (
-          <div className="mx-auto h-56 w-56 animate-pulse rounded-xl bg-white/5" />
+          <div className="mx-auto h-52 w-52 animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
         )}
+      </div>
 
-        <p className="mt-4 font-sans text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
-          {active.hint}
-        </p>
-        <p className="mt-2 break-all font-sans text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-          {url}
-        </p>
+      <p className="t-body mt-[var(--sp-sm)] measure" style={{ color: 'var(--c-on-dark-soft)' }}>
+        {active.hint}
+      </p>
+      <p className="mt-2 break-all font-sans text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+        {url}
+      </p>
 
-        <div className="mt-6 flex flex-wrap gap-3">
-          <a
-            href={dataUrl || '#'}
-            download={`${invitation.slug}-${kind}-qr.png`}
-            className="btn-gold flex-1 text-center"
-          >
-            İndir
-          </a>
-          <button type="button" onClick={copy} className="btn-ghost flex-1">
-            {copied ? 'Kopyalandı ✓' : 'Linki Kopyala'}
-          </button>
-        </div>
-
-        <button type="button" onClick={onClose} className="btn-ghost mt-3 w-full">
-          Kapat
-        </button>
-      </motion.div>
-    </motion.div>
+      <div className="mt-[var(--sp-md)] flex flex-wrap gap-[var(--sp-md)]">
+        <a
+          href={dataUrl || '#'}
+          download={`${invitation.slug}-${kind}-qr.png`}
+          className="link-underline flex items-center gap-2"
+          style={{ color: 'var(--c-gold-light)' }}
+        >
+          <IconDownload size={14} />
+          PNG İndir
+        </a>
+        <Action onClick={copy}>{copied ? 'Kopyalandı' : 'Linki Kopyala'}</Action>
+      </div>
+    </Modal>
   );
 }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import ImageUploader from './ImageUploader';
+import { Divider, IconArrow, IconCheck, IconTrash } from '@/components/invitation/Ornaments';
 import * as api from '@/lib/api';
 import {
   CONJUNCTION_OPTIONS,
@@ -113,22 +114,22 @@ function Toggle({
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex w-full items-center justify-between rounded-xl px-4 py-3 transition-all"
-      style={{
-        background: 'rgba(255,255,255,0.03)',
-        border: `1px solid ${checked ? 'rgba(201,168,76,0.45)' : 'rgba(201,168,76,0.15)'}`,
-      }}
+      className="relative flex w-full items-center justify-between py-[var(--sp-sm)] transition-all"
     >
-      <span className="font-sans text-sm" style={{ color: 'rgba(255,255,255,0.8)' }}>
+      <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
+      <span className="t-body" style={{ color: 'var(--c-on-dark)' }}>
         {label}
       </span>
       <span
-        className="relative h-6 w-11 rounded-full transition-all"
-        style={{ background: checked ? '#C9A84C' : 'rgba(255,255,255,0.12)' }}
+        className="relative h-5 w-10 transition-colors duration-500"
+        style={{ border: `1px solid ${checked ? 'var(--c-gold)' : 'rgba(226,205,151,0.25)'}` }}
       >
         <span
-          className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all"
-          style={{ left: checked ? 22 : 2 }}
+          className="absolute top-1/2 h-3 w-3 -translate-y-1/2 transition-all duration-500"
+          style={{
+            left: checked ? 22 : 3,
+            background: checked ? 'var(--c-gold-light)' : 'rgba(226,205,151,0.4)',
+          }}
         />
       </span>
     </button>
@@ -140,10 +141,11 @@ function RowActions({ onRemove }: { onRemove: () => void }) {
     <button
       type="button"
       onClick={onRemove}
-      className="shrink-0 rounded-lg px-3 py-2 font-sans text-xs"
-      style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f0a3a3' }}
+      aria-label="Satırı sil"
+      className="shrink-0 self-center transition-opacity duration-300 hover:opacity-100"
+      style={{ color: '#e2a3a3', opacity: 0.65 }}
     >
-      Sil
+      <IconTrash size={16} />
     </button>
   );
 }
@@ -241,28 +243,28 @@ export default function InvitationForm({
               key={option.id}
               type="button"
               onClick={() => set('conjunction', option.id)}
-              className="rounded-xl px-4 py-3 text-left font-sans text-sm transition-all"
+              className="px-4 py-3 text-left transition-all duration-300"
               style={{
-                background: draft.conjunction === option.id ? 'rgba(201,168,76,0.15)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${draft.conjunction === option.id ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
-                color: 'rgba(255,255,255,0.8)',
+                border: `1px solid ${draft.conjunction === option.id ? 'var(--c-gold)' : 'rgba(226,205,151,0.15)'}`,
+                color: 'var(--c-on-dark)',
               }}
             >
-              <span className="block text-[10px] uppercase tracking-[0.2em]" style={{ color: '#9A7B2F' }}>
+              <span className="t-label block" style={{ color: 'var(--c-gold)' }}>
                 Örnek
               </span>
-              {option.example}
+              <span className="t-lead">{option.example}</span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="admin-card">
+      <div className="relative py-[var(--sp-sm)]">
+        <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
         <span className="field-label">Önizleme</span>
-        <p className="font-serif text-2xl font-light" style={{ color: 'var(--c-gold-light)' }}>
+        <p className="t-h2" style={{ color: 'var(--c-gold-light)' }}>
           {draft.groomName || 'Damat'} {draft.conjunction} {draft.brideName || 'Gelin'}
         </p>
-        <p className="mt-2 font-sans text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+        <p className="t-body mt-2" style={{ color: 'var(--c-on-dark-faint)' }}>
           /davet/{previewSlug}
         </p>
       </div>
@@ -306,16 +308,15 @@ export default function InvitationForm({
               key={ready.label}
               type="button"
               onClick={() => set('invitationText', ready.text)}
-              className="w-full rounded-xl p-4 text-left transition-all"
+              className="w-full p-4 text-left transition-all duration-300"
               style={{
-                background: draft.invitationText === ready.text ? 'rgba(201,168,76,0.12)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${draft.invitationText === ready.text ? 'rgba(201,168,76,0.45)' : 'rgba(201,168,76,0.15)'}`,
+                border: `1px solid ${draft.invitationText === ready.text ? 'var(--c-gold)' : 'rgba(226,205,151,0.15)'}`,
               }}
             >
-              <span className="block font-sans text-[10px] uppercase tracking-[0.2em]" style={{ color: '#9A7B2F' }}>
+              <span className="t-label block" style={{ color: 'var(--c-gold)' }}>
                 {ready.label}
               </span>
-              <span className="mt-1 block font-serif text-sm font-light italic" style={{ color: 'rgba(255,255,255,0.75)' }}>
+              <span className="t-body mt-2 block italic" style={{ color: 'var(--c-on-dark-soft)' }}>
                 {ready.text}
               </span>
             </button>
@@ -356,11 +357,10 @@ export default function InvitationForm({
               key={option.id}
               type="button"
               onClick={() => set('sealType', option.id as SealType)}
-              className="rounded-xl px-4 py-3 font-sans text-sm transition-all"
+              className="px-4 py-3 font-sans text-sm transition-all duration-300"
               style={{
-                background: draft.sealType === option.id ? 'rgba(201,168,76,0.15)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${draft.sealType === option.id ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
-                color: 'rgba(255,255,255,0.8)',
+                border: `1px solid ${draft.sealType === option.id ? 'var(--c-gold)' : 'rgba(226,205,151,0.15)'}`,
+                color: draft.sealType === option.id ? 'var(--c-gold-light)' : 'var(--c-on-dark-soft)',
               }}
             >
               {option.label}
@@ -393,11 +393,10 @@ export default function InvitationForm({
               key={option.id}
               type="button"
               onClick={() => set('invitationDesign', option.id as InvitationDesign)}
-              className="rounded-xl px-4 py-3 font-sans text-sm transition-all"
+              className="px-4 py-3 font-sans text-sm transition-all duration-300"
               style={{
-                background: draft.invitationDesign === option.id ? 'rgba(201,168,76,0.15)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${draft.invitationDesign === option.id ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
-                color: 'rgba(255,255,255,0.8)',
+                border: `1px solid ${draft.invitationDesign === option.id ? 'var(--c-gold)' : 'rgba(226,205,151,0.15)'}`,
+                color: draft.invitationDesign === option.id ? 'var(--c-gold-light)' : 'var(--c-on-dark-soft)',
               }}
             >
               {option.label}
@@ -461,7 +460,7 @@ export default function InvitationForm({
           max={100}
           value={draft.soundVolume}
           onChange={(e) => set('soundVolume', Number(e.target.value))}
-          className="w-full accent-[#C9A84C]"
+          className="w-full accent-[color:var(--c-gold)]"
         />
       </label>
     </div>,
@@ -475,17 +474,16 @@ export default function InvitationForm({
             key={option.id}
             type="button"
             onClick={() => set('theme', option.id as ThemeId)}
-            className="flex items-center gap-4 rounded-xl p-4 text-left transition-all"
+            className="flex items-center gap-4 p-4 text-left transition-all duration-300"
             style={{
-              background: draft.theme === option.id ? 'rgba(201,168,76,0.12)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${draft.theme === option.id ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.15)'}`,
+              border: `1px solid ${draft.theme === option.id ? 'var(--c-gold)' : 'rgba(226,205,151,0.15)'}`,
             }}
           >
             <span
-              className="h-10 w-10 shrink-0 rounded-full"
-              style={{ background: option.bg, border: `2px solid ${option.accent}` }}
+              className="h-9 w-9 shrink-0"
+              style={{ background: option.bg, border: `1px solid ${option.accent}` }}
             />
-            <span className="font-sans text-sm" style={{ color: 'rgba(255,255,255,0.8)' }}>
+            <span className="t-body" style={{ color: 'var(--c-on-dark)' }}>
               {option.label}
             </span>
           </button>
@@ -501,8 +499,8 @@ export default function InvitationForm({
           <button
             type="button"
             onClick={() => set('programItems', DEFAULT_PROGRAM_ITEMS)}
-            className="rounded-lg px-3 py-1.5 font-sans text-xs"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,168,76,0.2)', color: 'rgba(255,255,255,0.6)' }}
+            className="link-underline"
+            style={{ color: 'var(--c-on-dark-faint)' }}
           >
             Varsayılana Dön
           </button>
@@ -511,8 +509,8 @@ export default function InvitationForm({
             onClick={() =>
               appendToList<ProgramItem>('programItems', { time: '', title: '', desc: '', icon: '◇' })
             }
-            className="rounded-lg px-3 py-1.5 font-sans text-xs"
-            style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)', color: '#E8D5A3' }}
+            className="link-underline"
+            style={{ color: 'var(--c-gold-light)' }}
           >
             + Ekle
           </button>
@@ -520,7 +518,8 @@ export default function InvitationForm({
       </div>
 
       {draft.programItems.map((item, i) => (
-        <div key={i} className="admin-card space-y-3">
+        <div key={i} className="relative space-y-3 py-[var(--sp-sm)]">
+          <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
           <div className="flex gap-3">
             <input
               type="time"
@@ -564,16 +563,16 @@ export default function InvitationForm({
           <button
             type="button"
             onClick={() => set('faqItems', DEFAULT_FAQ_ITEMS)}
-            className="rounded-lg px-3 py-1.5 font-sans text-xs"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,168,76,0.2)', color: 'rgba(255,255,255,0.6)' }}
+            className="link-underline"
+            style={{ color: 'var(--c-on-dark-faint)' }}
           >
             Varsayılana Dön
           </button>
           <button
             type="button"
             onClick={() => appendToList<FaqItem>('faqItems', { q: '', a: '' })}
-            className="rounded-lg px-3 py-1.5 font-sans text-xs"
-            style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)', color: '#E8D5A3' }}
+            className="link-underline"
+            style={{ color: 'var(--c-gold-light)' }}
           >
             + Ekle
           </button>
@@ -581,7 +580,8 @@ export default function InvitationForm({
       </div>
 
       {draft.faqItems.map((item, i) => (
-        <div key={i} className="admin-card space-y-3">
+        <div key={i} className="relative space-y-3 py-[var(--sp-sm)]">
+          <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
           <div className="flex gap-3">
             <input
               value={item.q}
@@ -617,8 +617,8 @@ export default function InvitationForm({
           <button
             type="button"
             onClick={() => set('storyItems', DEFAULT_STORY_ITEMS)}
-            className="rounded-lg px-3 py-1.5 font-sans text-xs"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,168,76,0.2)', color: 'rgba(255,255,255,0.6)' }}
+            className="link-underline"
+            style={{ color: 'var(--c-on-dark-faint)' }}
           >
             Varsayılana Dön
           </button>
@@ -633,20 +633,21 @@ export default function InvitationForm({
                 side: draft.storyItems.length % 2 === 0 ? 'left' : 'right',
               })
             }
-            className="rounded-lg px-3 py-1.5 font-sans text-xs"
-            style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)', color: '#E8D5A3' }}
+            className="link-underline"
+            style={{ color: 'var(--c-gold-light)' }}
           >
             + Ekle
           </button>
         </div>
       </div>
 
-      <p className="font-sans text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+      <p className="t-body" style={{ color: 'var(--c-on-dark-faint)' }}>
         Her bir kartı düzenleyin. ♡ Düğün olarak işaretlediğiniz öğe vurgulanarak gösterilir.
       </p>
 
       {draft.storyItems.map((item, i) => (
-        <div key={i} className="admin-card space-y-3">
+        <div key={i} className="relative space-y-3 py-[var(--sp-sm)]">
+          <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
           <div className="flex gap-3">
             <input
               value={item.year}
@@ -704,21 +705,34 @@ export default function InvitationForm({
 
   if (createdSlug) {
     return (
-      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 text-center">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="mb-6 font-serif text-5xl" style={{ color: '#C9A84C' }}>
-          ✦
-        </motion.div>
-        <h1 className="font-serif text-3xl font-light" style={{ color: '#E8D5A3' }}>
-          Davetiye Oluşturuldu!
+      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-[var(--sp-md)] text-center">
+        <motion.span
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          style={{ color: 'var(--c-gold)' }}
+        >
+          <IconCheck size={34} />
+        </motion.span>
+
+        <h1 className="t-display mt-[var(--sp-md)]" style={{ color: 'var(--c-on-dark)' }}>
+          Davetiye Oluşturuldu
         </h1>
-        <p className="mt-3 font-sans text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+        <p className="t-body mt-3" style={{ color: 'var(--c-on-dark-faint)' }}>
           /davet/{createdSlug}
         </p>
-        <div className="mt-8 flex gap-3">
-          <Link href={`/davet/${createdSlug}`} target="_blank" className="btn-gold">
+
+        <div className="mt-[var(--sp-md)]" style={{ color: 'var(--c-gold)' }}>
+          <Divider />
+        </div>
+
+        <div className="mt-[var(--sp-md)] flex flex-wrap items-center justify-center gap-[var(--sp-md)]">
+          <Link href={`/davet/${createdSlug}`} target="_blank" className="cta nudge">
             Davetiyeyi Aç
+            <IconArrow size={14} />
           </Link>
-          <Link href="/admin" className="btn-ghost">
+          {/* Çift hesabı /admin'e gidince geri sekerdi — kendi paneline döner. */}
+          <Link href={backHref} className="link-underline" style={{ color: 'var(--c-on-dark-soft)' }}>
             Panele Dön
           </Link>
         </div>
@@ -731,11 +745,14 @@ export default function InvitationForm({
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       <header className="mb-8">
-        <Link href={backHref} className="font-sans text-xs uppercase tracking-[0.2em]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+        <Link href={backHref} className="link-underline" style={{ color: 'var(--c-on-dark-faint)' }}>
           ← Geri
         </Link>
-        <h1 className="mt-3 font-serif text-3xl font-light" style={{ color: '#E8D5A3' }}>
-          {existing ? 'Davetiyeyi Düzenle' : 'Yeni Davetiye Oluştur'}
+        <p className="t-label mt-[var(--sp-md)]" style={{ color: 'var(--c-gold)' }}>
+          Davetiye Sihirbazı
+        </p>
+        <h1 className="t-display mt-3" style={{ color: 'var(--c-on-dark)' }}>
+          {existing ? 'Davetiyeyi Düzenle' : 'Yeni Davetiye'}
         </h1>
       </header>
 
@@ -747,21 +764,28 @@ export default function InvitationForm({
               key={name}
               type="button"
               onClick={() => setStep(i)}
-              className="rounded-full px-3 py-1.5 font-sans text-[11px] transition-all"
+              className="px-3 py-1.5 font-sans text-[11px] transition-all duration-300"
               style={{
-                background: i === step ? 'rgba(201,168,76,0.18)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${i === step ? 'rgba(201,168,76,0.5)' : 'rgba(201,168,76,0.12)'}`,
-                color: i === step ? '#E8D5A3' : 'rgba(255,255,255,0.45)',
+                border: `1px solid ${i === step ? 'var(--c-gold)' : 'transparent'}`,
+                color:
+                  i === step
+                    ? 'var(--c-gold-light)'
+                    : i < step
+                      ? 'var(--c-on-dark-soft)'
+                      : 'var(--c-on-dark-faint)',
               }}
             >
-              {i < step ? '✓' : `${i + 1}.`} {name}
+              <span className="inline-flex items-center gap-1.5">
+                {i < step ? <IconCheck size={11} /> : <span className="numerals">{i + 1}.</span>}
+                {name}
+              </span>
             </button>
           ))}
         </div>
-        <div className="h-[2px] w-full rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div className="h-px w-full" style={{ background: 'var(--c-rule-dark)' }}>
           <motion.div
-            className="h-full rounded-full"
-            style={{ background: 'linear-gradient(90deg, #9A7B2F, #E8D5A3)' }}
+            className="h-full"
+            style={{ background: 'linear-gradient(90deg, var(--c-gold-deep), var(--c-gold-light))' }}
             animate={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
           />
         </div>
@@ -780,7 +804,7 @@ export default function InvitationForm({
       </AnimatePresence>
 
       {error && (
-        <p className="mt-6 font-sans text-sm" style={{ color: '#f0a3a3' }}>
+        <p className="t-body mt-[var(--sp-md)]" style={{ color: '#e2a3a3' }}>
           {error}
         </p>
       )}
@@ -790,25 +814,33 @@ export default function InvitationForm({
           type="button"
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className="btn-ghost disabled:opacity-40"
+          className="link-underline disabled:opacity-30"
+          style={{ color: 'var(--c-on-dark-soft)' }}
         >
           ← Geri
         </button>
 
         <div className="flex gap-3">
           {existing && (
-            <Link href={`/davet/${existing.slug}`} target="_blank" className="btn-ghost">
+            <Link
+              href={`/davet/${existing.slug}`}
+              target="_blank"
+              className="link-underline"
+              style={{ color: 'var(--c-on-dark-soft)' }}
+            >
               Önizle
             </Link>
           )}
 
           {step < STEPS.length - 1 ? (
-            <button type="button" onClick={() => setStep((s) => s + 1)} className="btn-gold">
-              İleri →
+            <button type="button" onClick={() => setStep((s) => s + 1)} className="cta nudge">
+              İleri
+              <IconArrow size={14} />
             </button>
           ) : (
-            <button type="button" onClick={save} disabled={saving} className="btn-gold">
-              {saving ? 'Kaydediliyor…' : existing ? 'Kaydet' : 'Davetiyeyi Oluştur'}
+            <button type="button" onClick={save} disabled={saving} className="cta nudge">
+              {saving ? 'Kaydediliyor' : existing ? 'Kaydet' : 'Davetiyeyi Oluştur'}
+              <IconArrow size={14} />
             </button>
           )}
         </div>
@@ -821,10 +853,10 @@ export default function InvitationForm({
             type="button"
             onClick={save}
             disabled={saving}
-            className="font-sans text-xs uppercase tracking-[0.2em]"
-            style={{ color: 'rgba(201,168,76,0.7)' }}
+            className="link-underline"
+            style={{ color: 'var(--c-gold)' }}
           >
-            {saving ? 'Kaydediliyor…' : 'Şimdi Kaydet'}
+            {saving ? 'Kaydediliyor' : 'Şimdi Kaydet'}
           </button>
         </div>
       )}

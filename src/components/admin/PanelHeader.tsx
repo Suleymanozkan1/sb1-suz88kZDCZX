@@ -2,9 +2,14 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Divider, IconArrow, IconPlus } from '@/components/invitation/Ornaments';
 import * as api from '@/lib/api';
 import type { Session } from '@/lib/types';
 
+/**
+ * Panel başlığı — davetiye sayfasının hero'suyla aynı editoryal düzen:
+ * küçük harf aralıklı etiket, altında büyük display başlık, sola yaslı.
+ */
 export default function PanelHeader({
   session,
   title,
@@ -25,29 +30,39 @@ export default function PanelHeader({
   }
 
   return (
-    <header className="mb-10 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <span className="font-serif text-xl" style={{ color: '#C9A84C' }}>
-          ✦
-        </span>
-        <h1 className="mt-2 font-serif text-3xl font-light" style={{ color: '#E8D5A3' }}>
-          {title}
-        </h1>
-        <p
-          className="mt-1 font-sans text-xs uppercase tracking-[0.25em]"
-          style={{ color: 'rgba(255,255,255,0.35)' }}
-        >
-          {subtitle} · {session.displayName}
-        </p>
+    <header className="pb-[var(--sp-md)]">
+      <div className="flex flex-wrap items-end justify-between gap-[var(--sp-sm)]">
+        <div className="min-w-0">
+          <p className="t-label" style={{ color: 'var(--c-gold)' }}>
+            {subtitle}
+          </p>
+          <h1 className="t-h2 mt-3" style={{ color: 'var(--c-on-dark)' }}>
+            {title}
+          </h1>
+          <p className="t-body mt-2" style={{ color: 'var(--c-on-dark-faint)' }}>
+            {session.displayName}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-[var(--sp-md)]">
+          <button
+            type="button"
+            onClick={signOut}
+            className="link-underline"
+            style={{ color: 'var(--c-on-dark-faint)' }}
+          >
+            Çıkış
+          </button>
+          <Link href={newHref} className="cta nudge">
+            <IconPlus size={14} />
+            Yeni Davetiye
+            <IconArrow size={14} />
+          </Link>
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <button type="button" onClick={signOut} className="btn-ghost">
-          Çıkış
-        </button>
-        <Link href={newHref} className="btn-gold">
-          + Yeni Davetiye Oluştur
-        </Link>
+      <div className="mt-[var(--sp-md)]" style={{ color: 'var(--c-gold)' }}>
+        <Divider className="!justify-start" />
       </div>
     </header>
   );

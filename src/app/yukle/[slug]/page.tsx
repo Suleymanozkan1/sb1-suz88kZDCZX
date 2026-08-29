@@ -25,13 +25,13 @@ export default async function GuestUploadPage({ params }: Props) {
     return (
       <main
         className="flex min-h-screen items-center justify-center px-6 text-center"
-        style={{ background: 'radial-gradient(ellipse at center, #2a1f14, #0d0805)' }}
+        style={{ background: 'radial-gradient(ellipse at center, var(--c-ember), var(--c-night))' }}
       >
         <div>
-          <h1 className="font-serif text-3xl font-light" style={{ color: '#E8D5A3' }}>
+          <h1 className="t-display" style={{ color: 'var(--c-on-dark)' }}>
             Sayfa Bulunamadı
           </h1>
-          <p className="mt-4 font-sans text-sm font-light" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          <p className="t-body mt-4" style={{ color: 'var(--c-on-dark-soft)' }}>
             Bu yükleme bağlantısı geçerli değil.
           </p>
         </div>
@@ -43,9 +43,10 @@ export default async function GuestUploadPage({ params }: Props) {
 
   return (
     <main
-      className="min-h-screen"
-      style={{ background: 'linear-gradient(135deg, #1a0f08 0%, #2d1f12 45%, #0d0805 100%)' }}
+      className="relative min-h-screen"
+      style={{ background: 'linear-gradient(180deg, var(--c-ink) 0%, var(--c-night) 65%)' }}
     >
+      <div className="grain" aria-hidden />
       <PhotoUpload slug={invitation.slug} coupleNames={names} />
     </main>
   );

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
+import { Divider, IconArrow } from '@/components/invitation/Ornaments';
 import { login } from '@/lib/api';
 
 function LoginForm() {
@@ -34,24 +35,21 @@ function LoginForm() {
   return (
     <motion.form
       onSubmit={submit}
-      className="w-full max-w-sm rounded-3xl p-8"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(201,168,76,0.18)' }}
+      className="w-full max-w-sm"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="mb-8 text-center">
-        <span className="font-serif text-2xl" style={{ color: '#C9A84C' }}>
-          ✦
-        </span>
-        <h1 className="mt-3 font-serif text-2xl font-light" style={{ color: '#E8D5A3' }}>
-          Giriş Yap
-        </h1>
-        <p
-          className="mt-2 font-sans text-xs uppercase tracking-[0.25em]"
-          style={{ color: 'rgba(255,255,255,0.35)' }}
-        >
+      <div className="mb-[var(--sp-lg)]">
+        <p className="t-label" style={{ color: 'var(--c-gold)' }}>
           Düğün Davetiyeleri
         </p>
+        <h1 className="t-display mt-3" style={{ color: 'var(--c-on-dark)' }}>
+          Giriş
+        </h1>
+        <div className="mt-[var(--sp-md)]" style={{ color: 'var(--c-gold)' }}>
+          <Divider className="!justify-start" />
+        </div>
       </div>
 
       <label className="field-label" htmlFor="username">
@@ -63,11 +61,11 @@ function LoginForm() {
         required
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        className="field"
+        className="field t-lead"
         placeholder="kullaniciadi"
       />
 
-      <div className="mt-4">
+      <div className="mt-[var(--sp-md)]">
         <label className="field-label" htmlFor="password">
           Parola
         </label>
@@ -78,19 +76,20 @@ function LoginForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="field"
+          className="field t-lead"
           placeholder="••••••••"
         />
       </div>
 
       {error && (
-        <p className="mt-4 font-sans text-sm" style={{ color: '#f0a3a3' }}>
+        <p className="t-body mt-[var(--sp-md)]" style={{ color: '#e2a3a3' }}>
           {error}
         </p>
       )}
 
-      <button type="submit" disabled={busy} className="btn-gold mt-6 w-full">
-        {busy ? 'Kontrol ediliyor…' : 'Giriş Yap'}
+      <button type="submit" disabled={busy} className="cta nudge mt-[var(--sp-md)]">
+        {busy ? 'Kontrol ediliyor' : 'Giriş Yap'}
+        <IconArrow size={14} />
       </button>
     </motion.form>
   );
@@ -99,9 +98,10 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div
-      className="flex min-h-screen items-center justify-center px-6"
-      style={{ background: 'linear-gradient(180deg, #120c06 0%, #0d0805 100%)' }}
+      className="relative flex min-h-screen items-center justify-center px-[var(--sp-md)]"
+      style={{ background: 'linear-gradient(180deg, var(--c-ink) 0%, var(--c-night) 70%)' }}
     >
+      <div className="grain" aria-hidden />
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>

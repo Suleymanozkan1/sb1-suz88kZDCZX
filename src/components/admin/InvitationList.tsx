@@ -1,69 +1,22 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import QrModal from './QrModal';
+import { Action, Badge, ConfirmModal, EmptyState, Meta, PanelSection, Row } from './ui';
+import {
+  IconCalendar,
+  IconCamera,
+  IconEnvelope,
+  IconLink,
+  IconPin,
+  IconUser,
+} from '@/components/invitation/Ornaments';
 import * as api from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import type { GuestPhoto, Invitation, Rsvp, SafeUser, Session } from '@/lib/types';
-
-function DeleteModal({
-  invitation,
-  onCancel,
-  onConfirm,
-}: {
-  invitation: Invitation;
-  onCancel: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <motion.div
-      className="fixed inset-0 z-[900] flex items-center justify-center p-6"
-      style={{ background: 'rgba(0,0,0,0.7)' }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onCancel}
-    >
-      <motion.div
-        className="w-full max-w-sm rounded-2xl p-8 text-center"
-        style={{ background: '#150e07', border: '1px solid rgba(239,68,68,0.3)' }}
-        initial={{ scale: 0.94 }}
-        animate={{ scale: 1 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <span className="text-2xl">⚠️</span>
-        <h3 className="mt-3 font-serif text-xl font-light" style={{ color: '#f0a3a3' }}>
-          Davetiyeyi Sil
-        </h3>
-        <p className="mt-3 font-sans text-sm font-light" style={{ color: 'rgba(255,255,255,0.55)' }}>
-          {invitation.groomName} {invitation.conjunction} {invitation.brideName} davetiyesi ve ona
-          yüklenen fotoğraflar silinecek. Bu işlem geri alınamaz.
-        </p>
-
-        <div className="mt-6 flex gap-3">
-          <button type="button" onClick={onCancel} className="btn-ghost flex-1">
-            İptal
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="flex-1 rounded-full px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] transition-all"
-            style={{
-              background: 'rgba(239,68,68,0.15)',
-              border: '1px solid rgba(239,68,68,0.35)',
-              color: '#f0a3a3',
-            }}
-          >
-            Evet, Sil
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 export default function InvitationList({
   initial,
@@ -117,213 +70,144 @@ export default function InvitationList({
     await refresh();
   }
 
-  if (rows.length === 0) {
-    return (
-      <div className="admin-card py-16 text-center">
-        <span className="text-2xl">💌</span>
-        <p className="mt-3 font-serif text-xl font-light" style={{ color: '#E8D5A3' }}>
-          Henüz davetiye yok
-        </p>
-        <p className="mt-2 font-sans text-sm font-light" style={{ color: 'rgba(255,255,255,0.4)' }}>
-          İlk düğün davetiyenizi oluşturun
-        </p>
-      </div>
-    );
-  }
-
   return (
     <>
-      <div className="space-y-4">
-        {rows.map((row) => {
-          const rsvpCount = rsvps.filter((r) => r.invitationSlug === row.slug).length;
-          const photoCount = photos.filter((p) => p.invitationId === row.id).length;
-          const owner = users.find((u) => u.id === row.ownerId);
+      <PanelSection
+        n={1}
+        label="Davetiyeler"
+        title={isAdmin ? 'Tüm Davetiyeler' : 'Davetiyelerim'}
+      >
+        {rows.length === 0 ? (
+          <EmptyState
+            icon={IconEnvelope}
+            title="Henüz davetiye yok"
+            lead="İlk düğün davetiyenizi oluşturun"
+          />
+        ) : (
+          <div>
+            {rows.map((row, i) => {
+              const rsvpCount = rsvps.filter((r) => r.invitationSlug === row.slug).length;
+              const photoCount = photos.filter((p) => p.invitationId === row.id).length;
+              const owner = users.find((u) => u.id === row.ownerId);
 
-          return (
-            <motion.div
-              key={row.id}
-              className="admin-card"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 className="font-serif text-xl font-light" style={{ color: '#E8D5A3' }}>
-                  {row.groomName} {row.conjunction} {row.brideName}
-                </h2>
-                <span
-                  className="rounded-full px-2 py-0.5 font-sans text-xs"
-                  style={
-                    row.isActive
-                      ? {
-                          background: 'rgba(74,222,128,0.1)',
-                          border: '1px solid rgba(74,222,128,0.2)',
-                          color: '#86efac',
-                        }
-                      : {
-                          background: 'rgba(239,68,68,0.1)',
-                          border: '1px solid rgba(239,68,68,0.2)',
-                          color: '#f0a3a3',
-                        }
-                  }
-                >
-                  {row.isActive ? 'Aktif' : 'Pasif'}
-                </span>
-                {isAdmin && owner && (
-                  <span
-                    className="rounded-full px-2 py-0.5 font-sans text-xs"
-                    style={{
-                      background: 'rgba(201,168,76,0.08)',
-                      border: '1px solid rgba(201,168,76,0.2)',
-                      color: 'rgba(232,213,163,0.8)',
-                    }}
-                  >
-                    👤 {owner.displayName}
-                  </span>
-                )}
-              </div>
+              return (
+                <Row key={row.id} index={i} last={i === rows.length - 1}>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <h3 className="t-h2" style={{ color: 'var(--c-on-dark)' }}>
+                      {row.groomName}{' '}
+                      <span className="italic" style={{ color: 'var(--c-gold)' }}>
+                        {row.conjunction}
+                      </span>{' '}
+                      {row.brideName}
+                    </h3>
+                    <Badge tone={row.isActive ? 'ok' : 'off'}>
+                      {row.isActive ? 'Aktif' : 'Pasif'}
+                    </Badge>
+                  </div>
 
-              <div
-                className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-sans text-xs"
-                style={{ color: 'rgba(255,255,255,0.45)' }}
-              >
-                <span>📅 {formatDate(row.weddingDate) || 'Tarih yok'}</span>
-                <span>📍 {row.city || '—'}</span>
-                <span>🔗 /davet/{row.slug}</span>
-                <span>✉️ {rsvpCount} katılım</span>
-                <span>📸 {photoCount} fotoğraf</span>
-              </div>
+                  <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+                    {isAdmin && owner && <Meta icon={IconUser}>{owner.displayName}</Meta>}
+                    <Meta icon={IconCalendar}>
+                      <span className="numerals">{formatDate(row.weddingDate) || 'Tarih yok'}</span>
+                    </Meta>
+                    <Meta icon={IconPin}>{row.city || '—'}</Meta>
+                    <Meta icon={IconLink}>/davet/{row.slug}</Meta>
+                    <Meta icon={IconEnvelope}>
+                      <span className="numerals">{rsvpCount}</span> katılım
+                    </Meta>
+                    <Meta icon={IconCamera}>
+                      <span className="numerals">{photoCount}</span> fotoğraf
+                    </Meta>
+                  </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Link
-                  href={`/davet/${row.slug}`}
-                  target="_blank"
-                  className="rounded-full px-4 py-2 font-sans text-xs uppercase tracking-[0.15em]"
-                  style={{
-                    background: 'rgba(201,168,76,0.1)',
-                    border: '1px solid rgba(201,168,76,0.25)',
-                    color: '#E8D5A3',
-                  }}
-                >
-                  Önizle
-                </Link>
-                <Link
-                  href={`${isAdmin ? '/admin' : '/panel'}/${row.id}`}
-                  className="rounded-full px-4 py-2 font-sans text-xs uppercase tracking-[0.15em]"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(201,168,76,0.2)',
-                    color: 'rgba(255,255,255,0.75)',
-                  }}
-                >
-                  Düzenle
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => copyLink(row)}
-                  title="Linki Kopyala"
-                  className="rounded-full px-4 py-2 font-sans text-xs uppercase tracking-[0.15em]"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(201,168,76,0.2)',
-                    color: 'rgba(255,255,255,0.75)',
-                  }}
-                >
-                  {copied === row.id ? 'Kopyalandı ✓' : 'Linki Kopyala'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setQrFor(row)}
-                  className="rounded-full px-4 py-2 font-sans text-xs uppercase tracking-[0.15em]"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(201,168,76,0.2)',
-                    color: 'rgba(255,255,255,0.75)',
-                  }}
-                >
-                  QR Kod
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toggle(row)}
-                  className="rounded-full px-4 py-2 font-sans text-xs uppercase tracking-[0.15em]"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(201,168,76,0.2)',
-                    color: 'rgba(255,255,255,0.75)',
-                  }}
-                >
-                  {row.isActive ? 'Pasif Yap' : 'Aktif Yap'}
-                </button>
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => setDeleteFor(row)}
-                    className="rounded-full px-4 py-2 font-sans text-xs uppercase tracking-[0.15em]"
-                    style={{
-                      background: 'rgba(239,68,68,0.08)',
-                      border: '1px solid rgba(239,68,68,0.15)',
-                      color: '#f0a3a3',
+                  <div className="mt-[var(--sp-sm)] flex flex-wrap gap-x-6 gap-y-3">
+                    <Action href={`/davet/${row.slug}`} target="_blank">
+                      Önizle
+                    </Action>
+                    <Action href={`${isAdmin ? '/admin' : '/panel'}/${row.id}`}>Düzenle</Action>
+                    <Action onClick={() => copyLink(row)} title="Davetiye bağlantısını kopyala">
+                      {copied === row.id ? 'Kopyalandı' : 'Linki Kopyala'}
+                    </Action>
+                    <Action onClick={() => setQrFor(row)}>QR Kod</Action>
+                    <Action onClick={() => toggle(row)}>
+                      {row.isActive ? 'Pasif Yap' : 'Aktif Yap'}
+                    </Action>
+                    {isAdmin && (
+                      <Action onClick={() => setDeleteFor(row)} danger>
+                        Sil
+                      </Action>
+                    )}
+                  </div>
+                </Row>
+              );
+            })}
+          </div>
+        )}
+      </PanelSection>
+
+      {rsvps.length > 0 && (
+        <PanelSection
+          n={2}
+          label="Katılım"
+          title="Gelen Bildirimler"
+          lead={`${rsvps.length} kayıt`}
+        >
+          <div>
+            {rsvps.map((rsvp, i) => (
+              <Row key={rsvp.id} index={i} last={i === rsvps.length - 1}>
+                <div className="flex flex-wrap items-baseline justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="t-lead" style={{ color: 'var(--c-on-dark)' }}>
+                      {rsvp.name}
+                      <span
+                        className="ml-3 font-sans text-xs"
+                        style={{ color: rsvp.attending ? '#9ed7a8' : '#e2a3a3' }}
+                      >
+                        {rsvp.attending ? `${rsvp.count} kişi` : 'katılamıyor'}
+                      </span>
+                    </p>
+                    <p className="mt-1 font-sans text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+                      <span className="numerals">{rsvp.phone}</span> · /{rsvp.invitationSlug}
+                    </p>
+                    {rsvp.note && (
+                      <p
+                        className="t-body mt-2 measure italic"
+                        style={{ color: 'var(--c-on-dark-soft)' }}
+                      >
+                        “{rsvp.note}”
+                      </p>
+                    )}
+                  </div>
+                  <Action
+                    danger
+                    onClick={async () => {
+                      await api.deleteRsvp(rsvp.id);
+                      setRsvps(await api.listRsvps());
                     }}
                   >
                     Sil
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* katılım bildirimleri */}
-      {rsvps.length > 0 && (
-        <section className="mt-12">
-          <h2 className="mb-4 font-serif text-2xl font-light" style={{ color: '#E8D5A3' }}>
-            Katılım Bildirimleri
-          </h2>
-          <div className="space-y-2">
-            {rsvps.map((rsvp) => (
-              <div
-                key={rsvp.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3"
-                style={{
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(201,168,76,0.12)',
-                }}
-              >
-                <div className="min-w-0">
-                  <p className="font-sans text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                    {rsvp.name}{' '}
-                    <span style={{ color: rsvp.attending ? '#86efac' : '#f0a3a3' }}>
-                      {rsvp.attending ? `· ${rsvp.count} kişi` : '· katılamıyor'}
-                    </span>
-                  </p>
-                  <p className="font-sans text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                    {rsvp.phone} · /{rsvp.invitationSlug}
-                    {rsvp.note ? ` · “${rsvp.note}”` : ''}
-                  </p>
+                  </Action>
                 </div>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await api.deleteRsvp(rsvp.id);
-                    setRsvps(await api.listRsvps());
-                  }}
-                  className="font-sans text-xs uppercase tracking-[0.15em]"
-                  style={{ color: 'rgba(239,68,68,0.6)' }}
-                >
-                  Sil
-                </button>
-              </div>
+              </Row>
             ))}
           </div>
-        </section>
+        </PanelSection>
       )}
 
       <AnimatePresence>
         {qrFor && <QrModal invitation={qrFor} onClose={() => setQrFor(null)} />}
         {deleteFor && (
-          <DeleteModal
-            invitation={deleteFor}
+          <ConfirmModal
+            title="Davetiyeyi Sil"
+            body={
+              <>
+                <strong>
+                  {deleteFor.groomName} {deleteFor.conjunction} {deleteFor.brideName}
+                </strong>{' '}
+                davetiyesi ve ona yüklenen fotoğraflar silinecek. Bu işlem geri alınamaz.
+              </>
+            }
+            confirmLabel="Evet, Sil"
             onCancel={() => setDeleteFor(null)}
             onConfirm={remove}
           />

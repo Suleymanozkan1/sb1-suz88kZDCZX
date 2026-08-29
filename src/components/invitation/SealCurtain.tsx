@@ -310,7 +310,7 @@ function Sparks({ active }: { active: boolean }) {
             style={{
               width: s.size,
               height: s.size,
-              background: s.id % 3 === 0 ? '#fff' : '#E8D5A3',
+              background: s.id % 3 === 0 ? 'var(--c-cream)' : 'var(--c-gold-light)',
             }}
             initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
             animate={{

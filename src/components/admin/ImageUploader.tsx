@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRef, useState } from 'react';
+import { IconClose, IconImage } from '@/components/invitation/Ornaments';
 
 /** Dosyayı base64 data URI'ye çevirir; seçilen görsel kayıtla birlikte saklanır. */
 function readAsDataUrl(file: File): Promise<string> {
@@ -69,19 +70,18 @@ export default function ImageUploader({
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="flex w-full flex-col items-center justify-center rounded-xl px-4 py-8 transition-all"
-        style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px dashed rgba(201,168,76,0.3)',
-          color: 'rgba(255,255,255,0.5)',
-        }}
+        className="group flex w-full flex-col items-center justify-center px-4 py-[var(--sp-md)] transition-colors duration-500"
+        style={{ border: '1px dashed rgba(176, 141, 63, 0.35)', color: 'var(--c-on-dark-soft)' }}
       >
-        <span className="font-serif text-2xl" style={{ color: '#C9A84C' }}>
-          ＋
+        <span
+          className="transition-transform duration-500 group-hover:-translate-y-0.5"
+          style={{ color: 'var(--c-gold)' }}
+        >
+          <IconImage size={22} />
         </span>
-        <span className="mt-2 font-sans text-xs">📁 Tıklayın veya sürükleyin</span>
+        <span className="t-body mt-3">Tıklayın veya sürükleyin</span>
         {multiple && (
-          <span className="mt-1 font-sans text-[10px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
+          <span className="t-label mt-1" style={{ color: 'var(--c-on-dark-faint)' }}>
             Birden fazla fotoğraf ekleyin
           </span>
         )}
@@ -100,15 +100,15 @@ export default function ImageUploader({
       />
 
       {error && (
-        <p className="mt-2 font-sans text-xs" style={{ color: '#f0a3a3' }}>
+        <p className="t-body mt-2" style={{ color: '#e2a3a3' }}>
           {error}
         </p>
       )}
 
       {images.length > 0 && (
-        <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+        <div className="mt-[var(--sp-sm)] grid grid-cols-3 gap-[var(--sp-xs)] sm:grid-cols-4">
           {images.map((src, i) => (
-            <div key={`${src.slice(0, 20)}-${i}`} className="group relative aspect-square overflow-hidden rounded-xl">
+            <div key={`${src.slice(0, 20)}-${i}`} className="group relative aspect-square overflow-hidden">
               <Image
                 src={src}
                 alt={`Görsel ${i + 1}`}
@@ -119,8 +119,8 @@ export default function ImageUploader({
               />
               {multiple && i === 0 && (
                 <span
-                  className="absolute left-1 top-1 rounded-full px-2 py-0.5 font-sans text-[9px]"
-                  style={{ background: 'rgba(201,168,76,0.85)', color: '#1a0f08' }}
+                  className="absolute left-1 top-1 px-2 py-0.5 font-sans text-[9px]"
+                  style={{ background: 'var(--c-gold-light)', color: 'var(--c-night)' }}
                 >
                   Öne çıkan
                 </span>
@@ -129,10 +129,10 @@ export default function ImageUploader({
                 type="button"
                 onClick={() => removeAt(i)}
                 aria-label="Görseli kaldır"
-                className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full text-xs opacity-0 transition-opacity group-hover:opacity-100"
-                style={{ background: 'rgba(0,0,0,0.7)', color: '#f0a3a3' }}
+                className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center opacity-0 transition-all duration-500 hover:rotate-90 group-hover:opacity-100"
+                style={{ background: 'rgba(9,6,3,0.75)', color: '#e2a3a3' }}
               >
-                ✕
+                <IconClose size={12} />
               </button>
 
               {multiple && images.length > 1 && (
@@ -142,8 +142,8 @@ export default function ImageUploader({
                     onClick={() => move(i, -1)}
                     disabled={i === 0}
                     aria-label="Sola taşı"
-                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs disabled:opacity-30"
-                    style={{ background: 'rgba(0,0,0,0.7)', color: '#E8D5A3' }}
+                    className="flex h-6 w-6 items-center justify-center text-xs disabled:opacity-30"
+                    style={{ background: 'rgba(9,6,3,0.75)', color: 'var(--c-gold-light)' }}
                   >
                     ←
                   </button>
@@ -152,8 +152,8 @@ export default function ImageUploader({
                     onClick={() => move(i, 1)}
                     disabled={i === images.length - 1}
                     aria-label="Sağa taşı"
-                    className="flex h-6 w-6 items-center justify-center rounded-full text-xs disabled:opacity-30"
-                    style={{ background: 'rgba(0,0,0,0.7)', color: '#E8D5A3' }}
+                    className="flex h-6 w-6 items-center justify-center text-xs disabled:opacity-30"
+                    style={{ background: 'rgba(9,6,3,0.75)', color: 'var(--c-gold-light)' }}
                   >
                     →
                   </button>
