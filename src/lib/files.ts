@@ -130,6 +130,61 @@ function asConfigError(err: unknown): unknown {
   return err;
 }
 
+/**
+ * Deponun kabul ettiği erişim kipi.
+ *
+ * Vercel'de Blob deposu "public" ya da "private" olarak kurulabiliyor ve
+ * private bir depo `access: 'public'` yazmayı reddediyor. Hangi tür
+ * kurulduğunu ortam değişkeninden anlamanın bir yolu yok, bu yüzden ilk
+ * yazmada denenip sonuç saklanıyor: sonraki çağrılar doğrudan çalışan kiple
+ * gidiyor.
+ */
+type Access = 'public' | 'private';
+
+const accessCache = globalThis as unknown as { __davetiyeBlobAccess?: Access };
+
+function isAccessRejection(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : '';
+  return /access|public|private/i.test(message) && !/store does not exist/i.test(message);
+}
+
+/** Depo private olduğunda public yazma reddedilir; o durumda private denenir. */
+async function putWithAccess(
+  pathname: string,
+  data: Buffer,
+  contentType: string,
+): Promise<{ url: string; access: Access }> {
+  const { put } = await import('@vercel/blob');
+  const order: Access[] = accessCache.__davetiyeBlobAccess
+    ? [accessCache.__davetiyeBlobAccess]
+    : ['public', 'private'];
+
+  let lastError: unknown;
+  for (const access of order) {
+    try {
+      const blob = await put(pathname, data, {
+        access,
+        addRandomSuffix: false,
+        contentType,
+        token: token(),
+      });
+      accessCache.__davetiyeBlobAccess = access;
+      return { url: blob.url, access };
+    } catch (err) {
+      lastError = err;
+      if (!isAccessRejection(err)) break;
+    }
+  }
+  throw asConfigError(lastError);
+}
+
+/** Okuma da aynı kiple yapılır; bilinmiyorsa ikisi de denenir. */
+function accessOrder(): Access[] {
+  return accessCache.__davetiyeBlobAccess
+    ? [accessCache.__davetiyeBlobAccess, accessCache.__davetiyeBlobAccess === 'public' ? 'private' : 'public']
+    : ['public', 'private'];
+}
+
 /* ─────────────────────────────────────────────────────────────── yazma */
 
 /** Dosyayı yazar ve doğrudan servis edilebilir adresini döndürür. */
@@ -141,19 +196,9 @@ export async function saveFile(
   assertWritable();
 
   if (usingBlob) {
-    const { put } = await import('@vercel/blob');
-    try {
-      // addRandomSuffix kapalı: kayıttaki ad ile depodaki anahtar birebir aynı kalmalı.
-      const blob = await put(key(fileName, space), data, {
-        access: 'public',
-        addRandomSuffix: false,
-        contentType: mimeForFile(fileName),
-        token: token(),
-      });
-      return blob.url;
-    } catch (err) {
-      throw asConfigError(err);
-    }
+    // addRandomSuffix kapalı: kayıttaki ad ile depodaki anahtar birebir aynı kalmalı.
+    await putWithAccess(key(fileName, space), data, mimeForFile(fileName));
+    return `/api/files/${fileName}`;
   }
 
   const target = resolveSafe(fileName, space);
@@ -215,15 +260,22 @@ export async function readFile(
   space: Space = 'private',
 ): Promise<Buffer | null> {
   if (usingBlob) {
-    const { head } = await import('@vercel/blob');
-    try {
-      const meta = await head(key(fileName, space), { token: token() });
-      const response = await fetch(meta.url);
-      if (!response.ok) return null;
-      return Buffer.from(await response.arrayBuffer());
-    } catch {
-      return null;
+    // Okuma belirteçle yapılır. Private bir depoda dosyanın CDN adresi
+    // dışarıya açık değildir; adresi getirip fetch etmek 404 döndürür.
+    const { get } = await import('@vercel/blob');
+    for (const access of accessOrder()) {
+      try {
+        const result = await get(key(fileName, space), { access, token: token() });
+        if (!result?.stream) continue;
+        const chunks: Uint8Array[] = [];
+        // @ts-expect-error - web akışı Node'da yinelenebilir
+        for await (const chunk of result.stream) chunks.push(chunk as Uint8Array);
+        return Buffer.concat(chunks);
+      } catch {
+        // Diğer kiple denenir.
+      }
     }
+    return null;
   }
 
   const target = resolveSafe(fileName, space);

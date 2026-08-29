@@ -55,9 +55,25 @@ export function supportsDirectUpload(tokenUrl: string): Promise<boolean> {
 }
 
 /**
+ * Deponun kabul ettiği erişim kipi.
+ *
+ * Vercel'de Blob deposu private olarak kurulabiliyor ve o durumda
+ * `access: 'public'` yazma reddediliyor. Hangi tür kurulduğu istemciden
+ * bilinemez; ilk yüklemede denenip sonuç saklanır.
+ */
+type Access = 'public' | 'private';
+let storeAccess: Access | undefined;
+
+function isAccessRejection(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : '';
+  return /access|public|private/i.test(message);
+}
+
+/**
  * Dosyayı doğrudan Blob'a yükler ve depoda kullanılan adı döndürür.
- * `url` yalnızca herkese açık görsellerde anlamlıdır; misafir fotoğrafları
- * her zaman yetki denetimli uçtan servis edilir.
+ *
+ * Dönen `url` her zaman uygulamanın kendi ucudur, deponun CDN adresi değil:
+ * private bir depoda o adres dışarıya açık olmaz ve görsel açılmaz.
  */
 export async function uploadDirect(
   file: File | Blob,
@@ -68,12 +84,25 @@ export async function uploadDirect(
     clientPayload?: string;
   },
 ): Promise<{ fileName: string; url: string }> {
-  const blob = await upload(`${options.space}/${options.fileName}`, file, {
-    access: 'public',
-    handleUploadUrl: options.tokenUrl,
-    contentType: file.type || undefined,
-    clientPayload: options.clientPayload,
-    multipart: file.size > 8 * 1024 * 1024,
-  });
-  return { fileName: options.fileName, url: blob.url };
+  const order: Access[] = storeAccess ? [storeAccess] : ['public', 'private'];
+  let lastError: unknown;
+
+  for (const access of order) {
+    try {
+      await upload(`${options.space}/${options.fileName}`, file, {
+        access,
+        handleUploadUrl: options.tokenUrl,
+        contentType: file.type || undefined,
+        clientPayload: options.clientPayload,
+        multipart: file.size > 8 * 1024 * 1024,
+      });
+      storeAccess = access;
+      return { fileName: options.fileName, url: `/api/files/${options.fileName}` };
+    } catch (err) {
+      lastError = err;
+      if (!isAccessRejection(err)) break;
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Yüklenemedi');
 }

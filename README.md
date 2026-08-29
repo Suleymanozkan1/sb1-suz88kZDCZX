@@ -217,7 +217,14 @@ Tabloları siz oluşturmayacaksınız; uygulama ilk isteğinde kurar.
 
 **Storage** → **Create** → **Blob** → **Connect**.
 
-`BLOB_READ_WRITE_TOKEN` yine otomatik eklenir.
+Belirteç otomatik eklenir; adı bağlantıya verilen öneke göre değişebilir
+(`BLOB_READ_WRITE_TOKEN`, `SAGRADAVETIYE_BLOB_READ_WRITE_TOKEN` gibi).
+Uygulama hepsine bakar (`src/lib/blob-token.ts`).
+
+Depoyu **public** ya da **private** kurmanız fark etmez: yazma sırasında
+deponun kabul ettiği kip bulunur ve saklanır. Görseller her durumda
+uygulamanın kendi ucundan (`/api/files/[name]`) servis edilir, deponun CDN
+adresinden değil — private bir depoda o adres dışarıya açık olmaz.
 
 ### 4. İki değişkeni elle girin
 
