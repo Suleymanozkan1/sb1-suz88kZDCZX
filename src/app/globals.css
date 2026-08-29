@@ -2,46 +2,367 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ══════════════════════════════════════════════════════════════════════
+   TASARIM SİSTEMİ
+   Renk bir marka değil, ruh halidir. Tüm sayfa tek bir renk yolculuğu
+   izler: gece → şafak → gündüz → akşam. Bölümlerin kendi zemini yoktur.
+   ══════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --gold: #c9a84c;
-  --gold-light: #e8d5a3;
-  --gold-dark: #9a7b2f;
-  --cream: #faf6f0;
+  /* — Renk: hepsi sıcak tarafa yaslı, saf siyah/beyaz yok — */
+  --c-night: #0d0805;
+  --c-ink: #15100a;
+  --c-ember: #2a1a0e;
+  --c-bronze: #6b4a2a;
+  --c-tan: #c4a077;
+  --c-sand: #ece0cb;
+  --c-cream: #f7f1e6;
+
+  --c-gold: #b08d3f;
+  --c-gold-light: #e2cd97;
+  --c-gold-deep: #6b5119;
+
+  /* Koyu zeminde metin */
+  --c-on-dark: #f2e9d8;
+  --c-on-dark-soft: rgba(242, 233, 216, 0.62);
+  --c-on-dark-faint: rgba(242, 233, 216, 0.34);
+
+  /* Açık zeminde metin */
+  --c-on-light: #241a10;
+  --c-on-light-soft: rgba(36, 26, 16, 0.66);
+  --c-on-light-faint: rgba(36, 26, 16, 0.38);
+
+  --c-rule: rgba(176, 141, 63, 0.28);
+  --c-rule-dark: rgba(226, 205, 151, 0.22);
+
+  /* — Tipografi: cesur ölçek, tek beyanla tüm kırılımlar — */
+  --f-display: var(--font-serif), 'Cormorant Garamond', Georgia, serif;
+  --f-body: var(--font-sans), Jost, system-ui, sans-serif;
+
+  --t-hero: clamp(3.25rem, 15vw, 11rem);
+  --t-display: clamp(2.25rem, 7vw, 5.5rem);
+  --t-h2: clamp(1.85rem, 4.5vw, 3.4rem);
+  --t-lead: clamp(1.15rem, 2.2vw, 1.75rem);
+  --t-body: clamp(0.95rem, 1.15vw, 1.0625rem);
+  --t-label: clamp(0.625rem, 0.8vw, 0.75rem);
+  --t-numeral: clamp(1.5rem, 3vw, 2.25rem);
+
+  --ls-hero: -0.035em;
+  --ls-display: -0.02em;
+  --ls-label: 0.34em;
+
+  --lh-hero: 0.86;
+  --lh-display: 0.95;
+  --lh-body: 1.7;
+
+  /* — Boşluk: kararsız kalınca ikiye katla — */
+  --sp-xs: clamp(0.5rem, 1vw, 0.75rem);
+  --sp-sm: clamp(1rem, 2vw, 1.5rem);
+  --sp-md: clamp(2rem, 4vw, 3.5rem);
+  --sp-lg: clamp(4rem, 8vw, 7.5rem);
+  --sp-xl: clamp(6rem, 13vw, 13rem);
+
+  /* — Hareket dili: bir kez tanımlanır, hiç ezilmez — */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.6, 0.14, 0, 1);
+  --ease-organic: cubic-bezier(0.18, 0.71, 0.11, 1);
+
+  --dur-instant: 0.15s;
+  --dur-fast: 0.3s;
+  --dur-normal: 0.6s;
+  --dur-slow: 0.9s;
+  --dur-cinematic: 1.4s;
+  --dur-luxury: 2.2s;
 }
 
 html {
   scroll-behavior: smooth;
+  /* Aşırı kaydırmada beyaz görünmesin — yolculuğun iki ucu da koyu. */
+  background: var(--c-night);
 }
 
 body {
-  background: var(--cream);
+  color: var(--c-on-light);
+  background: var(--c-night);
   -webkit-font-smoothing: antialiased;
 }
 
-/* --- Ortak bölüm ritmi --- */
+/* ── Sayfanın renk yolculuğu ────────────────────────────────────────────
+   Tek bir gradyan davetiyenin tamamı boyunca uzanır; bölümler saydamdır
+   ve bu yolculuğu ortaya çıkarır. Bölüm sınırlarında sert kesme yoktur.
+   Gradyan gövdede değil bu sarmalayıcıda durur, böylece yönetim
+   panelleri kendi zeminlerini korur.                                     */
+.journey {
+  /* Duraklar bölümlerin ÖLÇÜLEN konumlarına göre yerleştirildi. Ara tonlar
+     (ne açık ne koyu metnin okunduğu bant) yalnızca köprü boşluklarına
+     denk gelir — hiçbir metin bloğu o bandın üzerinde durmaz. */
+  background: linear-gradient(
+    to bottom,
+    var(--c-night) 0%,
+    var(--c-night) 12%,
+    var(--c-ink) 14%,
+    var(--c-ember) 15.5%,
+    #4a2f18 16.5%,
+    var(--c-bronze) 17.2%,
+    #9a7550 17.9%,
+    var(--c-tan) 18.6%,
+    #ddc9a8 19.4%,
+    var(--c-sand) 20.4%,
+    var(--c-cream) 22%,
+    var(--c-cream) 62%,
+    var(--c-sand) 70%,
+    var(--c-sand) 78.5%,
+    #ddc9a8 79.6%,
+    var(--c-tan) 80.6%,
+    #9a7550 81.5%,
+    var(--c-bronze) 82.4%,
+    #4a2f18 83.3%,
+    var(--c-ember) 84.2%,
+    var(--c-ink) 85.2%,
+    var(--c-night) 86.5%,
+    var(--c-night) 100%
+  );
+}
+
+/* Bölümler kendi zeminini boyamaz — gövdenin yolculuğunu gösterir. */
+.journey section {
+  background: transparent;
+}
+
+/* ── Kâğıt dokusu ───────────────────────────────────────────────────────
+   Düz gradyanı "ekran" olmaktan çıkarıp basılı bir yüzeye yaklaştırır.   */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TİPOGRAFİK SINIFLAR
+   ══════════════════════════════════════════════════════════════════════ */
+
+.t-hero {
+  font-family: var(--f-display);
+  font-size: var(--t-hero);
+  line-height: var(--lh-hero);
+  letter-spacing: var(--ls-hero);
+  font-weight: 300;
+}
+
+.t-display {
+  font-family: var(--f-display);
+  font-size: var(--t-display);
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-display);
+  font-weight: 300;
+}
+
+.t-h2 {
+  font-family: var(--f-display);
+  font-size: var(--t-h2);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  font-weight: 300;
+}
+
+.t-lead {
+  font-family: var(--f-display);
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+.t-body {
+  font-family: var(--f-body);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  font-weight: 300;
+}
+
+/* Küçük, harf aralıklı üst etiket — her bölümün başlığını çerçeveler. */
+.t-label {
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* Eski stil rakamlar: tarih ve saatlerin editoryal görünmesini sağlar. */
+.numerals {
+  font-family: var(--f-display);
+  font-variant-numeric: oldstyle-nums;
+  font-feature-settings: 'onum' 1;
+}
+
+/* Okuma genişliği 60–66 karakter — daha geniş satırlar yorar. */
+.measure {
+  max-width: 34em;
+}
+
+.measure-sm {
+  max-width: 26em;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ORTAK PARÇALAR
+   ══════════════════════════════════════════════════════════════════════ */
+
 .section-gap {
-  padding-top: clamp(5rem, 12vw, 9rem);
-  padding-bottom: clamp(5rem, 12vw, 9rem);
+  padding-top: var(--sp-xl);
+  padding-bottom: var(--sp-xl);
 }
 
-/* --- Altın gradyan başlık --- */
-.gold-text {
-  background: linear-gradient(135deg, #9a7b2f, #e8d5a3, #c9a84c);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* İnce çizgi: kart yerine kural. Editoryal düzenin taşıyıcısı. */
+.rule {
+  height: 1px;
+  background: var(--c-rule);
 }
 
-/* --- Kadife perde (giriş animasyonu) --- */
+.rule-dark {
+  height: 1px;
+  background: var(--c-rule-dark);
+}
+
+/* Kenardan sönümlenen çizgi — sert bitmez. */
+.rule-fade {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--c-rule), transparent);
+}
+
+/* Bölüm sınırlarını yumuşatan hâle — bir sonrakine taşar. */
+.halo::after {
+  content: '';
+  position: absolute;
+  bottom: -18vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(60%, 40rem);
+  height: 34vh;
+  background: radial-gradient(ellipse, var(--c-gold), transparent 70%);
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ETKİLEŞİM — her durumun bir karşılığı var, hiçbiri sessiz değil
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Birincil eylem: zemin alttan dolar, metin ters döner (P50). */
+.cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  overflow: hidden;
+  padding: 1.05rem 2.5rem;
+  border: 1px solid var(--c-gold);
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--c-gold-light);
+  isolation: isolate;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--c-gold-light);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--dur-normal) var(--ease-out);
+}
+
+.cta:hover {
+  color: var(--c-night);
+}
+
+.cta:hover::before {
+  transform: scaleY(1);
+}
+
+.cta:disabled {
+  opacity: 0.5;
+}
+
+.cta:disabled::before {
+  transform: scaleY(0);
+}
+
+/* Açık zeminde aynı davranış, ters renk. */
+.cta-on-light {
+  border-color: var(--c-gold-deep);
+  color: var(--c-gold-deep);
+}
+
+.cta-on-light::before {
+  background: var(--c-gold-deep);
+}
+
+.cta-on-light:hover {
+  color: var(--c-cream);
+}
+
+/* İkincil eylem: yalnızca alt çizgi, soldan girer (P48). */
+.link-underline {
+  position: relative;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  padding-bottom: 0.4rem;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-normal) var(--ease-out);
+}
+
+.link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Ok, hedefe doğru itilir. */
+.nudge svg {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.nudge:hover svg {
+  transform: translateX(3px);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PERDE — giriş animasyonu (kadife doku, korniş, saçak)
+   ══════════════════════════════════════════════════════════════════════ */
+
 .curtain-panel {
   will-change: transform;
 }
 
 .curtain-fabric-rich {
-  background:
-    linear-gradient(90deg,
-      #3d0f12 0%, #6b1a20 12%, #4a1216 24%, #7d2028 36%,
-      #52151a 48%, #7d2028 60%, #4a1216 72%, #6b1a20 86%, #3d0f12 100%);
+  background: linear-gradient(
+    90deg,
+    #3d0f12 0%, #6b1a20 12%, #4a1216 24%, #7d2028 36%,
+    #52151a 48%, #7d2028 60%, #4a1216 72%, #6b1a20 86%, #3d0f12 100%
+  );
   box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.75);
 }
 
@@ -99,76 +420,117 @@ body {
   box-shadow: inset 0 -10px 26px rgba(0, 0, 0, 0.5);
 }
 
-/* --- Form öğeleri --- */
+/* ══════════════════════════════════════════════════════════════════════
+   PANEL / FORM (admin ve çift panelleri)
+   ══════════════════════════════════════════════════════════════════════ */
+
 .field {
-  @apply w-full rounded-xl px-4 py-3 font-sans text-sm font-light outline-none transition-all;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(201, 168, 76, 0.18);
-  color: rgba(255, 255, 255, 0.9);
+  @apply w-full rounded-none px-0 py-3 font-sans text-sm font-light outline-none transition-all;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(226, 205, 151, 0.2);
+  color: var(--c-on-dark);
 }
 
 .field::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(242, 233, 216, 0.25);
 }
 
 .field:focus {
-  border-color: rgba(201, 168, 76, 0.55);
-  background: rgba(255, 255, 255, 0.07);
+  border-bottom-color: var(--c-gold);
+}
+
+/* select yerleşik okunu koyu zeminde kaybetmesin */
+select.field {
+  padding-right: 1rem;
 }
 
 .field-label {
-  @apply mb-2 block font-sans text-xs uppercase tracking-[0.2em];
-  color: rgba(201, 168, 76, 0.75);
+  @apply mb-2 block;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: rgba(176, 141, 63, 0.85);
 }
 
 .btn-gold {
-  @apply rounded-full px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] transition-all duration-300;
-  background: linear-gradient(135deg, #c9a84c, #e8d5a3, #c9a84c);
-  background-size: 200% auto;
-  color: #1a0f08;
-  box-shadow: 0 4px 30px rgba(201, 168, 76, 0.35);
+  @apply relative inline-flex items-center justify-center overflow-hidden rounded-full px-6 py-3;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  border: 1px solid var(--c-gold);
+  color: var(--c-gold-light);
+  isolation: isolate;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.btn-gold::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--c-gold-light);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--dur-normal) var(--ease-out);
 }
 
 .btn-gold:hover {
-  background-position: right center;
-  transform: translateY(-2px);
+  color: var(--c-night);
+}
+
+.btn-gold:hover::before {
+  transform: scaleY(1);
 }
 
 .btn-gold:disabled {
-  opacity: 0.6;
-  transform: none;
+  opacity: 0.5;
+}
+
+.btn-gold:disabled::before {
+  transform: scaleY(0);
 }
 
 .btn-ghost {
-  @apply rounded-full px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] transition-all duration-300;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(201, 168, 76, 0.25);
-  color: rgba(232, 213, 163, 0.9);
+  @apply inline-flex items-center justify-center rounded-full px-6 py-3 transition-all;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(226, 205, 151, 0.22);
+  color: var(--c-on-dark-soft);
 }
 
 .btn-ghost:hover {
-  border-color: rgba(201, 168, 76, 0.6);
-  background: rgba(201, 168, 76, 0.08);
+  border-color: var(--c-gold);
+  color: var(--c-on-dark);
 }
 
 .admin-card {
   @apply rounded-2xl p-5;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(201, 168, 76, 0.15);
+  border: 1px solid rgba(176, 141, 63, 0.16);
 }
 
-/* --- Kaydırma çubuğu --- */
+/* ── Kaydırma çubuğu ── */
 ::-webkit-scrollbar {
-  width: 9px;
+  width: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.06);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #c9a84c, #9a7b2f);
-  border-radius: 9px;
+  background: rgba(176, 141, 63, 0.4);
+  border-radius: 7px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-gold);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,11 +2,21 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
+import SectionHead from './SectionHead';
+import { Divider, IconArrow } from './Ornaments';
 import { formatDate } from '@/lib/format';
 import type { Invitation } from '@/lib/types';
 
 const COUNTS = ['1', '2', '3', '4', '5+'];
 
+/**
+ * Katılım formu — sayfanın tek gerçek eylemi.
+ *
+ * Alanların kutusu yoktur; yalnızca alt kural vardır ve odaklanınca kural
+ * altın rengine döner. Seçim düğmeleri de dolgu değil, alt çizgi ile
+ * işaretlenir. Amaç: formun bir yönetim panelinden çok bir kart üzerine
+ * el yazısıyla doldurulmuş gibi durması.
+ */
 export default function RsvpSection({ invitation }: { invitation: Invitation }) {
   const [form, setForm] = useState({ name: '', phone: '', count: '1', note: '' });
   const [attending, setAttending] = useState(true);
@@ -41,105 +51,75 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
   }
 
   const fields = [
-    { id: 'name' as const, label: 'Ad Soyad', type: 'text', placeholder: 'Adınızı giriniz' },
+    { id: 'name' as const, label: 'Ad Soyad', type: 'text', placeholder: 'Adınız' },
     { id: 'phone' as const, label: 'Telefon', type: 'tel', placeholder: '05xx xxx xx xx' },
   ];
 
   return (
-    <section
-      id="rsvp"
-      className="section-gap relative"
-      style={{ background: 'linear-gradient(135deg, #1a0f08 0%, #2d1f12 50%, #1a110a 100%)' }}
-    >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{ background: 'radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 70%)' }}
-      />
-
-      <div className="relative mx-auto max-w-lg px-6">
-        <motion.div
-          className="mb-12 text-center"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <p className="font-sans text-xs uppercase tracking-title" style={{ color: 'rgba(201,168,76,0.7)' }}>
-            Katılım
-          </p>
-          <h2 className="mt-3 font-serif text-4xl font-light sm:text-5xl" style={{ color: '#E8D5A3' }}>
-            Katılım Durumunuzu Bildirin
-          </h2>
-          {deadline && (
-            <p className="mt-4 font-sans text-sm font-light" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Lütfen {deadline} tarihine kadar bildirim yapınız.
-            </p>
-          )}
-        </motion.div>
+    <section id="rsvp" className="section-gap relative pt-[36vh]">
+      <div className="mx-auto max-w-2xl px-[var(--sp-md)]">
+        <SectionHead
+          n={7}
+          label="Katılım"
+          title="Sizi Aramızda Görmek İsteriz"
+          lead={deadline ? `Lütfen ${deadline} tarihine kadar bildirim yapınız.` : undefined}
+          align="center"
+          tone="dark"
+        />
 
         <AnimatePresence mode="wait">
           {sent ? (
             <motion.div
               key="done"
               className="text-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             >
-              <motion.div
-                className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full"
-                style={{
-                  background: 'rgba(201,168,76,0.12)',
-                  border: '1px solid rgba(201,168,76,0.4)',
-                }}
-                initial={{ scale: 0 }}
-                animate={{ scale: [0, 1.2, 1] }}
-                transition={{ duration: 0.6, type: 'spring' }}
+              <motion.svg
+                width="44"
+                height="44"
+                viewBox="0 0 44 44"
+                className="mx-auto"
+                style={{ color: 'var(--c-gold-light)' }}
+                aria-hidden
               >
-                <motion.svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-                  <motion.path
-                    d="M8 17.5 L14.5 24 L26 11"
-                    stroke="#E8D5A3"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ delay: 0.4, duration: 0.6 }}
-                  />
-                </motion.svg>
-              </motion.div>
+                <motion.path
+                  d="M11 23 L19 31 L34 14"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ delay: 0.2, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                />
+              </motion.svg>
 
-              <h3 className="font-serif text-2xl font-light" style={{ color: '#E8D5A3' }}>
-                Teşekkürler {form.name.split(' ')[0]}
+              <h3 className="t-display mt-[var(--sp-md)]" style={{ color: 'var(--c-on-dark)' }}>
+                Teşekkürler{form.name ? `, ${form.name.split(' ')[0]}` : ''}
               </h3>
-              <p className="mt-3 font-sans text-sm font-light" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              <p className="t-body mt-4 measure mx-auto" style={{ color: 'var(--c-on-dark-soft)' }}>
                 {attending
                   ? 'Katılımınızı aldık. Sizi görmek için sabırsızlanıyoruz.'
                   : 'Bildiriminiz alındı. Sizi özleyeceğiz.'}
               </p>
 
-              <div className="mt-6 flex justify-center gap-2">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <motion.span
-                    key={i}
-                    className="text-lg"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 + i * 0.1 }}
-                  >
-                    🌸
-                  </motion.span>
-                ))}
+              <div className="mt-[var(--sp-md)]" style={{ color: 'var(--c-gold)' }}>
+                <Divider />
               </div>
             </motion.div>
           ) : (
             <motion.form
               key="form"
               onSubmit={submit}
-              className="space-y-5"
+              className="space-y-[var(--sp-md)]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.8 }}
             >
               {fields.map((field) => (
                 <div key={field.id}>
@@ -153,72 +133,79 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
                     placeholder={field.placeholder}
                     value={form[field.id]}
                     onChange={(e) => setForm((f) => ({ ...f, [field.id]: e.target.value }))}
-                    className="field"
+                    className="field t-lead"
                   />
                 </div>
               ))}
 
-              {/* katılım durumu */}
               <div>
                 <span className="field-label">Katılacak mısınız?</span>
-                <div className="flex gap-3">
+                <div className="flex gap-[var(--sp-md)]">
                   {[
                     { value: true, label: 'Katılıyorum' },
                     { value: false, label: 'Katılamıyorum' },
-                  ].map((option) => (
-                    <button
-                      key={option.label}
-                      type="button"
-                      onClick={() => setAttending(option.value)}
-                      className="flex-1 rounded-2xl py-3 font-sans text-sm transition-all"
-                      style={
-                        attending === option.value
-                          ? {
-                              background: 'linear-gradient(135deg, #C9A84C, #E8D5A3)',
-                              color: '#1a0f08',
-                            }
-                          : {
-                              background: 'rgba(255,255,255,0.05)',
-                              border: '1px solid rgba(201,168,76,0.2)',
-                              color: 'rgba(255,255,255,0.7)',
-                            }
-                      }
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+                  ].map((option) => {
+                    const active = attending === option.value;
+                    return (
+                      <button
+                        key={option.label}
+                        type="button"
+                        onClick={() => setAttending(option.value)}
+                        className="relative pb-2 t-lead transition-colors duration-300"
+                        style={{ color: active ? 'var(--c-gold-light)' : 'var(--c-on-dark-faint)' }}
+                      >
+                        {option.label}
+                        <motion.span
+                          className="absolute inset-x-0 bottom-0 h-px"
+                          style={{ background: 'currentColor', transformOrigin: 'left' }}
+                          animate={{ scaleX: active ? 1 : 0 }}
+                          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                          aria-hidden
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {attending && (
-                <div>
-                  <span className="field-label">Kaç Kişi Geleceksiniz?</span>
-                  <div className="flex gap-2">
-                    {COUNTS.map((count) => (
-                      <button
-                        key={count}
-                        type="button"
-                        onClick={() => setForm((f) => ({ ...f, count }))}
-                        className="flex-1 rounded-xl py-3 font-sans text-sm transition-all"
-                        style={
-                          form.count === count
-                            ? {
-                                background: 'linear-gradient(135deg, #C9A84C, #E8D5A3)',
-                                color: '#1a0f08',
-                              }
-                            : {
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid rgba(201,168,76,0.2)',
-                                color: 'rgba(255,255,255,0.7)',
-                              }
-                        }
-                      >
-                        {count}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <AnimatePresence>
+                {attending && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <span className="field-label">Kaç Kişi Geleceksiniz?</span>
+                    <div className="flex gap-[var(--sp-md)]">
+                      {COUNTS.map((count) => {
+                        const active = form.count === count;
+                        return (
+                          <button
+                            key={count}
+                            type="button"
+                            onClick={() => setForm((f) => ({ ...f, count }))}
+                            className="numerals relative pb-2 text-2xl transition-colors duration-300"
+                            style={{
+                              color: active ? 'var(--c-gold-light)' : 'var(--c-on-dark-faint)',
+                            }}
+                          >
+                            {count}
+                            <motion.span
+                              className="absolute inset-x-0 bottom-0 h-px"
+                              style={{ background: 'currentColor', transformOrigin: 'left' }}
+                              animate={{ scaleX: active ? 1 : 0 }}
+                              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                              aria-hidden
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div>
                 <label className="field-label" htmlFor="rsvp-note">
@@ -226,22 +213,23 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
                 </label>
                 <textarea
                   id="rsvp-note"
-                  rows={3}
-                  placeholder="Bir mesaj bırakmak ister misiniz?"
+                  rows={2}
+                  placeholder="Bir dilek bırakmak ister misiniz?"
                   value={form.note}
                   onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
-                  className="field resize-none"
+                  className="field t-body resize-none"
                 />
               </div>
 
               {error && (
-                <p className="font-sans text-sm" style={{ color: '#f0a3a3' }}>
+                <p className="t-body" style={{ color: '#e2a3a3' }}>
                   {error}
                 </p>
               )}
 
-              <button type="submit" disabled={sending} className="btn-gold w-full">
-                {sending ? 'Gönderiliyor…' : 'Gönder'}
+              <button type="submit" disabled={sending} className="cta nudge">
+                {sending ? 'Gönderiliyor' : 'Gönder'}
+                <IconArrow size={15} />
               </button>
             </motion.form>
           )}

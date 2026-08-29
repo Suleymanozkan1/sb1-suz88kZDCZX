@@ -8,10 +8,11 @@ export default function ScrollProgress() {
 
   return (
     <motion.div
-      className="fixed left-0 right-0 top-0 z-[9999] h-[2px] origin-left"
+      className="fixed left-0 right-0 top-0 z-[9999] h-px origin-left"
       style={{
         scaleX,
-        background: 'linear-gradient(90deg, #9A7B2F, #E8D5A3, #C9A84C, #E8D5A3, #9A7B2F)',
+        background:
+          'linear-gradient(90deg, transparent, var(--c-gold), var(--c-gold-light), var(--c-gold), transparent)',
       }}
     />
   );

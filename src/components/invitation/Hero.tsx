@@ -3,171 +3,195 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import Countdown from './Countdown';
-import { formatDate, targetDate } from '@/lib/format';
+import { CornerFlourish, IconArrow } from './Ornaments';
+import { formatDate, formatWeekday, targetDate } from '@/lib/format';
 import type { Invitation } from '@/lib/types';
 
+const RISE = {
+  initial: { opacity: 0, y: 28 },
+  animate: { opacity: 1, y: 0 },
+};
+
+/**
+ * Açılış perdesi.
+ *
+ * Ortalanmış yığın yerine sola yaslı editoryal kompozisyon: isimler iki
+ * satıra bölünür, bağlaç ikisinin arasına italik ve kaydırılmış olarak
+ * oturur. Tip ölçeği kasıtlı olarak "biraz fazla büyük" — premium cesurdur.
+ */
 export default function Hero({ invitation }: { invitation: Invitation }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '28%']);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '22%']);
+  const fade = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
   const conjunction = invitation.conjunction || '&';
+  const groom = invitation.groomName || 'Damat';
+  const bride = invitation.brideName || 'Gelin';
 
-  const orbs = [
-    { top: '15%', left: '10%', size: 400, opacity: 0.06 },
-    { top: '60%', left: '75%', size: 200, opacity: 0.05 },
-    { top: '35%', left: '55%', size: 250, opacity: 0.07 },
-  ];
+  const meta = [
+    formatDate(invitation.weddingDate),
+    formatWeekday(invitation.weddingDate),
+    invitation.weddingTime,
+    invitation.city,
+  ].filter(Boolean);
 
   return (
     <section
       ref={ref}
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, #1a0f08 0%, #2d1f12 30%, #1a110a 60%, #0d0805 100%)',
-      }}
+      className="relative flex min-h-[100svh] items-center overflow-hidden"
     >
-      {/* yumuşak ışık lekeleri */}
-      <div className="absolute inset-0">
-        {orbs.map((orb, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full blur-3xl"
-            style={{
-              top: orb.top,
-              left: orb.left,
-              width: orb.size,
-              height: orb.size,
-              background: `radial-gradient(circle, rgba(201,168,76,${orb.opacity}), transparent 70%)`,
-            }}
-            animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
-            transition={{ duration: 9 + i * 3, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        ))}
+      {/* atmosfer: iki yumuşak ışık lekesi, hareketleri fark edilmeyecek kadar yavaş */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <motion.div
+          className="absolute rounded-full blur-3xl"
+          style={{
+            top: '8%',
+            left: '-6%',
+            width: 'min(46rem, 90vw)',
+            height: 'min(46rem, 90vw)',
+            background: 'radial-gradient(circle, rgba(176,141,63,0.11), transparent 68%)',
+          }}
+          animate={{ scale: [1, 1.12, 1], opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute rounded-full blur-3xl"
+          style={{
+            bottom: '4%',
+            right: '-10%',
+            width: 'min(34rem, 80vw)',
+            height: 'min(34rem, 80vw)',
+            background: 'radial-gradient(circle, rgba(226,205,151,0.07), transparent 70%)',
+          }}
+          animate={{ scale: [1.1, 1, 1.1], opacity: [0.5, 0.9, 0.5] }}
+          transition={{ duration: 21, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      </div>
+
+      {/* dört köşe filigranı — sayfayı basılı bir kart gibi çerçeveler */}
+      <div style={{ color: 'var(--c-gold)' }} aria-hidden>
+        <CornerFlourish corner="tl" className="pointer-events-none absolute left-8 top-8 hidden sm:block" />
+        <CornerFlourish corner="tr" className="pointer-events-none absolute right-8 top-8 hidden sm:block" />
+        <CornerFlourish corner="br" className="pointer-events-none absolute bottom-8 right-8 hidden sm:block" />
+        <CornerFlourish corner="bl" className="pointer-events-none absolute bottom-8 left-8 hidden sm:block" />
       </div>
 
       <motion.div
-        style={{ y, opacity }}
-        className="relative z-20 mx-auto max-w-4xl px-6 text-center"
+        style={{ y, opacity: fade }}
+        className="relative z-20 mx-auto w-full max-w-6xl px-[var(--sp-md)]"
       >
-        {/* üst ayraç */}
-        <div className="mb-8 flex items-center justify-center gap-4">
-          <div
-            className="h-[1px] w-16 sm:w-24"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.6))' }}
-          />
-          <span className="font-serif text-lg" style={{ color: '#C9A84C' }}>
-            ❋
-          </span>
-          <div
-            className="h-[1px] w-16 sm:w-24"
-            style={{ background: 'linear-gradient(270deg, transparent, rgba(201,168,76,0.6))' }}
-          />
-        </div>
-
         <motion.p
-          className="mb-8 font-sans text-[10px] uppercase tracking-title sm:text-xs"
-          style={{ color: 'rgba(255,255,255,0.55)' }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          className="t-label"
+          style={{ color: 'var(--c-gold)' }}
+          {...RISE}
+          transition={{ delay: 0.3, duration: 1, ease: [0.22, 1, 0.36, 1] }}
         >
           Düğünümüze Davetlisiniz
         </motion.p>
 
-        {/* isimler */}
-        <motion.h1
-          className="mb-10 font-serif font-light leading-tight"
-          initial={{ opacity: 0, scale: 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 60, damping: 16, delay: 0.7 }}
-        >
-          <span
-            className="gold-text block"
-            style={{ fontSize: 'clamp(2rem, 8vw, 5rem)' }}
+        {/* isimler — iki satır, aralarında kaydırılmış italik bağlaç */}
+        <h1 className="mt-[var(--sp-sm)]">
+          <motion.span
+            className="t-hero block"
+            style={{ color: 'var(--c-on-dark)' }}
+            {...RISE}
+            transition={{ delay: 0.5, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            {invitation.groomName || 'Damat'}
-            <span className="mx-4 font-light sm:mx-8">{conjunction}</span>
-            {invitation.brideName || 'Gelin'}
-          </span>
-        </motion.h1>
+            {groom}
+          </motion.span>
 
-        {/* tarih · saat · şehir */}
+          <motion.span
+            className="t-display block italic"
+            style={{
+              color: 'var(--c-gold)',
+              marginLeft: 'clamp(1.5rem, 7vw, 7rem)',
+              marginTop: 'clamp(-0.75rem, -1.5vw, -0.25rem)',
+              marginBottom: 'clamp(-0.75rem, -1.5vw, -0.25rem)',
+            }}
+            {...RISE}
+            transition={{ delay: 0.75, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {conjunction}
+          </motion.span>
+
+          <motion.span
+            className="t-hero block"
+            style={{ color: 'var(--c-on-dark)', marginLeft: 'clamp(0.75rem, 4vw, 4rem)' }}
+            {...RISE}
+            transition={{ delay: 0.95, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {bride}
+          </motion.span>
+        </h1>
+
+        {/* künye satırı — eski stil rakamlarla, ince kurallarla ayrılmış */}
         <motion.div
-          className="mb-10 flex flex-wrap items-center justify-center gap-4 sm:mb-12 sm:gap-6"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2 }}
+          className="mt-[var(--sp-md)] flex flex-wrap items-center gap-x-5 gap-y-2"
+          {...RISE}
+          transition={{ delay: 1.25, duration: 1 }}
         >
-          <div
-            className="h-[1px] w-8 sm:w-16"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(201,168,76,0.5))' }}
-          />
-          <p className="font-sans text-xs font-light uppercase tracking-widest text-white/60 sm:text-sm">
-            {formatDate(invitation.weddingDate)}
-          </p>
-          <span style={{ color: 'rgba(201,168,76,0.6)' }}>·</span>
-          <p className="font-sans text-xs font-light uppercase tracking-widest text-white/60 sm:text-sm">
-            {invitation.weddingTime}
-          </p>
-          <span style={{ color: 'rgba(201,168,76,0.6)' }}>·</span>
-          <p className="font-sans text-xs font-light uppercase tracking-widest text-white/60 sm:text-sm">
-            {invitation.city}
-          </p>
-          <div
-            className="h-[1px] w-8 sm:w-16"
-            style={{ background: 'linear-gradient(270deg, transparent, rgba(201,168,76,0.5))' }}
-          />
+          {meta.map((item, i) => (
+            <span key={item} className="flex items-center gap-5">
+              {i > 0 && (
+                <span
+                  className="hidden h-3 w-px sm:block"
+                  style={{ background: 'var(--c-rule-dark)' }}
+                  aria-hidden
+                />
+              )}
+              <span
+                className="numerals text-sm sm:text-base"
+                style={{ color: 'var(--c-on-dark-soft)' }}
+              >
+                {item}
+              </span>
+            </span>
+          ))}
         </motion.div>
 
-        <div className="mb-12">
+        <div className="mt-[var(--sp-md)]">
           <Countdown targetDate={targetDate(invitation.weddingDate, invitation.weddingTime)} />
         </div>
 
-        {/* eylem düğmeleri */}
         <motion.div
-          className="flex flex-wrap items-center justify-center gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2 }}
+          className="mt-[var(--sp-md)] flex flex-wrap items-center gap-x-8 gap-y-4"
+          {...RISE}
+          transition={{ delay: 1.9, duration: 1 }}
         >
-          <a href="#rsvp" className="btn-gold">
+          <a href="#rsvp" className="cta nudge">
             Katılım Durumunu Belirt
+            <IconArrow size={15} />
           </a>
-          <a href="#details" className="btn-ghost">
+          <a
+            href="#details"
+            className="link-underline"
+            style={{ color: 'var(--c-on-dark-soft)' }}
+          >
             Detayları Gör
           </a>
         </motion.div>
       </motion.div>
 
-      {/* kaydırma göstergesi */}
-      {/* Framer Motion inline transform yazdığı için yatay ortalama da x ile verilir;
-          Tailwind'in -translate-x-1/2 sınıfı burada ezilirdi. */}
+      {/* kaydırma daveti — sola hizalı, ince ve sessiz */}
+      {/* kaydırma daveti — kompozisyonla aynı sol kenara hizalı */}
       <motion.div
-        className="absolute bottom-8 left-1/2 z-20 flex flex-col items-center gap-2"
-        style={{ x: '-50%' }}
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
+        className="absolute bottom-[var(--sp-sm)] left-1/2 z-20 flex w-full max-w-6xl -translate-x-1/2 items-center gap-3 px-[var(--sp-md)]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2.4, duration: 1 }}
       >
-        <span
-          className="font-sans text-[10px] uppercase tracking-[0.3em]"
-          style={{ color: 'rgba(255,255,255,0.35)' }}
-        >
+        <span className="t-label" style={{ color: 'var(--c-on-dark-faint)' }}>
           Kaydır
         </span>
-        <div
-          className="flex h-8 w-5 justify-center rounded-full pt-1.5"
-          style={{ border: '1px solid rgba(201,168,76,0.35)' }}
-        >
-          <motion.div
-            className="h-1.5 w-1 rounded-full"
-            style={{ background: '#C9A84C' }}
-            animate={{ y: [0, 10, 0], opacity: [1, 0.3, 1] }}
-            transition={{ duration: 1.8, repeat: Infinity }}
-          />
-        </div>
+        <motion.span
+          className="block w-px"
+          style={{ height: 34, background: 'var(--c-rule-dark)', transformOrigin: 'top' }}
+          animate={{ scaleY: [0.3, 1, 0.3] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+          aria-hidden
+        />
       </motion.div>
     </section>
   );

@@ -1,91 +1,68 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import SectionHead from './SectionHead';
+import { ICONS, resolveIcon } from './Ornaments';
 import type { Invitation } from '@/lib/types';
 
+/**
+ * Günün akışı.
+ *
+ * Saatler bir cetvel gibi solda hizalanır; her satır ince bir kuralla
+ * ayrılır. Kart, gölge ve cam efekti yok — akış listesi bir tarife gibi
+ * okunmalı, bir kontrol paneli gibi değil.
+ */
 export default function ProgramSection({ invitation }: { invitation: Invitation }) {
   const items = invitation.programItems ?? [];
   if (items.length === 0) return null;
 
   return (
-    <section
-      id="program"
-      className="section-gap relative"
-      style={{ background: 'linear-gradient(180deg, #FAF6F0 0%, #F5EDD8 50%, #FAF6F0 100%)' }}
-    >
-      <div className="mx-auto max-w-2xl px-6">
-        <motion.div
-          className="mb-14 text-center"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <p className="font-sans text-xs uppercase tracking-title" style={{ color: '#9A7B2F' }}>
-            Akış
-          </p>
-          <h2 className="mt-3 font-serif text-4xl font-light sm:text-5xl" style={{ color: '#2b1d0f' }}>
-            Program
-          </h2>
-        </motion.div>
+    <section id="program" className="section-gap relative">
+      <div className="mx-auto max-w-4xl px-[var(--sp-md)]">
+        <SectionHead n={3} label="Akış" title="Günün Programı" />
 
-        <div className="relative">
-          <div
-            className="absolute bottom-4 left-[22px] top-4 w-[1px]"
-            style={{
-              background: 'linear-gradient(180deg, transparent, rgba(201,168,76,0.4), transparent)',
-            }}
-          />
-
-          <div className="space-y-6">
-            {items.map((item, i) => (
+        <div>
+          {items.map((item, i) => {
+            const Icon = ICONS[resolveIcon(item.icon, i)];
+            return (
               <motion.div
                 key={`${item.title}-${i}`}
-                className="flex items-start gap-5"
-                initial={{ opacity: 0, x: -20 }}
+                className="group relative grid grid-cols-[auto_1fr] items-baseline gap-x-[var(--sp-sm)] gap-y-1 py-[var(--sp-sm)] sm:grid-cols-[7rem_auto_1fr] sm:gap-x-[var(--sp-md)]"
+                initial={{ opacity: 0, x: -18 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.8, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
               >
-                <div
-                  className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-serif"
-                  style={{
-                    background: 'rgba(255,255,255,0.85)',
-                    border: '1px solid rgba(201,168,76,0.35)',
-                    color: '#9A7B2F',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                >
-                  {item.icon}
-                </div>
+                <span className="rule absolute inset-x-0 top-0" aria-hidden />
 
-                <div
-                  className="flex-1 rounded-2xl px-5 py-4"
-                  style={{
-                    background: 'rgba(255,255,255,0.6)',
-                    border: '1px solid rgba(201,168,76,0.15)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-                  }}
+                <span
+                  className="numerals col-span-2 text-lg sm:col-span-1 sm:text-xl"
+                  style={{ color: 'var(--c-gold-deep)' }}
                 >
-                  <div className="flex flex-wrap items-baseline gap-x-3">
-                    <span
-                      className="font-sans text-sm tracking-[0.15em]"
-                      style={{ color: '#9A7B2F' }}
-                    >
-                      {item.time}
-                    </span>
-                    <h3 className="font-serif text-lg font-light" style={{ color: '#2b1d0f' }}>
-                      {item.title}
-                    </h3>
-                  </div>
+                  {item.time}
+                </span>
+
+                <span
+                  className="hidden self-center transition-transform duration-500 group-hover:-translate-y-0.5 sm:block"
+                  style={{ color: 'var(--c-on-light-faint)' }}
+                >
+                  <Icon size={20} />
+                </span>
+
+                <div>
+                  <h3 className="t-h2" style={{ color: 'var(--c-on-light)' }}>
+                    {item.title}
+                  </h3>
                   {item.desc && (
-                    <p className="mt-1 font-sans text-sm font-light" style={{ color: '#6b5a44' }}>
+                    <p className="t-body mt-1 measure" style={{ color: 'var(--c-on-light-soft)' }}>
                       {item.desc}
                     </p>
                   )}
                 </div>
               </motion.div>
-            ))}
-          </div>
+            );
+          })}
+          <span className="rule block" aria-hidden />
         </div>
       </div>
     </section>

@@ -14,7 +14,7 @@ export default async function HomePage() {
       <span className="font-serif text-3xl" style={{ color: '#C9A84C' }}>
         ✦
       </span>
-      <h1 className="mt-5 font-serif text-4xl font-light gold-text sm:text-5xl">
+      <h1 className="t-display mt-5" style={{ color: 'var(--c-on-dark)' }}>
         Dijital Düğün Davetiyesi
       </h1>
       <p className="mt-4 max-w-md font-sans text-sm font-light" style={{ color: 'rgba(255,255,255,0.5)' }}>

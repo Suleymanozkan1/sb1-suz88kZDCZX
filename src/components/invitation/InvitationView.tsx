@@ -9,7 +9,6 @@ import Hero from './Hero';
 import LetterSection from './LetterSection';
 import LocationSection from './LocationSection';
 import MusicPlayer from './MusicPlayer';
-import Petals from './Petals';
 import ProgramSection from './ProgramSection';
 import RsvpSection from './RsvpSection';
 import ScrollProgress from './ScrollProgress';
@@ -17,6 +16,17 @@ import SealCurtain from './SealCurtain';
 import StorySection from './StorySection';
 import type { Invitation } from '@/lib/types';
 
+/**
+ * Davetiyenin tam akışı.
+ *
+ * Bölüm sırası bir renk yolculuğu izler: gece (açılış) → şafak (mektup) →
+ * gündüz (hikâye, detay, program, galeri, konum, sorular) → akşam
+ * (katılım, kapanış). Zemin `globals.css` içindeki tek gövde gradyanıyla
+ * kesintisiz döner; bu yüzden bölümlerin kendi arka planı yoktur.
+ *
+ * Katılım formu bilinçli olarak soruların ARDINDAN gelir: önce merak
+ * giderilir, sonra tek eylem istenir.
+ */
 export default function InvitationView({
   invitation,
   skipIntro = false,
@@ -31,9 +41,9 @@ export default function InvitationView({
       {!opened && <SealCurtain invitation={invitation} onOpened={() => setOpened(true)} />}
 
       <ScrollProgress />
-      <Petals />
+      <div className="grain" aria-hidden />
 
-      <main>
+      <main className="journey">
         <Hero invitation={invitation} />
         <LetterSection invitation={invitation} />
         <StorySection invitation={invitation} />
@@ -41,8 +51,8 @@ export default function InvitationView({
         <ProgramSection invitation={invitation} />
         <GallerySection invitation={invitation} />
         <LocationSection invitation={invitation} />
-        <RsvpSection invitation={invitation} />
         <FaqSection invitation={invitation} />
+        <RsvpSection invitation={invitation} />
         <ContactSection invitation={invitation} />
       </main>
 

@@ -136,7 +136,7 @@ export default function PhotoUpload({
         <span className="font-serif text-2xl" style={{ color: '#C9A84C' }}>
           ✦
         </span>
-        <h1 className="mt-4 font-serif text-3xl font-light gold-text sm:text-4xl">{coupleNames}</h1>
+        <h1 className="t-display mt-4" style={{ color: 'var(--c-on-dark)' }}>{coupleNames}</h1>
         <p
           className="mt-4 font-sans text-sm font-light leading-relaxed"
           style={{ color: 'rgba(255,255,255,0.6)' }}

@@ -57,10 +57,10 @@ export default function MusicPlayer({
         aria-label={playing ? 'Müziği duraklat' : 'Müziği çal'}
         className="fixed bottom-6 right-6 z-[500] flex h-12 w-12 items-center justify-center rounded-full transition-all"
         style={{
-          background: 'rgba(255,255,255,0.85)',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(201,168,76,0.3)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          background: 'rgba(13, 8, 5, 0.35)',
+          backdropFilter: 'blur(14px)',
+          border: '1px solid rgba(176, 141, 63, 0.35)',
+          color: 'var(--c-gold-light)',
         }}
       >
         {playing ? (
@@ -69,14 +69,14 @@ export default function MusicPlayer({
               <motion.div
                 key={i}
                 className="w-[3px] rounded-full"
-                style={{ background: '#C9A84C' }}
+                style={{ background: 'currentColor' }}
                 animate={{ height: ['6px', '16px', '8px', '14px', '6px'] }}
                 transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.12 }}
               />
             ))}
           </div>
         ) : (
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="#C9A84C" aria-hidden>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
             <path d="M4 2.5 L13 8 L4 13.5 Z" />
           </svg>
         )}

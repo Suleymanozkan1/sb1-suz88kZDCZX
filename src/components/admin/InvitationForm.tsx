@@ -259,7 +259,7 @@ export default function InvitationForm({
 
       <div className="admin-card">
         <span className="field-label">Önizleme</span>
-        <p className="font-serif text-2xl font-light gold-text">
+        <p className="font-serif text-2xl font-light" style={{ color: 'var(--c-gold-light)' }}>
           {draft.groomName || 'Damat'} {draft.conjunction} {draft.brideName || 'Gelin'}
         </p>
         <p className="mt-2 font-sans text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>

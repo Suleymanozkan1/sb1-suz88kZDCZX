@@ -1,11 +1,26 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Bridge from './Bridge';
+import { Divider } from './Ornaments';
 import { BESMELE, READY_AYET, READY_HADIS } from '@/lib/defaults';
 import { formatDate } from '@/lib/format';
 import type { Invitation } from '@/lib/types';
 
-/** Monogram, davet metni ve manevi içeriği taşıyan "mektup" bölümü. */
+const IN_VIEW = {
+  initial: { opacity: 0, y: 22 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' },
+};
+
+/**
+ * Mektup — sayfanın gece/gündüz köprüsü.
+ *
+ * Gövde gradyanı tam burada bronzdan kreme döner, bu yüzden bölüm kendi
+ * zeminini boyamaz. Metin rengi de yolculuğa uyacak şekilde açık→koyu
+ * geçer. Kompozisyon ortalanmıştır: bu, sayfadaki iki dönüm noktasından
+ * biri ve ortalama burada kasıt taşır.
+ */
 export default function LetterSection({ invitation }: { invitation: Invitation }) {
   const conjunction = invitation.conjunction || '&';
   const monogram =
@@ -18,32 +33,22 @@ export default function LetterSection({ invitation }: { invitation: Invitation }
   ].filter(Boolean);
 
   return (
-    <section
-      id="letter"
-      className="section-gap relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #FAF6F0 0%, #fff 55%, #FAF6F0 100%)' }}
-    >
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-40"
-        style={{ background: 'linear-gradient(180deg, rgba(13,8,5,0.12), transparent)' }}
-      />
-
-      <div className="relative mx-auto max-w-2xl px-6 text-center">
-        {/* monogram madalyonu */}
+    <section id="letter" className="section-gap relative">
+      <div className="relative mx-auto max-w-3xl px-[var(--sp-md)] text-center">
+        {/* monogram — kart değil, kâğıda basılı bir damga */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          className="mb-10 flex justify-center"
+          className="flex justify-center"
+          {...IN_VIEW}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
             className="flex h-24 w-24 items-center justify-center rounded-full"
-            style={{
-              background: 'linear-gradient(135deg, rgba(201,168,76,0.12), rgba(232,213,163,0.05))',
-              border: '1px solid rgba(201,168,76,0.35)',
-            }}
+            style={{ border: '1px solid rgba(226, 205, 151, 0.32)' }}
           >
-            <span className="font-serif text-xl font-light" style={{ color: '#9A7B2F' }}>
+            <span
+              className="t-lead italic"
+              style={{ color: 'var(--c-gold-light)' }}
+            >
               {monogram}
             </span>
           </div>
@@ -51,116 +56,92 @@ export default function LetterSection({ invitation }: { invitation: Invitation }
 
         {invitation.showBesmele && (
           <motion.p
-            className="mb-8 font-serif text-xl"
-            style={{ color: '#9A7B2F', direction: 'rtl' }}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            className="mt-[var(--sp-md)] font-serif text-xl"
+            style={{ color: 'var(--c-gold-light)', direction: 'rtl' }}
+            {...IN_VIEW}
+            transition={{ duration: 1 }}
           >
             {BESMELE}
           </motion.p>
         )}
 
-        {/* ayraç */}
         <motion.div
-          className="mb-10 flex items-center justify-center gap-3"
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
+          className="mt-[var(--sp-md)]"
+          style={{ color: 'var(--c-gold-deep)' }}
+          {...IN_VIEW}
+          transition={{ duration: 1, delay: 0.1 }}
         >
-          <div className="h-[1px] w-20" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C)' }} />
-          <span style={{ color: '#C9A84C' }}>✦</span>
-          <div className="h-[1px] w-20" style={{ background: 'linear-gradient(270deg, transparent, #C9A84C)' }} />
+          <Divider />
         </motion.div>
 
+        {/* davet metni — sayfanın en büyük düz metni, italik ve geniş satır aralığı */}
         <motion.p
-          className="mb-8 font-serif text-xl font-light italic leading-relaxed sm:text-2xl"
-          style={{ color: '#3a2a17' }}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          className="t-display mx-auto mt-[var(--sp-md)] italic measure"
+          style={{ color: 'var(--c-on-dark)', fontSize: 'clamp(1.5rem, 3.4vw, 2.6rem)', lineHeight: 1.35 }}
+          {...IN_VIEW}
+          transition={{ duration: 1.1, delay: 0.15 }}
         >
-          “{invitation.invitationText}”
+          {invitation.invitationText}
         </motion.p>
 
-        {invitation.showAyet && (
-          <motion.p
-            className="mx-auto mb-6 max-w-xl font-serif text-base font-light italic leading-relaxed"
-            style={{ color: '#6b5a44' }}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+        {(invitation.showAyet || invitation.showHadis || invitation.duaText) && (
+          <motion.div
+            className="mx-auto mt-[var(--sp-md)] max-w-xl space-y-4"
+            {...IN_VIEW}
+            transition={{ duration: 1, delay: 0.2 }}
           >
-            {READY_AYET}
-          </motion.p>
+            {invitation.showAyet && (
+              <p className="t-lead italic" style={{ color: 'var(--c-on-dark-soft)' }}>
+                {READY_AYET}
+              </p>
+            )}
+            {invitation.showHadis && (
+              <p className="t-lead italic" style={{ color: 'var(--c-on-dark-soft)' }}>
+                {READY_HADIS}
+              </p>
+            )}
+            {invitation.duaText && (
+              <p className="t-body" style={{ color: 'var(--c-on-dark-soft)' }}>
+                {invitation.duaText}
+              </p>
+            )}
+            {invitation.religiousSource && (
+              <p className="t-label" style={{ color: 'var(--c-gold)' }}>
+                {invitation.religiousSource}
+              </p>
+            )}
+          </motion.div>
         )}
 
-        {invitation.showHadis && (
-          <motion.p
-            className="mx-auto mb-6 max-w-xl font-serif text-base font-light italic leading-relaxed"
-            style={{ color: '#6b5a44' }}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            {READY_HADIS}
-          </motion.p>
-        )}
+        {/* imza bloğu — mektubun altındaki el yazısı hissi */}
+        <motion.div
+          className="mt-[var(--sp-lg)]"
+          {...IN_VIEW}
+          transition={{ duration: 1, delay: 0.25 }}
+        >
+          <span
+            className="mx-auto block h-10 w-px"
+            style={{ background: 'var(--c-rule-dark)' }}
+            aria-hidden
+          />
 
-        {invitation.duaText && (
-          <motion.p
-            className="mx-auto mb-4 max-w-xl font-serif text-base font-light leading-relaxed"
-            style={{ color: '#6b5a44' }}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            {invitation.duaText}
-          </motion.p>
-        )}
+          {fullNames.length > 0 && (
+            <p
+              className="t-lead mt-[var(--sp-sm)]"
+              style={{ color: 'var(--c-on-dark)' }}
+            >
+              {fullNames.join(`  ${conjunction}  `)}
+            </p>
+          )}
 
-        {invitation.religiousSource && (
-          <p className="mb-8 font-sans text-xs uppercase tracking-[0.25em]" style={{ color: '#9A7B2F' }}>
-            {invitation.religiousSource}
+          <p className="numerals mt-3 text-sm" style={{ color: 'var(--c-on-dark-faint)' }}>
+            {[formatDate(invitation.weddingDate), invitation.city].filter(Boolean).join(' · ')}
           </p>
-        )}
-
-        <motion.div
-          className="mb-8 flex items-center justify-center gap-3"
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="h-[1px] w-12" style={{ background: 'rgba(201,168,76,0.5)' }} />
-          <span style={{ color: '#C9A84C' }}>♡</span>
-          <div className="h-[1px] w-12" style={{ background: 'rgba(201,168,76,0.5)' }} />
         </motion.div>
-
-        {fullNames.length > 0 && (
-          <motion.p
-            className="mb-3 font-serif text-lg font-light"
-            style={{ color: '#2b1d0f' }}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            {fullNames.join(`  ${conjunction}  `)}
-          </motion.p>
-        )}
-
-        <motion.p
-          className="font-sans text-xs uppercase tracking-[0.25em]"
-          style={{ color: '#8a765a' }}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-        >
-          {formatDate(invitation.weddingDate)} · {invitation.city}
-        </motion.p>
       </div>
+
+      {/* gece → gündüz dönüşü bu boşlukta tamamlanır */}
+      <Bridge />
     </section>
   );
 }

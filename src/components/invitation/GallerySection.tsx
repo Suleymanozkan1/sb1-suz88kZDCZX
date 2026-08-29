@@ -3,7 +3,18 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import { useCallback, useEffect, useState } from 'react';
+import SectionHead from './SectionHead';
 import type { Invitation } from '@/lib/types';
+
+/**
+ * Galeri.
+ *
+ * Sütun tabanlı (masonry) yerleşim. Fotoğrafların en-boy oranı önceden
+ * bilinmediği için sabit oranlı bir ızgara satırları hizalayamaz ve
+ * aralarda boşluk bırakır; sütun akışı her görüntüyü doğal oranıyla
+ * yerleştirir ve boşluk bırakmaz. Bu yüzden burada `next/image` yerine
+ * düz `img` kullanılır: yükseklik içeriğe göre belirlenir.
+ */
 
 export default function GallerySection({ invitation }: { invitation: Invitation }) {
   const images = invitation.galleryImages ?? [];
@@ -34,93 +45,76 @@ export default function GallerySection({ invitation }: { invitation: Invitation 
   }, [open, close, step]);
 
   return (
-    <section
-      id="gallery"
-      className="section-gap relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #FAF6F0 0%, #fff 50%, #FAF6F0 100%)' }}
-    >
-      {/* dekoratif ışık lekeleri */}
-      <div
-        className="pointer-events-none absolute -left-20 top-20 h-64 w-64 rounded-full blur-3xl"
-        style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.2), transparent 70%)' }}
-      />
-      <div
-        className="pointer-events-none absolute -right-20 bottom-20 h-72 w-72 rounded-full blur-3xl"
-        style={{ background: 'radial-gradient(circle, rgba(201,168,76,0.15), transparent 70%)' }}
-      />
-
-      <div className="relative mx-auto max-w-5xl px-6">
-        <motion.div
-          className="mb-12 text-center sm:mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <p className="font-sans text-xs uppercase tracking-title" style={{ color: '#9A7B2F' }}>
-            {invitation.gallerySectionSubtitle || 'Anılar'}
-          </p>
-          <h2 className="mt-3 font-serif text-4xl font-light sm:text-5xl" style={{ color: '#2b1d0f' }}>
-            {invitation.gallerySectionTitle || 'Fotoğraf Galerisi'}
-          </h2>
-        </motion.div>
+    <section id="gallery" className="section-gap relative">
+      <div className="mx-auto max-w-6xl px-[var(--sp-md)]">
+        <SectionHead
+          n={4}
+          label={invitation.gallerySectionSubtitle || 'Anılar'}
+          title={invitation.gallerySectionTitle || 'Fotoğraf Galerisi'}
+        />
 
         {images.length === 0 ? (
-          <p className="text-center font-sans text-sm font-light" style={{ color: '#8a765a' }}>
-            Admin panelinden kendi fotoğraflarınızı yükleyebilirsiniz
+          <p className="t-body" style={{ color: 'var(--c-on-light-faint)' }}>
+            Fotoğraflar yakında burada olacak.
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          <div className="columns-1 gap-[var(--sp-sm)] sm:columns-2 lg:columns-3">
             {images.map((src, i) => (
               <motion.button
                 key={`${src.slice(0, 24)}-${i}`}
                 type="button"
                 onClick={() => setOpen(i)}
-                className="group relative aspect-[3/4] overflow-hidden rounded-2xl"
-                style={{
-                  boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(201,168,76,0.1)',
-                  rotate: `${i % 2 === 0 ? -1 : 2}deg`,
-                }}
-                initial={{ opacity: 0, y: 30 }}
+                className="group relative mb-[var(--sp-sm)] block w-full break-inside-avoid overflow-hidden"
+                initial={{ opacity: 0, y: 34 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: (i % 6) * 0.06 }}
-                whileHover={{ scale: 1.03, rotate: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 1, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 aria-label={`Anı ${i + 1} — büyüt`}
               >
-                <Image
+                {/* Oran bilinmediği için doğal yükseklik kullanılır. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={src}
                   alt={`Anı ${i + 1}`}
-                  fill
-                  unoptimized={src.startsWith('data:')}
-                  sizes="(max-width: 640px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                  className="block w-full transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                 />
-                <div
-                  className="pointer-events-none absolute inset-0"
-                  style={{ background: 'linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.08) 100%)' }}
+
+                {/* üzerine gelince ince bir çerçeve içe doğru çizilir */}
+                <span
+                  className="pointer-events-none absolute inset-3 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  style={{ border: '1px solid rgba(247, 241, 230, 0.55)' }}
+                  aria-hidden
                 />
+                <span
+                  className="numerals pointer-events-none absolute bottom-3 left-4 text-sm opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  style={{ color: 'rgba(247,241,230,0.9)' }}
+                  aria-hidden
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
               </motion.button>
             ))}
           </div>
         )}
       </div>
 
-      {/* büyütme penceresi */}
       <AnimatePresence>
         {open !== null && images[open] && (
           <motion.div
-            className="fixed inset-0 z-[900] flex items-center justify-center p-4"
-            style={{ background: 'rgba(8,5,3,0.94)', backdropFilter: 'blur(8px)' }}
+            className="fixed inset-0 z-[900] flex items-center justify-center p-[var(--sp-sm)]"
+            style={{ background: 'rgba(9,6,3,0.96)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={close}
           >
             <motion.div
-              className="relative h-[80vh] w-full max-w-3xl"
-              initial={{ scale: 0.94, opacity: 0 }}
+              className="relative h-[78vh] w-full max-w-4xl"
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.94, opacity: 0 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
             >
               <Image
@@ -129,22 +123,27 @@ export default function GallerySection({ invitation }: { invitation: Invitation 
                 fill
                 unoptimized={images[open].startsWith('data:')}
                 sizes="100vw"
-                className="rounded-2xl object-contain"
-                style={{ boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+                className="object-contain"
               />
             </motion.div>
+
+            <span
+              className="numerals absolute bottom-6 left-1/2 -translate-x-1/2 text-sm"
+              style={{ color: 'var(--c-on-dark-faint)' }}
+            >
+              {String(open + 1).padStart(2, '0')} / {String(images.length).padStart(2, '0')}
+            </span>
 
             <button
               type="button"
               onClick={close}
               aria-label="Kapat"
-              className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full text-white"
-              style={{
-                background: 'rgba(255,255,255,0.12)',
-                border: '1px solid rgba(255,255,255,0.2)',
-              }}
+              className="absolute right-6 top-6 transition-transform duration-500 hover:rotate-90"
+              style={{ color: 'var(--c-on-dark-soft)' }}
             >
-              ✕
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+                <path d="M5 5l14 14M19 5L5 19" stroke="currentColor" strokeWidth="1" />
+              </svg>
             </button>
 
             {images.length > 1 && (
@@ -156,13 +155,12 @@ export default function GallerySection({ invitation }: { invitation: Invitation 
                     e.stopPropagation();
                     step(-1);
                   }}
-                  className="absolute left-4 flex h-11 w-11 items-center justify-center rounded-full text-white sm:left-8"
-                  style={{
-                    background: 'rgba(255,255,255,0.12)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                  }}
+                  className="absolute left-4 sm:left-8"
+                  style={{ color: 'var(--c-on-dark-soft)' }}
                 >
-                  ‹
+                  <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden>
+                    <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="1" fill="none" />
+                  </svg>
                 </button>
                 <button
                   type="button"
@@ -171,13 +169,12 @@ export default function GallerySection({ invitation }: { invitation: Invitation 
                     e.stopPropagation();
                     step(1);
                   }}
-                  className="absolute right-4 flex h-11 w-11 items-center justify-center rounded-full text-white sm:right-8"
-                  style={{
-                    background: 'rgba(255,255,255,0.12)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                  }}
+                  className="absolute right-4 sm:right-8"
+                  style={{ color: 'var(--c-on-dark-soft)' }}
                 >
-                  ›
+                  <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden>
+                    <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="1" fill="none" />
+                  </svg>
                 </button>
               </>
             )}
