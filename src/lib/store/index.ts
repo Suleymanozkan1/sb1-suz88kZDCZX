@@ -1,14 +1,16 @@
 /**
  * Depo seçimi.
  *
- * POSTGRES_URL tanımlıysa üretim (SQL) sürücüsü, değilse yerel dosya
- * sürücüsü kullanılır. İki modül de aynı işlev kümesini dışa verir; API
+ * Bir Postgres bağlantı adresi bulunursa üretim (SQL) sürücüsü, bulunmazsa
+ * yerel dosya sürücüsü kullanılır. Adresin hangi değişkende durduğu
+ * sağlayıcıya göre değişir; `lib/database-url.ts` hepsine bakar. İki modül de aynı işlev kümesini dışa verir; API
  * rotaları ve arayüz hangi sürücünün çalıştığını bilmez.
  */
+import { databaseUrl } from '../database-url';
 import * as file from './file';
 import * as sql from './sql';
 
-export const usingDatabase = Boolean(process.env.POSTGRES_URL);
+export const usingDatabase = Boolean(databaseUrl());
 
 const driver = usingDatabase ? sql : file;
 

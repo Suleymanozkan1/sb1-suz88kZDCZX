@@ -53,8 +53,9 @@ async function readFile<T>(file: string): Promise<T[]> {
 }
 
 const NO_DATABASE =
-  'Veritabanı bağlı değil, bu yüzden kayıt kalıcı olmuyor. Vercel projesinde ' +
-  'Storage → Postgres oluşturup projeye bağlayın ve yeniden dağıtın (POSTGRES_URL).';
+  'Postgres bağlı değil, bu yüzden kayıt kalıcı olmuyor. Vercel projesinde ' +
+  'Storage → Neon (ya da Supabase / Prisma Postgres) bağlayıp yeniden dağıtın. ' +
+  'Upstash Redis’tir, Postgres vermez.';
 
 async function writeFile<T>(file: string, rows: T[]): Promise<void> {
   // Vercel'de bu sürücüyle yazmak anlamsızdır: kayıt yalnızca o örneğin

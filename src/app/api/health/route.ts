@@ -1,6 +1,7 @@
 import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { usingBlob } from '@/lib/files';
+import { databaseUrlSource } from '@/lib/database-url';
 import { usingDatabase } from '@/lib/store';
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +28,10 @@ async function handleGet() {
     issues.push('ADMIN_SECRET tanımlı değil — oturumlar ADMIN_PASSWORD’den türetiliyor.');
   }
   if (!database) {
-    issues.push('POSTGRES_URL tanımlı değil — veriler kalıcı olmayacak.');
+    issues.push(
+      'Postgres bağlı değil — veriler kalıcı olmayacak. Vercel’de Storage → Neon ' +
+        '(ya da Supabase / Prisma Postgres) bağlayın; Upstash Redis’tir, Postgres vermez.',
+    );
   }
   if (!blob) {
     issues.push('BLOB_READ_WRITE_TOKEN tanımlı değil — yüklenen dosyalar kalıcı olmayacak.');
@@ -35,7 +39,7 @@ async function handleGet() {
 
   return NextResponse.json({
     ok: issues.length === 0,
-    storage: { database, blob },
+    storage: { database, blob, databaseVariable: databaseUrlSource() ?? null },
     auth: { adminPassword, adminSecret },
     issues,
   });

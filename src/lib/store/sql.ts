@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { Pool } from 'pg';
 import { emptyInvitation } from '../defaults';
+import { databaseUrl } from '../database-url';
 import { ConfigError } from '../errors';
 import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
@@ -17,7 +18,8 @@ import type {
 /**
  * Postgres depo — üretim sürücüsü.
  *
- * `POSTGRES_URL` tanımlıysa `index.ts` bu modülü seçer. Şema ilk sorguda
+ * Bir bağlantı dizesi bulunduğunda `index.ts` bu modülü seçer; değişkenin
+ * adı sağlayıcıya göre değişir (bkz. `lib/database-url.ts`). Şema ilk sorguda
  * kendiliğinden oluşturulur; ayrı bir migration adımı yoktur.
  *
  * Davetiyenin sık değişen alan kümesi tek bir `jsonb` sütununda durur;
@@ -29,8 +31,8 @@ const globalPool = globalThis as unknown as { __davetiyePool?: Pool; __davetiyeS
 
 function pool(): Pool {
   if (!globalPool.__davetiyePool) {
-    const connectionString = process.env.POSTGRES_URL;
-    if (!connectionString) throw new Error('POSTGRES_URL tanımlı değil');
+    const connectionString = databaseUrl();
+    if (!connectionString) throw new ConfigError('Veritabanı bağlantı adresi tanımlı değil.');
 
     const local = /@(localhost|127\.0\.0\.1)/.test(connectionString);
     globalPool.__davetiyePool = new Pool({

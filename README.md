@@ -109,7 +109,7 @@ npm run build && npm start
 | --- | --- | --- |
 | `ADMIN_PASSWORD` | Admin parolası — sıfırlama kolu (aşağıya bakın) | `admin` |
 | `ADMIN_SECRET` | Oturum çerezini imzalayan gizli dize | Şifreden türetilir |
-| `POSTGRES_URL` | Varsa SQL sürücüsü devreye girer | — (dosya sürücüsü) |
+| `POSTGRES_URL` / `DATABASE_URL` | Varsa SQL sürücüsü devreye girer | — (dosya sürücüsü) |
 | `BLOB_READ_WRITE_TOKEN` | Varsa dosyalar Vercel Blob'a yazılır | — (yerel disk) |
 
 İlk ikisini üretimde mutlaka ayarlayın. Son ikisi Vercel'de depolama
@@ -198,11 +198,20 @@ depolamayı bağlayana kadar öyle kalır.
 
 ### 2. Postgres bağlayın
 
-Proje sayfasında **Storage** → **Create Database** → **Postgres** → bölge
-olarak Frankfurt (`fra1`) önerilir → **Connect**.
+Proje sayfasında **Storage** → **Create Database** → **Neon** (Serverless
+Postgres) → bölge olarak Frankfurt (`fra1`) önerilir → **Connect**.
 
-Vercel `POSTGRES_URL` değişkenini projeye kendisi ekler. Tabloları siz
-oluşturmayacaksınız; uygulama ilk isteğinde kurar.
+Listede **Upstash** da görünür; o bir Redis/key-value servisidir ve Postgres
+vermez, bu proje onunla çalışmaz. Postgres veren seçenekler: **Neon**
+(eskiden "Vercel Postgres"), **Supabase**, **Prisma Postgres**.
+
+Sağlayıcı bağlantı adresini kendi adıyla ekler — Neon `DATABASE_URL`, eski
+Vercel Postgres `POSTGRES_URL`, diğerleri başka adlar kullanır. Uygulama
+hepsine bakar (`src/lib/database-url.ts`), elle bir şey kopyalamanız gerekmez.
+Hangisinin kullanıldığını `/api/health` içindeki `databaseVariable` alanından
+görebilirsiniz.
+
+Tabloları siz oluşturmayacaksınız; uygulama ilk isteğinde kurar.
 
 ### 3. Blob bağlayın
 
