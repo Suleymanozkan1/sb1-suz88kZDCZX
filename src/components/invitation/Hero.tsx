@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import Countdown from './Countdown';
 import { CornerFlourish, IconArrow } from './Ornaments';
-import { formatDate, formatWeekday, targetDate } from '@/lib/format';
+import { formatDate, formatTimeRange, formatWeekday, targetDate } from '@/lib/format';
 import type { Invitation } from '@/lib/types';
 
 const RISE = {
@@ -32,7 +32,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
   const meta = [
     formatDate(invitation.weddingDate),
     formatWeekday(invitation.weddingDate),
-    invitation.weddingTime,
+    formatTimeRange(invitation.weddingTime, invitation.weddingEndTime),
     invitation.city,
   ].filter(Boolean);
 

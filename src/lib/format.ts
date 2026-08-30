@@ -31,15 +31,46 @@ export function calendarStamp(date: string | undefined, time: string | undefined
   return `${date.replace(/-/g, '')}T${h.padStart(2, '0')}${m.padStart(2, '0')}00`;
 }
 
-/** Bitiş zamanı: başlangıçtan 5 saat sonra. */
-export function calendarEndStamp(date: string | undefined, time: string | undefined): string {
+/**
+ * Bitiş zamanı.
+ *
+ * Çift artık bitiş saatini kendisi seçiyor; verilmediyse eskisi gibi
+ * başlangıçtan beş saat sonrası varsayılır. Bitiş başlangıçtan önceyse
+ * (23:00 → 02:00 gibi gece yarısını aşan düğünler) ertesi güne taşınır,
+ * yoksa takvim kaydı negatif süreyle oluşuyordu.
+ */
+export function calendarEndStamp(
+  date: string | undefined,
+  time: string | undefined,
+  endTime?: string | undefined,
+): string {
   if (!date) return '';
-  const [h = '0', m = '0'] = (time ?? '').split(':');
-  const end = new Date(`${date}T00:00:00`);
-  end.setHours(Number(h) + 5, Number(m));
   const pad = (n: number) => String(n).padStart(2, '0');
+  const [bh = '0', bm = '0'] = (time ?? '').split(':');
+  const end = new Date(`${date}T00:00:00`);
+
+  if (endTime && /^\d{1,2}:\d{2}$/.test(endTime)) {
+    const [eh, em] = endTime.split(':').map(Number);
+    const gunAsimi = eh * 60 + em <= Number(bh) * 60 + Number(bm) ? 1 : 0;
+    end.setDate(end.getDate() + gunAsimi);
+    end.setHours(eh, em);
+  } else {
+    end.setHours(Number(bh) + 5, Number(bm));
+  }
+
   return (
     `${end.getFullYear()}${pad(end.getMonth() + 1)}${pad(end.getDate())}` +
     `T${pad(end.getHours())}${pad(end.getMinutes())}00`
   );
+}
+
+/** "17:00" + "23:00" → "17:00 – 23:00"; bitiş yoksa yalnızca başlangıç. */
+export function formatTimeRange(
+  start: string | undefined,
+  end: string | undefined,
+): string {
+  const b = start?.trim();
+  if (!b) return '';
+  const s = end?.trim();
+  return s && s !== b ? `${b} – ${s}` : b;
 }

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import ImageUploader from './ImageUploader';
+import VenueNotice from './VenueNotice';
 import { Divider, IconArrow, IconCheck, IconTrash } from '@/components/invitation/Ornaments';
 import * as api from '@/lib/api';
 import {
@@ -36,7 +37,6 @@ const STEPS = [
   'Çift Bilgileri',
   'Düğün Bilgileri',
   'Davet Metni',
-  'Manevi İçerik',
   'Mühür & Tuğra',
   'Mektup Tasarımı',
   'Fotoğraflar',
@@ -282,17 +282,18 @@ export default function InvitationForm({
 
     /* 1 — Düğün Bilgileri */
     <div key="wedding" className="space-y-4">
+      <Field label="Düğün Tarihi *" type="date" value={draft.weddingDate} onChange={(v) => set('weddingDate', v)} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Düğün Tarihi *" type="date" value={draft.weddingDate} onChange={(v) => set('weddingDate', v)} />
-        <Field label="Saat *" type="time" value={draft.weddingTime} onChange={(v) => set('weddingTime', v)} />
+        <Field label="Başlangıç Saati *" type="time" value={draft.weddingTime} onChange={(v) => set('weddingTime', v)} />
+        <Field label="Bitiş Saati" type="time" value={draft.weddingEndTime} onChange={(v) => set('weddingEndTime', v)} />
       </div>
-      <Field label="Salon / Mekân Adı *" value={draft.venueName} placeholder="The Grand Ballroom" onChange={(v) => set('venueName', v)} />
-      <Field label="Adres" value={draft.address} placeholder="Atatürk Cad. No:1" onChange={(v) => set('address', v)} />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="İl *" value={draft.city} placeholder="İstanbul" onChange={(v) => set('city', v)} />
-        <Field label="İlçe" value={draft.district} placeholder="Beşiktaş" onChange={(v) => set('district', v)} />
-      </div>
-      <Field label="Google Maps Linki" value={draft.mapUrl} placeholder="https://maps.google.com/..." onChange={(v) => set('mapUrl', v)} />
+
+      {/*
+        Mekân bilgisi burada sorulmuyor: tüm davetiyelerde aynı salon geçerli
+        ve yalnızca yönetici hesabı değiştirebiliyor. Değer davetiyeye
+        sunucuda ekleniyor, bu yüzden çiftin düzenleyecek bir alanı yok.
+      */}
+      <VenueNotice />
       <Field
         label="Katılım Bildirim Son Tarihi"
         type="date"
@@ -336,21 +337,7 @@ export default function InvitationForm({
       />
     </div>,
 
-    /* 3 — Manevi İçerik */
-    <div key="religious" className="space-y-3">
-      <Toggle label="Besmele Göster" checked={draft.showBesmele} onChange={(v) => set('showBesmele', v)} />
-      <Toggle label="Ayet Göster" checked={draft.showAyet} onChange={(v) => set('showAyet', v)} />
-      <Toggle label="Hadis Göster" checked={draft.showHadis} onChange={(v) => set('showHadis', v)} />
-      <Area label="Dua Metni" value={draft.duaText} placeholder="İsteğe bağlı dua metni..." onChange={(v) => set('duaText', v)} />
-      <Field
-        label="Kaynak / Sure Bilgisi"
-        value={draft.religiousSource}
-        placeholder="Örn: Rum Suresi, 21. Ayet"
-        onChange={(v) => set('religiousSource', v)}
-      />
-    </div>,
-
-    /* 4 — Mühür & Tuğra */
+    /* 3 — Mühür & Tuğra */
     <div key="seal" className="space-y-4">
       <div>
         <span className="field-label">Mühür Modeli</span>

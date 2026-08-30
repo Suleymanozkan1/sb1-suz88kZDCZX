@@ -5,6 +5,8 @@ import { emptyInvitation } from '../defaults';
 import { ConfigError } from '../errors';
 import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
+import { EMPTY_VENUE } from '../venue';
+import type { Venue } from '../venue';
 import type {
   GuestPhoto,
   Invitation,
@@ -36,6 +38,7 @@ const RSVPS_FILE = path.join(DATA_DIR, 'rsvps.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const PHOTOS_FILE = path.join(DATA_DIR, 'photos.json');
 const WISHES_FILE = path.join(DATA_DIR, 'wishes.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 
 type Cache = {
   invitations: Invitation[] | null;
@@ -64,12 +67,29 @@ async function readFile<T>(file: string): Promise<T[]> {
   }
 }
 
+/** Ortak mekân ayarı — SQL sürücüsündeki `settings` tablosunun karşılığı. */
+export async function getVenue(): Promise<Venue> {
+  try {
+    const raw = await fs.readFile(SETTINGS_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    return { ...EMPTY_VENUE, ...(parsed?.venue ?? {}) };
+  } catch {
+    return { ...EMPTY_VENUE };
+  }
+}
+
+export async function saveVenue(input: Partial<Venue>): Promise<Venue> {
+  const merged = { ...(await getVenue()), ...input };
+  await writeJson(SETTINGS_FILE, { venue: merged });
+  return merged;
+}
+
 const NO_DATABASE =
   'Postgres bağlı değil, bu yüzden kayıt kalıcı olmuyor. Vercel projesinde ' +
   'Storage → Neon (ya da Supabase / Prisma Postgres) bağlayıp yeniden dağıtın. ' +
   'Upstash Redis’tir, Postgres vermez.';
 
-async function writeFile<T>(file: string, rows: T[]): Promise<void> {
+async function writeJson(file: string, value: unknown): Promise<void> {
   // Vercel'de bu sürücüyle yazmak anlamsızdır: kayıt yalnızca o örneğin
   // belleğinde kalır ve bir sonraki istek onu göremez. Sessizce başarılı
   // görünmek yerine sebebi söylenir.
@@ -77,7 +97,7 @@ async function writeFile<T>(file: string, rows: T[]): Promise<void> {
 
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
-    await fs.writeFile(file, JSON.stringify(rows, null, 2), 'utf8');
+    await fs.writeFile(file, JSON.stringify(value, null, 2), 'utf8');
   } catch (err) {
     const code = (err as NodeJS.ErrnoException).code;
     if (code === 'EROFS' || code === 'EACCES' || code === 'EPERM') {
@@ -86,6 +106,8 @@ async function writeFile<T>(file: string, rows: T[]): Promise<void> {
     throw err;
   }
 }
+
+const writeFile = <T,>(file: string, rows: T[]): Promise<void> => writeJson(file, rows);
 
 async function loadInvitations(): Promise<Invitation[]> {
   cache.invitations ??= await readFile<Invitation>(INVITATIONS_FILE);

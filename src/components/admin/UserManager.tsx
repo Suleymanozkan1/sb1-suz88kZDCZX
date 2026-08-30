@@ -36,14 +36,34 @@ function CredentialBox({
   onDone: () => void;
 }) {
   const [copied, setCopied] = useState(false);
+  const [girisLinki, setGirisLinki] = useState('');
+
+  // Adres yalnızca tarayıcıda bilinir; sunucuda üretilirse hidrasyon uyuşmaz.
+  useEffect(() => setGirisLinki(`${window.location.origin}/giris`), []);
+
+  /*
+     Kopyalanan metin doğrudan çifte iletilecek hâlde.
+
+     Önce yalnızca kullanıcı adı ve parola kopyalanıyordu; giriş adresi
+     kutuda hiç yazmadığı için her seferinde elle ekleniyordu. Üçü tek
+     tuşla, alt alta çıkıyor.
+  */
+  const iletilecekMetin = [
+    'Sahra Davetiye — giriş bilgileriniz',
+    '',
+    `Giriş linki: ${girisLinki}`,
+    `Kullanıcı adı: ${username}`,
+    `Şifre: ${password}`,
+  ].join('\n');
 
   async function copy() {
     try {
-      await navigator.clipboard.writeText(`Kullanıcı adı: ${username}\nParola: ${password}`);
+      await navigator.clipboard.writeText(iletilecekMetin);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
-      window.prompt('Giriş bilgileri:', `${username} / ${password}`);
+      // Pano izni yoksa (http, eski tarayıcı) metin elle seçilebilsin.
+      window.prompt('Giriş bilgileri — kopyalayın:', iletilecekMetin);
     }
   }
 
@@ -61,7 +81,15 @@ function CredentialBox({
       <dl className="mt-[var(--sp-sm)] space-y-2">
         <div className="flex items-baseline gap-4">
           <dt className="t-label w-24 shrink-0" style={{ color: 'var(--c-on-dark-faint)' }}>
-            Kullanıcı
+            Giriş Linki
+          </dt>
+          <dd className="t-lead break-all" style={{ color: 'var(--c-on-dark)' }}>
+            {girisLinki || '—'}
+          </dd>
+        </div>
+        <div className="flex items-baseline gap-4">
+          <dt className="t-label w-24 shrink-0" style={{ color: 'var(--c-on-dark-faint)' }}>
+            Kullanıcı Adı
           </dt>
           <dd className="t-lead" style={{ color: 'var(--c-on-dark)' }}>
             {username}
@@ -69,7 +97,7 @@ function CredentialBox({
         </div>
         <div className="flex items-baseline gap-4">
           <dt className="t-label w-24 shrink-0" style={{ color: 'var(--c-on-dark-faint)' }}>
-            Parola
+            Şifre
           </dt>
           <dd className="t-lead numerals tracking-wide" style={{ color: 'var(--c-gold-light)' }}>
             {password}
@@ -82,7 +110,7 @@ function CredentialBox({
       </p>
 
       <div className="mt-[var(--sp-sm)] flex gap-[var(--sp-md)]">
-        <Action onClick={copy}>{copied ? 'Kopyalandı' : 'Kopyala'}</Action>
+        <Action onClick={copy}>{copied ? 'Kopyalandı' : 'Üçünü Birden Kopyala'}</Action>
         <Action onClick={onDone}>Tamam</Action>
       </div>
     </motion.div>

@@ -34,7 +34,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
     },
     twitter: {
-      card: 'summary',
+      // summary küçük kare bir kart çiziyordu; 1200x630 paylaşım kartının
+      // tamamı ancak large_image ile görünüyor.
+      card: 'summary_large_image',
       title: `${names} | Düğün Davetiyesi`,
       description: subtitle,
     },

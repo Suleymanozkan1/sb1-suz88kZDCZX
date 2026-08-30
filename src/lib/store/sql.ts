@@ -5,6 +5,8 @@ import { databaseUrl } from '../database-url';
 import { ConfigError } from '../errors';
 import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
+import { EMPTY_VENUE } from '../venue';
+import type { Venue } from '../venue';
 import type {
   GuestPhoto,
   Wish,
@@ -113,6 +115,14 @@ const SCHEMA = `
     created_at timestamptz not null default now()
   );
   create index if not exists photos_invitation_idx on photos (invitation_id);
+
+  -- Tüm davetiyelerde ortak olan ayarlar (şu an yalnızca mekân bilgisi).
+  -- Tek satırlık bir tablo: id her zaman 'genel'.
+  create table if not exists settings (
+    id text primary key,
+    data jsonb not null,
+    updated_at timestamptz not null default now()
+  );
 `;
 
 /** Şemayı süreç başına bir kez kurar; eşzamanlı çağrılar aynı sözü bekler. */
@@ -134,6 +144,28 @@ async function query<T extends Record<string, unknown>>(
 
 const iso = (value: Date | string): string =>
   value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+
+/* ==================================================================== ayarlar */
+
+/**
+ * Mekân bilgisi tüm davetiyelerde ortaktır ve yalnızca yönetici değiştirir.
+ * Çiftin sihirbazında bu alanlar sorulmaz; değer davetiye okunurken
+ * sunucuda üstüne yazılır (bkz. store/index.ts).
+ */
+export async function getVenue(): Promise<Venue> {
+  const rows = await query<{ data: Venue }>('select data from settings where id = $1', ['genel']);
+  return { ...EMPTY_VENUE, ...(rows[0]?.data ?? {}) };
+}
+
+export async function saveVenue(input: Partial<Venue>): Promise<Venue> {
+  const merged = { ...(await getVenue()), ...input };
+  await query(
+    `insert into settings (id, data) values ('genel', $1)
+     on conflict (id) do update set data = $1, updated_at = now()`,
+    [JSON.stringify(merged)],
+  );
+  return merged;
+}
 
 /* ================================================================ davetiyeler */
 

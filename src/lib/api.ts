@@ -1,4 +1,5 @@
 import type { GuestPhoto, Invitation, InvitationInput, Rsvp, SafeUser, Session, Wish } from './types';
+import type { Venue } from './venue';
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -6,6 +7,19 @@ async function json<T>(response: Response): Promise<T> {
     throw new Error(body.error ?? `İstek başarısız (${response.status})`);
   }
   return response.json();
+}
+
+/** Ortak mekân — okuma oturumlu herkese, yazma yalnızca yöneticiye açık. */
+export function getVenue(): Promise<Venue> {
+  return fetch('/api/settings/venue', { cache: 'no-store' }).then(json<Venue>);
+}
+
+export function saveVenue(input: Partial<Venue>): Promise<Venue> {
+  return fetch('/api/settings/venue', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  }).then(json<Venue>);
 }
 
 export function listInvitations(): Promise<Invitation[]> {

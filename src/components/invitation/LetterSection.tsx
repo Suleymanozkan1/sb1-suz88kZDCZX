@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { CornerFlourish, Divider } from './Ornaments';
-import { BESMELE, READY_AYET, READY_HADIS } from '@/lib/defaults';
 import { formatDate } from '@/lib/format';
 import type { Invitation, InvitationDesign } from '@/lib/types';
 
@@ -195,17 +194,6 @@ export default function LetterSection({ invitation }: { invitation: Invitation }
               {monogram}
             </motion.p>
 
-            {invitation.showBesmele && (
-              <motion.p
-                className="mt-[var(--sp-sm)] font-serif text-xl"
-                style={{ color: 'var(--c-gold-deep)', direction: 'rtl' }}
-                {...IN_VIEW}
-                transition={{ duration: 1.45, delay: 0.05 }}
-              >
-                {BESMELE}
-              </motion.p>
-            )}
-
             {kagit.ayrac && (
               <motion.div
                 className="mt-[var(--sp-sm)]"
@@ -232,35 +220,6 @@ export default function LetterSection({ invitation }: { invitation: Invitation }
               >
                 {invitation.invitationText}
               </motion.p>
-            )}
-
-            {(invitation.showAyet || invitation.showHadis || invitation.duaText) && (
-              <motion.div
-                className="mx-auto mt-[var(--sp-md)] max-w-md space-y-3"
-                {...IN_VIEW}
-                transition={{ duration: 1.45, delay: 0.2 }}
-              >
-                {invitation.showAyet && (
-                  <p className="t-body italic" style={{ color: 'var(--c-on-light-soft)' }}>
-                    {READY_AYET}
-                  </p>
-                )}
-                {invitation.showHadis && (
-                  <p className="t-body italic" style={{ color: 'var(--c-on-light-soft)' }}>
-                    {READY_HADIS}
-                  </p>
-                )}
-                {invitation.duaText && (
-                  <p className="t-body" style={{ color: 'var(--c-on-light-soft)' }}>
-                    {invitation.duaText}
-                  </p>
-                )}
-                {invitation.religiousSource && (
-                  <p className="t-label" style={{ color: 'var(--c-gold-deep)' }}>
-                    {invitation.religiousSource}
-                  </p>
-                )}
-              </motion.div>
             )}
 
             {/* imza bloğu */}

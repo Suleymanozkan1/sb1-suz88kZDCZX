@@ -3,7 +3,13 @@
 import { motion } from 'framer-motion';
 import SectionHead from './SectionHead';
 import { IconArrow, IconCalendar, IconClock, IconPin, IconVenue } from './Ornaments';
-import { calendarEndStamp, calendarStamp, formatDate, formatWeekday } from '@/lib/format';
+import {
+  calendarEndStamp,
+  calendarStamp,
+  formatDate,
+  formatTimeRange,
+  formatWeekday,
+} from '@/lib/format';
 import type { Invitation } from '@/lib/types';
 
 /**
@@ -34,7 +40,7 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
     {
       Icon: IconClock,
       label: 'Saat',
-      value: invitation.weddingTime || '—',
+      value: formatTimeRange(invitation.weddingTime, invitation.weddingEndTime) || '—',
       sub: 'Kapılar yarım saat önce açılır',
     },
     {
@@ -46,7 +52,11 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
   ];
 
   const start = calendarStamp(invitation.weddingDate, invitation.weddingTime);
-  const end = calendarEndStamp(invitation.weddingDate, invitation.weddingTime);
+  const end = calendarEndStamp(
+    invitation.weddingDate,
+    invitation.weddingTime,
+    invitation.weddingEndTime,
+  );
   const title = `${invitation.groomName} ${conjunction} ${invitation.brideName} Düğünü`;
 
   const googleUrl =

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Jost } from 'next/font/google';
+import { siteUrl } from '@/lib/site-url';
 import './globals.css';
 
 const serif = Cormorant_Garamond({
@@ -18,6 +19,9 @@ const sans = Jost({
 });
 
 export const metadata: Metadata = {
+  // Paylaşım kartının göreli adresini mutlak hale getirmek için gerekli;
+  // olmadan og:image bağlantısı üretilmiyor ve WhatsApp'ta kart çıkmıyor.
+  metadataBase: new URL(siteUrl()),
   title: 'Sahra Davetiye',
   description:
     'Perde açılışı, balmumu mühür ve katılım formuyla premium dijital düğün davetiyesi.',

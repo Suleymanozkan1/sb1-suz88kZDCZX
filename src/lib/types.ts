@@ -62,6 +62,8 @@ export interface Invitation {
   /* Düğün bilgileri */
   weddingDate: string;
   weddingTime: string;
+  /** Bitiş saati — boşsa davetiyede yalnızca başlangıç yazar. */
+  weddingEndTime: string;
   venueName: string;
   address: string;
   city: string;
@@ -70,13 +72,6 @@ export interface Invitation {
 
   /* Davet metni */
   invitationText: string;
-
-  /* Manevi içerik */
-  showBesmele: boolean;
-  showAyet: boolean;
-  showHadis: boolean;
-  duaText: string;
-  religiousSource: string;
 
   /* Mühür & mektup */
   sealType: SealType;

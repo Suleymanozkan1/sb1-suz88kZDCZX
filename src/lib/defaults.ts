@@ -48,8 +48,6 @@ export const CONJUNCTION_OPTIONS: { id: string; example: string }[] = [
   { id: '×', example: 'Ahmet × Ayşe' },
 ];
 
-export const BESMELE = 'بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ';
-
 export const READY_TEXTS: { label: string; text: string }[] = [
   {
     label: 'Klasik',
@@ -68,12 +66,6 @@ export const READY_TEXTS: { label: string; text: string }[] = [
     text: 'Evliliğimizin ilk gününde bizimle olmanız, mutluluğumuzu kat kat artıracaktır. Teşrifleriniz bizi onurlandıracaktır.',
   },
 ];
-
-export const READY_AYET =
-  '“Kendileri ile huzur bulasınız diye sizin için türünüzden eşler yaratması ve aranızda bir sevgi ve merhamet var etmesi de O’nun varlığının delillerindendir.”';
-
-export const READY_HADIS =
-  '“Nikâh benim sünnetimdir. Kim benim sünnetimden yüz çevirirse benden değildir.”';
 
 export const DEFAULT_STORY_ITEMS: StoryItem[] = [
   {
@@ -170,17 +162,13 @@ export function emptyInvitation(): InvitationDraft {
     conjunction: '&',
     weddingDate: '',
     weddingTime: '16:00',
+    weddingEndTime: '23:00',
     venueName: '',
     address: '',
     city: '',
     district: '',
     mapUrl: '',
     invitationText: READY_TEXTS[0].text,
-    showBesmele: false,
-    showAyet: false,
-    showHadis: false,
-    duaText: '',
-    religiousSource: '',
     sealType: 'gold-wax',
     sealMonogram: '',
     sealImage: '',
@@ -234,6 +222,7 @@ export const DEMO_INVITATION: Invitation = {
   groomSurname: 'Kaya',
   weddingDate: '2026-02-14',
   weddingTime: '15:00',
+  weddingEndTime: '22:00',
   venueName: 'The Grand Bosphorus',
   address: 'Çırağan Cad. No:32',
   city: 'İstanbul',

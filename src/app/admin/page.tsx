@@ -6,6 +6,7 @@ import PhotoGallery from '@/components/panel/PhotoGallery';
 import WishBoard from '@/components/panel/WishBoard';
 import SetupNotice from '@/components/admin/SetupNotice';
 import UserManager from '@/components/admin/UserManager';
+import VenueManager from '@/components/admin/VenueManager';
 import { currentSession } from '@/lib/auth';
 import { listInvitations, listUsers } from '@/lib/store';
 
@@ -34,11 +35,13 @@ export default async function AdminPage() {
 
       <UserManager initial={users} invitations={invitations} />
 
-      <AccountSettings session={session} n={4} />
+      <VenueManager n={4} />
 
-      <PhotoGallery invitations={invitations} />
+      <AccountSettings session={session} n={5} />
 
-      <WishBoard invitations={invitations} n={6} />
+      <PhotoGallery invitations={invitations} n={6} />
+
+      <WishBoard invitations={invitations} n={7} />
     </div>
   );
 }
