@@ -21,7 +21,11 @@ export default function FaqSection({ invitation }: { invitation: Invitation }) {
   return (
     <section id="faq" className="section-gap relative">
       <div className="mx-auto max-w-4xl px-[var(--sp-md)]">
-        <SectionHead n={6} label="Merak Edilenler" title="Sık Sorulan Sorular" />
+        <SectionHead
+          n={6}
+          label={invitation.faqSectionSubtitle || 'Merak Edilenler'}
+          title={invitation.faqSectionTitle || 'Sık Sorulan Sorular'}
+        />
 
         <div>
           {items.map((item, i) => {

@@ -70,7 +70,11 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
   return (
     <section id="details" className="section-gap relative">
       <div className="mx-auto max-w-5xl px-[var(--sp-md)]">
-        <SectionHead n={2} label="Detaylar" title="Düğün Bilgileri" />
+        <SectionHead
+          n={2}
+          label={invitation.detailsSectionSubtitle || 'Detaylar'}
+          title={invitation.detailsSectionTitle || 'Düğün Bilgileri'}
+        />
 
         <div>
           {rows.map((row, i) => (

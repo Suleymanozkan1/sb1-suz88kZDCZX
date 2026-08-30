@@ -68,9 +68,9 @@ class Sahra_Roles {
 		}
 
 		$ekran = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
-		$izin  = array( 'sahra-panel', 'sahra-davetiye-duzenle', 'sahra-hesap' );
 
-		if ( in_array( $ekran, $izin, true ) ) {
+		// İzinli ekranların listesi Sahra_Admin'de, menüyle aynı yerde.
+		if ( in_array( $ekran, Sahra_Admin::COUPLE_PAGES, true ) ) {
 			return;
 		}
 

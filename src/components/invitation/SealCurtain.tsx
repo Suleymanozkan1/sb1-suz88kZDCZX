@@ -155,7 +155,15 @@ function WaxSeal({
   const monogram =
     invitation.sealMonogram?.trim() ||
     `${invitation.groomName?.[0] ?? 'A'}${invitation.brideName?.[0] ?? 'B'}`;
-  const isOttoman = invitation.sealType === 'ottoman' || invitation.invitationDesign === 'ottoman';
+  /*
+     Tuğra kavisleri yalnızca MÜHÜR seçimine bakar.
+
+     Önce mektup tasarımı da "ottoman" ise çiziliyorlardı; bu, Osmanlı
+     mektup tasarımı seçildiğinde dokuz mühürden dokuzuna birden tuğra
+     kondurup "Osmanlı Tuğrası" mührünü "Gold Balmumu"ndan ayırt edilemez
+     hâle getiriyordu. Mektubun tasarımı mührün ne olduğunu belirlememeli.
+  */
+  const isOttoman = invitation.sealType === 'ottoman';
   const breaking = phase === 'cracking' || phase === 'burst';
 
   return (

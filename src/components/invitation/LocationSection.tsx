@@ -31,7 +31,11 @@ export default function LocationSection({ invitation }: { invitation: Invitation
   return (
     <section id="location" className="section-gap relative">
       <div className="mx-auto max-w-6xl px-[var(--sp-md)]">
-        <SectionHead n={5} label="Konum" title="Nasıl Gelirsiniz?" />
+        <SectionHead
+          n={5}
+          label={invitation.locationSectionSubtitle || 'Konum'}
+          title={invitation.locationSectionTitle || 'Nasıl Gelirsiniz?'}
+        />
 
         <div className="grid gap-[var(--sp-md)] lg:grid-cols-12">
           <motion.div

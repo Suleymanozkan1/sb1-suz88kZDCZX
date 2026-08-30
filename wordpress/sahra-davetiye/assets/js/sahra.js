@@ -161,6 +161,11 @@
 			window.setTimeout( function () {
 				perdeEl.classList.add( 'is-open' );
 				document.body.style.overflow = '';
+				// Zarf/perde açılma sesi mühürden AYRI: mühür kırılırken
+				// değil, perdeler açılırken duyulmalı.
+				if ( sesli ) {
+					cal( perdeEl.getAttribute( 'data-envelope-sound' ) );
+				}
 			}, 600 );
 
 			window.setTimeout( function () {
@@ -193,12 +198,14 @@
 	}
 
 	function cal( src ) {
-		if ( ! src ) {
+		var perdeEl = kok.querySelector( '.curtain' );
+		if ( ! src || ( perdeEl && '0' === perdeEl.getAttribute( 'data-sound' ) ) ) {
 			return;
 		}
 		try {
 			var ses = new Audio( src );
-			ses.volume = 0.6;
+			var d = perdeEl ? parseInt( perdeEl.getAttribute( 'data-volume' ) || '60', 10 ) : 60;
+			ses.volume = Math.min( 1, Math.max( 0, d / 100 ) );
 			ses.play().catch( function () {} );
 		} catch ( e ) {}
 	}

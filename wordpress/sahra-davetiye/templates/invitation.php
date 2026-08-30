@@ -76,7 +76,11 @@ $geri_sayim = $d['weddingDate']
 <div class="grain" aria-hidden="true"></div>
 
 <?php /* ─────────────────────────────────────────────── perde ve mühür */ ?>
-<div class="curtain" data-seal-sound="<?php echo esc_url( $d['sealBreakSound'] ); ?>">
+<div class="curtain"
+	data-seal-sound="<?php echo esc_url( $d['sealBreakSound'] ); ?>"
+	data-envelope-sound="<?php echo esc_url( $d['envelopeOpenSound'] ); ?>"
+	data-volume="<?php echo esc_attr( (int) $d['soundVolume'] ); ?>"
+	data-sound="<?php echo $d['soundEnabled'] ? '1' : '0'; ?>">
 	<div class="curtain-panel curtain-left">
 		<div class="curtain-fabric-rich"></div>
 		<div class="curtain-folds-left"></div>
@@ -107,10 +111,62 @@ $geri_sayim = $d['weddingDate']
 			aria-label="Mührü kırarak davetiyeyi aç"
 			style="--seal-1:<?php echo esc_attr( $muhur['grad1'] ); ?>;--seal-2:<?php echo esc_attr( $muhur['grad2'] ); ?>;--seal-3:<?php echo esc_attr( $muhur['grad3'] ); ?>;--seal-glow:<?php echo esc_attr( $muhur['glow'] ); ?>">
 			<span class="seal-glow" aria-hidden="true"></span>
-			<span class="seal-disc" aria-hidden="true"></span>
-			<span class="seal-monogram" style="color:<?php echo esc_attr( Sahra_Theme::readable_on( $muhur['grad2'], $muhur['grad1'], $muhur['grad3'] ) ); ?>">
-				<?php echo esc_html( Sahra_Render::tr_upper( str_replace( ' ', '', $monogram ) ) ); ?>
-			</span>
+
+			<?php if ( $d['sealImage'] ) : ?>
+				<?php /* Çift kendi mühür görselini yüklediyse balmumu yerine o kullanılır. */ ?>
+				<img class="seal-gorsel" src="<?php echo esc_url( $d['sealImage'] ); ?>" alt="<?php esc_attr_e( 'Mühür', 'sahra-davetiye' ); ?>">
+			<?php else : ?>
+				<?php
+				/*
+				 * Mühür SVG olarak çiziliyor.
+				 *
+				 * Önce CSS gradyanlı bir daireydi ve "Osmanlı Tuğrası"
+				 * seçeneği gold balmumundan AYIRT EDİLEMİYORDU: ikisinin
+				 * renk paleti aynı, farkı yalnızca tuğra kavisleri. Denetim
+				 * dokuz seçenekten sekiz farklı görüntü buldu ve haklıydı.
+				 */
+				$muhur_mono   = Sahra_Render::tr_upper( str_replace( ' ', '', $monogram ) );
+				// Tuğra yalnızca MÜHÜR seçimine bakar: mektup tasarımı da
+				// hesaba katılınca dokuz mührün dokuzuna birden tuğra konuyor ve
+				// "Osmanlı Tuğrası" seçeneği "Gold Balmumu"ndan ayırt edilemiyordu.
+				$osmanli      = ( 'ottoman' === $d['sealType'] );
+				?>
+				<svg class="seal-svg" viewBox="0 0 110 110" aria-hidden="true">
+					<defs>
+						<radialGradient id="sahra-wax" cx="35%" cy="30%">
+							<stop offset="0%" stop-color="<?php echo esc_attr( $muhur['grad1'] ); ?>"/>
+							<stop offset="55%" stop-color="<?php echo esc_attr( $muhur['grad2'] ); ?>"/>
+							<stop offset="100%" stop-color="<?php echo esc_attr( $muhur['grad3'] ); ?>"/>
+						</radialGradient>
+					</defs>
+
+					<circle cx="55" cy="55" r="46" fill="url(#sahra-wax)"/>
+					<circle cx="55" cy="55" r="38" fill="none" stroke="<?php echo esc_attr( $muhur['grad1'] ); ?>" stroke-width="0.8" opacity="0.55"/>
+
+					<?php /* dış çentikler */ ?>
+					<?php for ( $i = 0; $i < 24; $i++ ) : ?>
+						<?php $a = deg2rad( 360 * $i / 24 ); ?>
+						<line
+							x1="<?php echo esc_attr( round( 55 + 38 * cos( $a ), 2 ) ); ?>"
+							y1="<?php echo esc_attr( round( 55 + 38 * sin( $a ), 2 ) ); ?>"
+							x2="<?php echo esc_attr( round( 55 + 44 * cos( $a ), 2 ) ); ?>"
+							y2="<?php echo esc_attr( round( 55 + 44 * sin( $a ), 2 ) ); ?>"
+							stroke="<?php echo esc_attr( $muhur['grad1'] ); ?>" stroke-width="0.7" opacity="0.45"/>
+					<?php endfor; ?>
+
+					<text x="55" y="63" text-anchor="middle" font-family="var(--f-display)"
+						font-size="<?php echo mb_strlen( $muhur_mono ) > 3 ? 17 : 24; ?>" font-weight="500"
+						letter-spacing="1" fill="<?php echo esc_attr( $muhur['grad1'] ); ?>">
+						<?php echo esc_html( $muhur_mono ); ?>
+					</text>
+
+					<?php if ( $osmanli ) : ?>
+						<?php /* Tuğra kavisleri — Osmanlı seçeneğini balmumundan ayıran işaret. */ ?>
+						<path d="M30 78 C42 70 68 70 80 78" fill="none" stroke="<?php echo esc_attr( $muhur['grad1'] ); ?>" stroke-width="1" opacity="0.6"/>
+						<path d="M38 32 C46 26 64 26 72 32" fill="none" stroke="<?php echo esc_attr( $muhur['grad1'] ); ?>" stroke-width="1" opacity="0.6"/>
+					<?php endif; ?>
+				</svg>
+			<?php endif; ?>
 		</button>
 
 		<p class="t-lead" style="font-style:italic;color:var(--c-on-dark-faint)">Mührü kırarak perdeyi açın</p>
@@ -224,9 +280,9 @@ $geri_sayim = $d['weddingDate']
 			<div class="wrap">
 				<div class="section-head reveal">
 					<span class="num numerals">02</span>
-					<span class="t-label">Detaylar</span>
+					<span class="t-label"><?php echo esc_html( $d['detailsSectionSubtitle'] ? $d['detailsSectionSubtitle'] : 'Detaylar' ); ?></span>
 				</div>
-				<h2 class="t-display section-title reveal">Düğün Bilgileri</h2>
+				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['detailsSectionTitle'] ? $d['detailsSectionTitle'] : 'Düğün Bilgileri' ); ?></h2>
 
 				<div class="detail-list">
 					<div class="detail-row reveal">
@@ -278,9 +334,9 @@ $geri_sayim = $d['weddingDate']
 				<div class="wrap">
 					<div class="section-head reveal">
 						<span class="num numerals">03</span>
-						<span class="t-label">Akış</span>
+						<span class="t-label"><?php echo esc_html( $d['programSectionSubtitle'] ? $d['programSectionSubtitle'] : 'Akış' ); ?></span>
 					</div>
-					<h2 class="t-display section-title reveal">Günün Programı</h2>
+					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['programSectionTitle'] ? $d['programSectionTitle'] : 'Günün Programı' ); ?></h2>
 
 					<div class="program-list">
 						<?php foreach ( $d['programItems'] as $oge ) : ?>
@@ -323,9 +379,9 @@ $geri_sayim = $d['weddingDate']
 			<div class="wrap">
 				<div class="section-head reveal">
 					<span class="num numerals">05</span>
-					<span class="t-label">Konum</span>
+					<span class="t-label"><?php echo esc_html( $d['locationSectionSubtitle'] ? $d['locationSectionSubtitle'] : 'Konum' ); ?></span>
 				</div>
-				<h2 class="t-display section-title reveal">Nasıl Gelirsiniz?</h2>
+				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['locationSectionTitle'] ? $d['locationSectionTitle'] : 'Nasıl Gelirsiniz?' ); ?></h2>
 
 				<div class="map-frame reveal">
 					<?php /* Haritanın ARKASI: Google engelli bir ağda yüklenmezse burası boş bir dikdörtgen kalmasın. */ ?>
@@ -362,9 +418,9 @@ $geri_sayim = $d['weddingDate']
 				<div class="wrap">
 					<div class="section-head reveal">
 						<span class="num numerals">06</span>
-						<span class="t-label">Merak Edilenler</span>
+						<span class="t-label"><?php echo esc_html( $d['faqSectionSubtitle'] ? $d['faqSectionSubtitle'] : 'Merak Edilenler' ); ?></span>
 					</div>
-					<h2 class="t-display section-title reveal">Sık Sorulan Sorular</h2>
+					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['faqSectionTitle'] ? $d['faqSectionTitle'] : 'Sık Sorulan Sorular' ); ?></h2>
 
 					<div class="faq-list">
 						<?php foreach ( $d['faqItems'] as $i => $oge ) : ?>
@@ -393,9 +449,18 @@ $geri_sayim = $d['weddingDate']
 			<div class="wrap-narrow">
 				<div class="section-head reveal" style="color:var(--c-gold)">
 					<span class="num numerals">07</span>
-					<span class="t-label">Katılım</span>
+					<span class="t-label"><?php echo esc_html( $d['rsvpSectionSubtitle'] ? $d['rsvpSectionSubtitle'] : 'Katılım' ); ?></span>
 				</div>
-				<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)">Sizi Aramızda Görmek İsteriz</h2>
+				<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['rsvpSectionTitle'] ? $d['rsvpSectionTitle'] : 'Sizi Aramızda Görmek İsteriz' ); ?></h2>
+
+				<?php if ( $d['rsvpDeadline'] ) : ?>
+					<p class="t-body reveal" style="margin-top:-1.5rem;margin-bottom:var(--sp-md);color:var(--c-on-dark-faint)">
+						<?php
+						/* translators: %s: son bildirim tarihi. */
+						echo esc_html( sprintf( __( 'Lütfen %s tarihine kadar bildirim yapınız.', 'sahra-davetiye' ), Sahra_Render::format_date( $d['rsvpDeadline'] ) ) );
+						?>
+					</p>
+				<?php endif; ?>
 
 				<form id="rsvp-form" class="reveal" novalidate>
 					<div class="field-row">
@@ -523,7 +588,7 @@ $geri_sayim = $d['weddingDate']
 		<?php /* ──────────────────────────────────────────────── iletişim */ ?>
 		<section id="contact" class="section-gap">
 			<div class="wrap center">
-				<h2 class="t-display reveal" style="color:var(--c-on-dark)">Görüşmek Üzere</h2>
+				<h2 class="t-display reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['contactSectionTitle'] ? $d['contactSectionTitle'] : 'Görüşmek Üzere' ); ?></h2>
 				<p class="t-lead reveal" style="color:var(--c-gold);margin-top:var(--sp-sm)"><?php echo esc_html( $isimler ); ?></p>
 
 				<?php if ( $d['hashtag'] ) : ?>

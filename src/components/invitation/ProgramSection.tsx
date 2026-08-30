@@ -19,7 +19,11 @@ export default function ProgramSection({ invitation }: { invitation: Invitation 
   return (
     <section id="program" className="section-gap relative">
       <div className="mx-auto max-w-4xl px-[var(--sp-md)]">
-        <SectionHead n={3} label="Akış" title="Günün Programı" />
+        <SectionHead
+          n={3}
+          label={invitation.programSectionSubtitle || 'Akış'}
+          title={invitation.programSectionTitle || 'Günün Programı'}
+        />
 
         <div>
           {items.map((item, i) => {

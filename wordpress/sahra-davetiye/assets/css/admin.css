@@ -1,60 +1,934 @@
-/* Panel — WordPress arayüzüne uyar, yalnızca gerekli eklemeler. */
-.sahra-admin h2 {
-	margin-top: 2.2em;
-	padding-top: 0.6em;
-	border-top: 1px solid #dcdcde;
+/* ══════════════════════════════════════════════════════════════════════
+   PANEL — Next sürümünün paneliyle aynı dil.
+
+   WordPress'in gri yönetim arayüzü, davetiyenin kendisiyle aynı ürünmüş
+   gibi durmuyordu. Bu katman yalnızca eklentinin KENDİ ekranlarında
+   (body.sahra-ekran) devreye giriyor; WordPress'in geri kalanına
+   dokunulmuyor.
+
+   Simgeler `sahra.css` ile birebir aynı — iki dosya ayrı çünkü panel
+   davetiye sayfasının stilini yüklemiyor.
+   ══════════════════════════════════════════════════════════════════════ */
+
+body.sahra-ekran {
+  --c-night: #0d0805;
+  --c-ink: #15100a;
+  --c-ember: #2a1a0e;
+  --c-gold: #c39a48;
+  --c-gold-light: #e8d5a4;
+  --c-gold-deep: #5a4413;
+  --c-on-dark: #f6efe1;
+  --c-on-dark-soft: rgba(246, 239, 225, 0.88);
+  --c-on-dark-faint: rgba(246, 239, 225, 0.72);
+  --c-rule-dark: rgba(226, 205, 151, 0.3);
+  --c-danger: #e2a3a3;
+
+  --f-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --f-body: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --t-display: clamp(1.85rem, 4.4vw, 3.25rem);
+  --t-h2: clamp(1.35rem, 2.6vw, 1.9rem);
+  --t-lead: clamp(1.05rem, 1.6vw, 1.25rem);
+  --t-body: clamp(0.9rem, 1.05vw, 1rem);
+  --t-label: clamp(0.6875rem, 0.85vw, 0.8125rem);
+  --ls-label: 0.26em;
+
+  --sp-xs: clamp(0.5rem, 1vw, 0.75rem);
+  --sp-sm: clamp(1rem, 2vw, 1.5rem);
+  --sp-md: clamp(2rem, 4vw, 3.5rem);
+  --sp-lg: clamp(4rem, 8vw, 7.5rem);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.3s;
+  --dur-normal: 0.6s;
 }
 
-.sahra-admin .count {
-	font-weight: 400;
-	color: #646970;
-	font-size: 0.8em;
+/* ── WordPress kabuğunu kaldır ────────────────────────────────────────
+   Panel Next sürümünde tek başına duran bir sayfa. Gri kenar çubuğu ve
+   üst çubuk bırakılırsa davetiye bir eklentiye gömülmüş gibi görünüyor.
+   Kaçış yolu kapatılmıyor: kendi başlığımızda "WordPress Paneli"
+   bağlantısı var.                                                       */
+body.sahra-ekran #adminmenumain,
+body.sahra-ekran #wpadminbar,
+body.sahra-ekran #wpfooter,
+body.sahra-ekran #screen-meta,
+body.sahra-ekran #screen-meta-links,
+body.sahra-ekran .update-nag,
+body.sahra-ekran .notice-wp-updates {
+  display: none !important;
 }
 
-.sahra-cred {
-	padding: 1rem 1.2rem;
+html.wp-toolbar:has(body.sahra-ekran) {
+  padding-top: 0;
 }
 
+body.sahra-ekran #wpcontent,
+body.sahra-ekran #wpbody-content {
+  margin-left: 0;
+  padding: 0;
+}
+
+body.sahra-ekran #wpbody-content {
+  padding-bottom: var(--sp-lg);
+}
+
+body.sahra-ekran,
+body.sahra-ekran #wpwrap,
+body.sahra-ekran #wpbody {
+  background: var(--c-night);
+  color: var(--c-on-dark);
+  font-family: var(--f-body);
+}
+
+body.sahra-ekran a {
+  color: var(--c-gold-light);
+}
+
+/* Kâğıt dokusu — davetiyedeki ile aynı. */
+body.sahra-ekran #wpwrap::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Sarmalayıcı ─────────────────────────────────────────────────────── */
+
+.sahra-panel {
+  position: relative;
+  z-index: 1;
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: var(--sp-md) var(--sp-sm) var(--sp-lg);
+}
+
+.sahra-panel :where(h1, h2, h3, p, dl, dd, ul, ol, figure, blockquote) {
+  margin: 0;
+  padding: 0;
+}
+
+.sahra-panel ul {
+  list-style: none;
+}
+
+/* ── Tipografi ───────────────────────────────────────────────────────── */
+
+.sahra-panel .t-display {
+  font-family: var(--f-display);
+  font-size: var(--t-display);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-weight: 300;
+  color: var(--c-on-dark);
+}
+
+.sahra-panel .t-h2 {
+  font-family: var(--f-display);
+  font-size: var(--t-h2);
+  line-height: 1.15;
+  font-weight: 300;
+  color: var(--c-on-dark);
+}
+
+.sahra-panel .t-lead {
+  font-family: var(--f-display);
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+.sahra-panel .t-body {
+  font-family: var(--f-body);
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--c-on-dark-soft);
+}
+
+.sahra-panel .t-label {
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.sahra-panel .numerals {
+  font-family: var(--f-display);
+  font-variant-numeric: oldstyle-nums;
+}
+
+.sahra-panel .muted {
+  color: var(--c-on-dark-faint);
+}
+
+/* ── Başlık ──────────────────────────────────────────────────────────── */
+
+.sahra-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+  padding-bottom: var(--sp-sm);
+}
+
+.sahra-head .kimlik p {
+  margin: 0;
+}
+
+.sahra-head .t-label {
+  color: var(--c-gold);
+}
+
+.sahra-head .yollar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-sm);
+}
+
+.sahra-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm) 0;
+  border-top: 1px solid var(--c-rule-dark);
+  border-bottom: 1px solid var(--c-rule-dark);
+  margin-bottom: var(--sp-md);
+}
+
+.sahra-nav a {
+  position: relative;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-on-dark-faint);
+  padding-bottom: 0.35rem;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.sahra-nav a:hover {
+  color: var(--c-on-dark);
+}
+
+.sahra-nav a[aria-current='page'] {
+  color: var(--c-gold-light);
+}
+
+.sahra-nav a[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--c-gold);
+}
+
+/* ── Bölüm ───────────────────────────────────────────────────────────── */
+
+.sahra-sec {
+  margin-top: var(--sp-md);
+}
+
+.sahra-sec > header {
+  margin-bottom: var(--sp-sm);
+}
+
+.sahra-sec .ust {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  color: var(--c-gold);
+}
+
+.sahra-sec .ust .num {
+  font-family: var(--f-display);
+  font-size: 0.8rem;
+  opacity: 0.85;
+  font-variant-numeric: oldstyle-nums;
+}
+
+.sahra-sec .lead {
+  margin-top: 0.35rem;
+  color: var(--c-on-dark-faint);
+  font-size: var(--t-body);
+}
+
+/* ── Satırlar (davetiye, hesap, katılım listeleri) ───────────────────── */
+
+.sahra-list {
+  border-top: 1px solid var(--c-rule-dark);
+}
+
+.sahra-row {
+  padding: var(--sp-sm) 0;
+  border-bottom: 1px solid var(--c-rule-dark);
+}
+
+.sahra-row .ana {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.sahra-row .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  margin-top: 0.5rem;
+  color: var(--c-on-dark-faint);
+  font-size: 0.8125rem;
+}
+
+.sahra-row .eylem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.sahra-row .eylem form {
+  display: inline;
+}
+
+.rozet {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+}
+
+.rozet.acik {
+  color: var(--c-gold);
+}
+
+.rozet.kapali {
+  color: var(--c-on-dark-faint);
+}
+
+/* ── Düğmeler ────────────────────────────────────────────────────────── */
+
+.sahra-panel .cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  overflow: hidden;
+  padding: 0.9rem 2rem;
+  border: 1px solid var(--c-gold);
+  border-radius: 999px;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--c-gold-light);
+  background: transparent;
+  cursor: pointer;
+  isolation: isolate;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.sahra-panel .cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--c-gold-light);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--dur-normal) var(--ease-out);
+}
+
+.sahra-panel .cta:hover {
+  color: var(--c-night);
+}
+
+.sahra-panel .cta:hover::before {
+  transform: scaleY(1);
+}
+
+.sahra-panel .cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sahra-panel .cta:disabled::before {
+  transform: scaleY(0);
+}
+
+/* İkincil eylem: yalnızca alt çizgi, soldan girer. */
+.sahra-panel .eylem-link {
+  position: relative;
+  display: inline-block;
+  background: none;
+  border: 0;
+  padding: 0 0 0.35rem;
+  cursor: pointer;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-on-dark-faint);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.sahra-panel .eylem-link:hover {
+  color: var(--c-on-dark);
+}
+
+.sahra-panel .eylem-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-normal) var(--ease-out);
+}
+
+.sahra-panel .eylem-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.sahra-panel .eylem-link.tehlike {
+  color: var(--c-danger);
+}
+
+/* ── Alanlar ─────────────────────────────────────────────────────────── */
+
+.sahra-panel .alan {
+  margin-bottom: var(--sp-sm);
+}
+
+.sahra-panel .field-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--c-gold-light);
+}
+
+.sahra-panel input[type='text'],
+.sahra-panel input[type='email'],
+.sahra-panel input[type='url'],
+.sahra-panel input[type='date'],
+.sahra-panel input[type='time'],
+.sahra-panel input[type='number'],
+.sahra-panel select,
+.sahra-panel textarea {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding: 0.75rem 0;
+  font-family: var(--f-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(226, 205, 151, 0.38);
+  border-radius: 0;
+  color: var(--c-on-dark);
+  box-shadow: none;
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.sahra-panel select {
+  padding-right: 1rem;
+}
+
+.sahra-panel select option {
+  background: var(--c-ink);
+  color: var(--c-on-dark);
+}
+
+/* Yer tutucu neredeyse görünmez olmasın: alan boş mu dolu mu anlaşılmalı. */
+.sahra-panel ::placeholder {
+  color: rgba(246, 239, 225, 0.45);
+  opacity: 1;
+}
+
+.sahra-panel input:focus,
+.sahra-panel select:focus,
+.sahra-panel textarea:focus {
+  border-bottom-color: var(--c-gold);
+  box-shadow: none;
+  outline: none;
+}
+
+.sahra-panel textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.sahra-panel .ikili {
+  display: grid;
+  gap: var(--sp-sm);
+}
+
+@media (min-width: 700px) {
+  .sahra-panel .ikili {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sahra-panel .ipucu {
+  margin-top: 0.4rem;
+  font-size: 0.8125rem;
+  color: var(--c-on-dark-faint);
+}
+
+/* Anahtar (checkbox) */
+.sahra-panel .anahtar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.sahra-panel .anahtar input {
+  appearance: none;
+  width: 2.6rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-rule-dark);
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out);
+  margin: 0;
+}
+
+.sahra-panel .anahtar input::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0.22rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--c-on-dark-faint);
+  transform: translateY(-50%);
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+
+.sahra-panel .anahtar input:checked {
+  border-color: var(--c-gold);
+}
+
+.sahra-panel .anahtar input:checked::after {
+  background: var(--c-gold-light);
+  transform: translate(1.28rem, -50%);
+}
+
+.sahra-panel .anahtar span {
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--c-on-dark-soft);
+}
+
+/* Seçenek kartları (mühür, tasarım, tema) */
+.sahra-panel .secenekler {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+}
+
+.sahra-panel .secenek {
+  display: block;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(226, 205, 151, 0.15);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.sahra-panel .secenek:hover {
+  border-color: rgba(226, 205, 151, 0.4);
+}
+
+.sahra-panel .secenek input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sahra-panel .secenek:has(input:checked) {
+  border-color: var(--c-gold);
+}
+
+.sahra-panel .secenek .ad {
+  font-family: var(--f-display);
+  font-size: var(--t-lead);
+  color: var(--c-on-dark);
+}
+
+.sahra-panel .secenek .ornek {
+  display: block;
+  margin-top: 0.35rem;
+  width: 100%;
+  height: 0.35rem;
+  border-radius: 999px;
+}
+
+/* ── Sihirbaz ────────────────────────────────────────────────────────── */
+
+.sahra-cipler {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: var(--sp-md);
+}
+
+.sahra-cip {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgba(226, 205, 151, 0.15);
+  background: transparent;
+  color: var(--c-on-dark-faint);
+  font-family: var(--f-body);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.sahra-cip:hover {
+  color: var(--c-on-dark);
+  border-color: rgba(226, 205, 151, 0.4);
+}
+
+.sahra-cip[aria-current='true'] {
+  color: var(--c-gold-light);
+  border-color: var(--c-gold);
+}
+
+.sahra-cip .no {
+  opacity: 0.6;
+  margin-right: 0.4rem;
+  font-variant-numeric: oldstyle-nums;
+}
+
+.sahra-adim[hidden] {
+  display: none;
+}
+
+.sahra-ilerleme {
+  height: 1px;
+  background: rgba(226, 205, 151, 0.15);
+  margin-bottom: var(--sp-md);
+}
+
+.sahra-ilerleme span {
+  display: block;
+  height: 100%;
+  background: var(--c-gold);
+  transition: width var(--dur-normal) var(--ease-out);
+}
+
+.sahra-adim-alt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+  margin-top: var(--sp-md);
+  padding-top: var(--sp-sm);
+  border-top: 1px solid var(--c-rule-dark);
+}
+
+/* ── Bildirimler ─────────────────────────────────────────────────────── */
+
+.sahra-panel .bildirim {
+  padding: var(--sp-sm);
+  border: 1px solid rgba(176, 141, 63, 0.4);
+  margin-bottom: var(--sp-md);
+}
+
+.sahra-panel .bildirim.hata {
+  border-color: rgba(226, 163, 163, 0.5);
+  color: var(--c-danger);
+}
+
+.sahra-panel .bildirim .t-label {
+  color: var(--c-gold);
+}
+
+/* Giriş bilgileri kutusu */
 .sahra-cred dl {
-	display: grid;
-	grid-template-columns: max-content 1fr;
-	gap: 0.4rem 1.2rem;
-	margin: 0.6rem 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.5rem 1.5rem;
+  margin: var(--sp-sm) 0;
 }
 
 .sahra-cred dt {
-	font-weight: 600;
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--c-on-dark-faint);
 }
 
 .sahra-cred dd {
-	margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-lead);
+  color: var(--c-on-dark);
+  word-break: break-all;
 }
 
-.sahra-photos {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-	gap: 1rem;
-	margin-top: 1rem;
+.sahra-cred dd.gizli {
+  color: var(--c-gold-light);
+  letter-spacing: 0.05em;
 }
 
-.sahra-photos figure {
-	margin: 0;
+/* ── Albüm ───────────────────────────────────────────────────────────── */
+
+.sahra-fotograflar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--sp-sm);
 }
 
-.sahra-photos img {
-	width: 100%;
-	aspect-ratio: 4 / 5;
-	object-fit: cover;
-	border: 1px solid #dcdcde;
+.sahra-fotograflar figure {
+  margin: 0;
 }
 
-.sahra-photos figcaption {
-	font-size: 12px;
-	color: #646970;
-	margin-top: 0.3rem;
+.sahra-fotograflar img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+  border: 1px solid rgba(226, 205, 151, 0.15);
 }
 
-.sahra-form input[type='time'],
-.sahra-form input[type='date'] {
-	min-width: 12rem;
+.sahra-fotograflar figcaption {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--c-on-dark-faint);
+}
+
+/* ── Boş durum ───────────────────────────────────────────────────────── */
+
+.sahra-bos {
+  padding: var(--sp-md) 0;
+  color: var(--c-on-dark-faint);
+  font-family: var(--f-display);
+  font-size: var(--t-lead);
+  font-style: italic;
+}
+
+/* WordPress'in kendi bildirimleri paneldeyken de okunabilir kalsın. */
+body.sahra-ekran .notice,
+body.sahra-ekran .notice-warning,
+body.sahra-ekran .notice-info,
+body.sahra-ekran .notice-error,
+body.sahra-ekran .notice-success {
+  position: relative;
+  z-index: 1;
+  max-width: 60rem;
+  margin: var(--sp-sm) auto 0;
+  background: var(--c-ink);
+  color: var(--c-on-dark-soft);
+  border-left-color: var(--c-gold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.sahra-ekran *,
+  body.sahra-ekran *::before,
+  body.sahra-ekran *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ── Kip pencere (QR) ────────────────────────────────────────────────── */
+
+.sahra-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-sm);
+  background: rgba(9, 6, 3, 0.9);
+}
+
+.sahra-modal[hidden] {
+  display: none;
+}
+
+.sahra-modal-ic {
+  position: relative;
+  width: 100%;
+  max-width: 24rem;
+  padding: var(--sp-md);
+  background: var(--c-ink);
+  border: 1px solid rgba(226, 205, 151, 0.25);
+  text-align: center;
+}
+
+.sahra-modal-ic .kapat {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.8rem;
+  background: none;
+  border: 0;
+  color: var(--c-on-dark-faint);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sahra-qr-secim {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: var(--sp-sm) 0;
+}
+
+/* QR beyaz zemin ister: koyu bir kartın üstünde okunmuyor. */
+.sahra-qr-kutu {
+  display: inline-block;
+  padding: 0.9rem;
+  background: #fff;
+  line-height: 0;
+}
+
+.sahra-qr-kutu img,
+.sahra-qr-kutu canvas {
+  display: block;
+  width: 12rem;
+  height: 12rem;
+  image-rendering: pixelated;
+}
+
+/* ── Yükleyici ───────────────────────────────────────────────────────── */
+
+.sahra-yukleyici {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.sahra-onizleme {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.sahra-onizleme figure {
+  position: relative;
+  margin: 0;
+  width: 5rem;
+}
+
+.sahra-onizleme img {
+  width: 5rem;
+  height: 6.25rem;
+  object-fit: cover;
+  display: block;
+  border: 1px solid rgba(226, 205, 151, 0.2);
+}
+
+.sahra-onizleme button {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.15rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(9, 6, 3, 0.8);
+  color: var(--c-on-dark);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.sahra-durum {
+  font-size: 0.8125rem;
+  color: var(--c-on-dark-faint);
+}
+
+.sahra-durum.hata {
+  color: var(--c-danger);
+}
+
+/* ── WordPress'in panel stillerini yenmek ────────────────────────────── */
+
+/*
+   WordPress yönetim arayüzü `input[type=checkbox]` ve düğmeler için kendi
+   kurallarını yüksek özgüllükle veriyor. Aşağıdakiler olmadan:
+   • Anahtarın yanında yerleşik onay kutusu da görünüyordu.
+   • `hidden` niteliği yok sayılıyor, sihirbazın ilk adımında "Kaydet"
+     düğmesi de "İleri" ile birlikte duruyordu.
+*/
+body.sahra-ekran .sahra-panel [hidden] {
+  display: none !important;
+}
+
+body.sahra-ekran .sahra-panel .anahtar input[type='checkbox'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 2.6rem;
+  height: 1.3rem;
+  min-width: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-rule-dark);
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
+
+body.sahra-ekran .sahra-panel .anahtar input[type='checkbox']::before {
+  content: none;
+}
+
+body.sahra-ekran .sahra-panel .anahtar input[type='checkbox']:checked {
+  background: transparent;
+  border-color: var(--c-gold);
+}
+
+body.sahra-ekran .sahra-panel .secenek input[type='radio'] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+/* WordPress .button sınıfları paneldeki düğmelere bulaşmasın. */
+body.sahra-ekran .sahra-panel button:focus,
+body.sahra-ekran .sahra-panel a:focus {
+  outline: 1px solid var(--c-gold);
+  outline-offset: 3px;
+  box-shadow: none;
 }

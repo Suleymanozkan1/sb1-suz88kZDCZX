@@ -60,8 +60,8 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
       <div className="mx-auto max-w-2xl px-[var(--sp-md)]">
         <SectionHead
           n={7}
-          label="Katılım"
-          title="Sizi Aramızda Görmek İsteriz"
+          label={invitation.rsvpSectionSubtitle || 'Katılım'}
+          title={invitation.rsvpSectionTitle || 'Sizi Aramızda Görmek İsteriz'}
           lead={deadline ? `Lütfen ${deadline} tarihine kadar bildirim yapınız.` : undefined}
           align="center"
           tone="dark"

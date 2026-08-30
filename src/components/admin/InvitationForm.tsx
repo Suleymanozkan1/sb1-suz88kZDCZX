@@ -29,6 +29,7 @@ import type {
   InvitationDesign,
   ProgramItem,
   SealType,
+  SocialLink,
   StoryItem,
   ThemeId,
 } from '@/lib/types';
@@ -294,6 +295,17 @@ export default function InvitationForm({
         sunucuda ekleniyor, bu yüzden çiftin düzenleyecek bir alanı yok.
       */}
       <VenueNotice />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Bölüm Alt Başlık" value={draft.detailsSectionSubtitle} placeholder="Detaylar" onChange={(v) => set('detailsSectionSubtitle', v)} />
+        <Field label="Bölüm Başlık" value={draft.detailsSectionTitle} placeholder="Düğün Bilgileri" onChange={(v) => set('detailsSectionTitle', v)} />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Bölüm Alt Başlık" value={draft.locationSectionSubtitle} placeholder="Konum" onChange={(v) => set('locationSectionSubtitle', v)} />
+        <Field label="Bölüm Başlık" value={draft.locationSectionTitle} placeholder="Nasıl Gelirsiniz?" onChange={(v) => set('locationSectionTitle', v)} />
+      </div>
+
       <Field
         label="Katılım Bildirim Son Tarihi"
         type="date"
@@ -335,6 +347,13 @@ export default function InvitationForm({
         placeholder="Davet metninizi buraya yazın..."
         onChange={(v) => set('invitationText', v)}
       />
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Bölüm Alt Başlık" value={draft.rsvpSectionSubtitle} placeholder="Katılım" onChange={(v) => set('rsvpSectionSubtitle', v)} />
+        <Field label="Bölüm Başlık" value={draft.rsvpSectionTitle} placeholder="Sizi Aramızda Görmek İsteriz" onChange={(v) => set('rsvpSectionTitle', v)} />
+      </div>
+
+      <Field label="İletişim Bölümü Başlığı" value={draft.contactSectionTitle} placeholder="Görüşmek Üzere" onChange={(v) => set('contactSectionTitle', v)} />
     </div>,
 
     /* 3 — Mühür & Tuğra */
@@ -523,8 +542,13 @@ export default function InvitationForm({
 
     /* 10 — Program */
     <div key="program" className="space-y-3">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Bölüm Alt Başlık" value={draft.programSectionSubtitle} placeholder="Akış" onChange={(v) => set('programSectionSubtitle', v)} />
+        <Field label="Bölüm Başlık" value={draft.programSectionTitle} placeholder="Günün Programı" onChange={(v) => set('programSectionTitle', v)} />
+      </div>
+
       <div className="flex items-center justify-between">
-        <span className="field-label mb-0">Düğün Programı</span>
+        <span className="field-label mb-0">Program Maddeleri</span>
         <div className="flex gap-2">
           <button
             type="button"
@@ -587,8 +611,13 @@ export default function InvitationForm({
 
     /* 11 — SSS */
     <div key="faq" className="space-y-3">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Bölüm Alt Başlık" value={draft.faqSectionSubtitle} placeholder="Merak Edilenler" onChange={(v) => set('faqSectionSubtitle', v)} />
+        <Field label="Bölüm Başlık" value={draft.faqSectionTitle} placeholder="Sık Sorulan Sorular" onChange={(v) => set('faqSectionTitle', v)} />
+      </div>
+
       <div className="flex items-center justify-between">
-        <span className="field-label mb-0">Sık Sorulan Sorular</span>
+        <span className="field-label mb-0">Sorular</span>
         <div className="flex gap-2">
           <button
             type="button"
@@ -725,6 +754,56 @@ export default function InvitationForm({
             label="Düğün (öne çıkan)"
             checked={!!item.highlight}
             onChange={(v) => updateList<StoryItem>('storyItems', i, { highlight: v })}
+          />
+        </div>
+      ))}
+
+      {/*
+        Etiket ve sosyal hesaplar davetiyenin iletişim bölümünde çiziliyordu
+        ama sihirbazda hiçbir yerde sorulmuyordu: alanlar yalnızca veriye
+        elle dokunarak doldurulabiliyordu.
+      */}
+      <div className="pt-[var(--sp-sm)]">
+        <span className="rule-dark mb-[var(--sp-sm)] block" aria-hidden />
+        <Field
+          label="Etiket (Hashtag)"
+          value={draft.hashtag}
+          placeholder="#MehmetveAyşe"
+          onChange={(v) => set('hashtag', v)}
+        />
+      </div>
+
+      <div className="flex items-center justify-between pt-2">
+        <span className="field-label mb-0">Sosyal Hesaplar</span>
+        <button
+          type="button"
+          onClick={() => appendToList<SocialLink>('socialLinks', { name: '', handle: '', href: '' })}
+          className="link-underline"
+          style={{ color: 'var(--c-gold)' }}
+        >
+          Ekle
+        </button>
+      </div>
+
+      {draft.socialLinks.map((item, i) => (
+        <div key={i} className="relative space-y-3 py-[var(--sp-sm)]">
+          <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
+          <div className="flex gap-3">
+            <input
+              value={item.name}
+              placeholder="Instagram"
+              onChange={(e) => updateList<SocialLink>('socialLinks', i, { name: e.target.value })}
+              className="field flex-1"
+              aria-label="Ad"
+            />
+            <RowActions onRemove={() => removeFromList('socialLinks', i)} />
+          </div>
+          <input
+            value={item.href}
+            placeholder="https://instagram.com/..."
+            onChange={(e) => updateList<SocialLink>('socialLinks', i, { href: e.target.value })}
+            className="field"
+            aria-label="Adres"
           />
         </div>
       ))}

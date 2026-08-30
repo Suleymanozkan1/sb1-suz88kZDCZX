@@ -49,6 +49,19 @@ class Sahra_Fields {
 			'gallerySectionTitle'    => array( 'text', '' ),
 			'gallerySectionSubtitle' => array( 'text', '' ),
 
+			// Bölüm başlıkları — boş bırakılırsa varsayılan metin kullanılır.
+			'detailsSectionTitle'    => array( 'text', '' ),
+			'detailsSectionSubtitle' => array( 'text', '' ),
+			'programSectionTitle'    => array( 'text', '' ),
+			'programSectionSubtitle' => array( 'text', '' ),
+			'locationSectionTitle'   => array( 'text', '' ),
+			'locationSectionSubtitle' => array( 'text', '' ),
+			'faqSectionTitle'        => array( 'text', '' ),
+			'faqSectionSubtitle'     => array( 'text', '' ),
+			'rsvpSectionTitle'       => array( 'text', '' ),
+			'rsvpSectionSubtitle'    => array( 'text', '' ),
+			'contactSectionTitle'    => array( 'text', '' ),
+
 			'giftEnabled'            => array( 'bool', false ),
 			'giftTitle'              => array( 'text', '' ),
 			'giftNote'               => array( 'textarea', '' ),
@@ -116,8 +129,72 @@ class Sahra_Fields {
 		);
 	}
 
+	/** Bağlaç seçenekleri, örnekleriyle — Next sürümündeki kartların aynısı. */
 	public static function conjunction_options() {
-		return array( '&', 'ile', 've', '×' );
+		return array(
+			'&'   => 'Ahmet & Ayşe',
+			'ile' => 'Ahmet ile Ayşe',
+			've'  => 'Ahmet ve Ayşe',
+			'×'   => 'Ahmet × Ayşe',
+		);
+	}
+
+	/** Hazır davet metinleri. */
+	public static function ready_texts() {
+		return array(
+			'Klasik'      => 'Bu mutlu günümüzde sizleri de aramızda görmekten büyük mutluluk duyarız.',
+			'Zarif'       => 'Hayatımızın en özel gününde, sevdiklerimizle birlikte olmak dileğiyle sizleri aramızda görmekten onur duyarız.',
+			'Samimi'      => 'Bir ömür boyu sürecek yolculuğumuzun ilk adımını atarken, siz değerli misafirlerimizi de yanımızda görmek isteriz.',
+			'Geleneksel'  => 'Evliliğimizin ilk gününde bizimle olmanız, mutluluğumuzu kat kat artıracaktır. Teşrifleriniz bizi onurlandıracaktır.',
+		);
+	}
+
+	/** "Varsayılanları yükle" düğmelerinin içeriği. */
+	public static function default_program() {
+		return array(
+			array( 'time' => '15:00', 'title' => 'Kapı Açılışı', 'desc' => 'Konukların karşılanması ve yerleşimi' ),
+			array( 'time' => '16:00', 'title' => 'Nikah Töreni', 'desc' => 'Resmi nikah ve yüzük takma' ),
+			array( 'time' => '16:30', 'title' => 'Kokteyl & Fotoğraf', 'desc' => 'Kadeh kaldırma ve anı fotoğrafları' ),
+			array( 'time' => '18:00', 'title' => 'Akşam Yemeği', 'desc' => 'Özel menü ile birlikte sofra zevki' ),
+			array( 'time' => '20:00', 'title' => 'Düğün Pastası', 'desc' => 'İlk dilim kesme ve kutlama' ),
+			array( 'time' => '20:30', 'title' => 'Müzik & Eğlence', 'desc' => 'Canlı müzik ve dans keyfi' ),
+		);
+	}
+
+	public static function default_faq() {
+		return array(
+			array( 'q' => 'Çocuklar davetli mi?', 'a' => 'Düğünümüz yetişkinlere özel bir kutlama olarak planlanmıştır. Küçük misafirlerimizin olmamasını rica ediyoruz.' ),
+			array( 'q' => 'Otopark mevcut mu?', 'a' => 'Mekan bünyesinde kapalı otopark bulunmaktadır. Ücretsiz olarak hizmet vermektedir.' ),
+			array( 'q' => 'Konaklama önerisi var mı?', 'a' => 'Mekanın çevresinde birçok butik otel mevcuttur. Özel fiyatlar için bizimle iletişime geçebilirsiniz.' ),
+			array( 'q' => 'Düğün programı ne zaman başlıyor?', 'a' => 'Kapılar 30 dk önce açılacak, tören belirtilen saatte başlayacaktır.' ),
+		);
+	}
+
+	public static function default_story() {
+		return array(
+			array( 'year' => '2022', 'title' => 'İlk Tanışma', 'desc' => 'Ortak bir arkadaşın davetinde gözlerimiz ilk kez buluştu.' ),
+			array( 'year' => '2023', 'title' => 'Söz', 'desc' => 'Ailelerimizin huzurunda söz verdik.' ),
+			array( 'year' => '2024', 'title' => 'Nişan', 'desc' => 'Nişan törenimizde halkalarımızı taktık.' ),
+			array( 'year' => '2026', 'title' => 'Düğün', 'desc' => 'Ve şimdi, en güzel adımı birlikte atıyoruz.' ),
+		);
+	}
+
+	/** Eklentiyle gelen hazır ses parçaları. */
+	public static function music_tracks() {
+		return array(
+			'piyano-sakin'   => 'Piyano — Sakin',
+			'arp-zarif'      => 'Arp — Zarif',
+			'yayli-duygusal' => 'Yaylı — Duygusal',
+			'anadolu-ney'    => 'Anadolu — Ney',
+		);
+	}
+
+	public static function seal_sounds() {
+		return array( 'muhur-kirilma' => 'Mühür Kırılma' );
+	}
+
+	public static function envelope_sounds() {
+		return array( 'zarf-acilma' => 'Zarf Açılma' );
 	}
 
 	/** Boş davetiye — şemadaki varsayılanlar. */

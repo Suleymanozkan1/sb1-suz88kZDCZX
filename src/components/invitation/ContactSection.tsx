@@ -42,7 +42,7 @@ export default function ContactSection({ invitation }: { invitation: Invitation 
           viewport={{ once: true }}
           transition={{ duration: 1.3 }}
         >
-          Görüşmek Üzere
+          {invitation.contactSectionTitle || 'Görüşmek Üzere'}
         </motion.p>
 
         <motion.p

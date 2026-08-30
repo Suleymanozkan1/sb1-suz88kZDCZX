@@ -2,11 +2,14 @@
 /**
  * Yönetim ekranları.
  *
- * Misafirin gördüğü davetiye sayfası Next sürümüyle piksel piksel aynı;
- * panel ise WordPress'in kendi arayüz diline uyuyor. Bilerek: WordPress'in
- * içinde ona benzemeyen bir panel çizmek hem yabancı duruyor hem de
- * oturum, rol ve parola sıfırlama gibi hazır işleyen şeyleri yeniden
- * yazmayı gerektirirdi. Alanların ve adımların kümesi birebir aynı.
+ * Panel de davetiye sayfası gibi Sahra tasarım diliyle çiziliyor: koyu
+ * zemin, altın etiketler, serif başlıklar, adım çipli sihirbaz. WordPress'in
+ * gri arayüzü yalnızca ekranın ÇEVRESİNDE kalıyordu ve davetiyeyle aynı
+ * ürün gibi durmuyordu; kabuk kendi ekranlarımızda gizleniyor, kaçış yolu
+ * başlıktaki "WordPress Paneli" bağlantısı.
+ *
+ * Oturum, rol ve parola işleri WordPress'in kendi altyapısında kalıyor —
+ * yeniden yazmak, hazır ve denenmiş bir güvenlik katmanını çöpe atmak olurdu.
  *
  * @package SahraDavetiye
  */
@@ -16,6 +19,18 @@ defined( 'ABSPATH' ) || exit;
 class Sahra_Admin {
 
 	const CAPABILITY = 'sahra_edit_invitations';
+
+	/**
+	 * Çift hesabının girebildiği ekranlar.
+	 *
+	 * Tek yerde: liste hem menüde, hem gezinme çubuğunda, hem de wp-admin
+	 * bekçisinde kullanılıyor. Ayrı ayrı yazılıyordu ve biri güncellenmeyi
+	 * unutunca çift, kendi hesap ayarları sayfasından dışarı atılıyordu.
+	 */
+	const COUPLE_PAGES = array( 'sahra-panel', 'sahra-davetiye-duzenle', 'sahra-hesap', 'sahra-ayarlar' );
+
+	/** Yalnızca yöneticinin girebildiği ekranlar. */
+	const MANAGER_PAGES = array( 'sahra-mekan', 'sahra-hesaplar', 'sahra-depolama' );
 
 	public static function menu() {
 		add_menu_page(
@@ -31,6 +46,7 @@ class Sahra_Admin {
 		add_submenu_page( 'sahra-panel', __( 'Davetiyeler', 'sahra-davetiye' ), __( 'Davetiyeler', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-panel', array( __CLASS__, 'page_list' ) );
 		add_submenu_page( 'sahra-panel', __( 'Davetiye Düzenle', 'sahra-davetiye' ), __( 'Yeni Davetiye', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-davetiye-duzenle', array( __CLASS__, 'page_edit' ) );
 		add_submenu_page( 'sahra-panel', __( 'Katılım & Albüm', 'sahra-davetiye' ), __( 'Katılım & Albüm', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-hesap', array( __CLASS__, 'page_inbox' ) );
+		add_submenu_page( 'sahra-panel', __( 'Hesap Ayarları', 'sahra-davetiye' ), __( 'Hesap Ayarları', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-ayarlar', array( __CLASS__, 'page_account' ) );
 
 		if ( Sahra_Roles::is_manager() ) {
 			add_submenu_page( 'sahra-panel', __( 'Mekân', 'sahra-davetiye' ), __( 'Mekân', 'sahra-davetiye' ), 'manage_options', 'sahra-mekan', array( __CLASS__, 'page_venue' ) );
@@ -39,13 +55,49 @@ class Sahra_Admin {
 		}
 	}
 
+	/** Eklentinin kendi ekranında mıyız? */
+	public static function is_our_screen() {
+		$sayfa = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+		return 0 === strpos( $sayfa, 'sahra-' );
+	}
+
+	/**
+	 * Panelin kendi görünümü yalnızca kendi ekranlarında.
+	 *
+	 * Gövde sınıfı olmadan CSS'i yüklemek WordPress'in tamamını karartırdı.
+	 */
+	public static function body_class( $classes ) {
+		return self::is_our_screen() ? $classes . ' sahra-ekran ' : $classes;
+	}
+
 	public static function assets( $hook ) {
-		if ( false === strpos( (string) $hook, 'sahra' ) ) {
+		if ( ! self::is_our_screen() ) {
 			return;
 		}
+
 		wp_enqueue_media();
-		wp_enqueue_style( 'sahra-admin', SAHRA_URL . 'assets/css/admin.css', array(), SAHRA_VERSION );
-		wp_enqueue_script( 'sahra-admin', SAHRA_URL . 'assets/js/admin.js', array(), SAHRA_VERSION, true );
+
+		wp_enqueue_style(
+			'sahra-admin-font',
+			'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@200;300;400;500&display=swap&subset=latin,latin-ext',
+			array(),
+			null // phpcs:ignore
+		);
+		wp_enqueue_style( 'sahra-admin', SAHRA_URL . 'assets/css/admin.css', array( 'sahra-admin-font' ), SAHRA_VERSION );
+
+		// QR kütüphanesi eklentiyle birlikte geliyor: CDN'e bağlamak,
+		// internete kapalı kurulumlarda QR kodu sessizce öldürürdü.
+		wp_enqueue_script( 'sahra-qrcode', SAHRA_URL . 'assets/js/vendor/qrcode.js', array(), '1.4.4', true );
+		wp_enqueue_script( 'sahra-admin', SAHRA_URL . 'assets/js/admin.js', array( 'sahra-qrcode' ), SAHRA_VERSION, true );
+
+		wp_localize_script(
+			'sahra-admin',
+			'SahraPanel',
+			array(
+				'rest'  => esc_url_raw( rest_url( Sahra_Rest::NS . '/' ) ),
+				'nonce' => wp_create_nonce( 'wp_rest' ),
+			)
+		);
 	}
 
 	public static function notices() {
@@ -103,6 +155,12 @@ class Sahra_Admin {
 				break;
 			case 'delete_invitation':
 				self::delete_invitation();
+				break;
+			case 'change_password':
+				self::change_password();
+				break;
+			case 'toggle_invitation':
+				self::toggle_invitation();
 				break;
 		}
 	}
@@ -242,12 +300,63 @@ class Sahra_Admin {
 		self::redirect( array( 'page' => 'sahra-hesaplar', 'silindi' => 1 ) );
 	}
 
+	/** Yayına alma / yayından kaldırma — yalnızca yönetici. */
+	private static function toggle_invitation() {
+		if ( ! Sahra_Roles::is_manager() ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+
+		$id  = (int) ( $_POST['invitation_id'] ?? 0 ); // phpcs:ignore
+		$mev = Sahra_Invitation::get( $id );
+		if ( $mev ) {
+			Sahra_Invitation::update( $id, array( 'isActive' => ! $mev['isActive'] ) );
+		}
+
+		self::redirect( array( 'page' => 'sahra-panel' ) );
+	}
+
 	private static function delete_invitation() {
 		if ( ! Sahra_Roles::is_manager() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 		Sahra_Invitation::delete( (int) ( $_POST['invitation_id'] ?? 0 ) ); // phpcs:ignore
 		self::redirect( array( 'page' => 'sahra-panel', 'silindi' => 1 ) );
+	}
+
+	/**
+	 * Kendi parolasını değiştirme.
+	 *
+	 * Mevcut parola soruluyor: çerezi ele geçiren biri parolayı da
+	 * değiştirip hesabı devralamasın.
+	 */
+	private static function change_password() {
+		$kullanici = wp_get_current_user();
+		if ( ! $kullanici || ! $kullanici->ID ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+
+		$mevcut = (string) ( $_POST['current_password'] ?? '' ); // phpcs:ignore
+		$yeni   = (string) ( $_POST['new_password'] ?? '' ); // phpcs:ignore
+		$tekrar = (string) ( $_POST['repeat_password'] ?? '' ); // phpcs:ignore
+
+		if ( ! wp_check_password( $mevcut, $kullanici->user_pass, $kullanici->ID ) ) {
+			self::redirect( array( 'page' => 'sahra-ayarlar', 'hata' => rawurlencode( __( 'Mevcut parola yanlış.', 'sahra-davetiye' ) ) ) );
+		}
+
+		if ( strlen( $yeni ) < 8 ) {
+			self::redirect( array( 'page' => 'sahra-ayarlar', 'hata' => rawurlencode( __( 'Yeni parola en az 8 karakter olmalı.', 'sahra-davetiye' ) ) ) );
+		}
+
+		if ( $yeni !== $tekrar ) {
+			self::redirect( array( 'page' => 'sahra-ayarlar', 'hata' => rawurlencode( __( 'Yeni parolalar birbiriyle uyuşmuyor.', 'sahra-davetiye' ) ) ) );
+		}
+
+		wp_set_password( $yeni, $kullanici->ID );
+		// Parola değişince WordPress oturumu düşürüyor; kullanıcı burada
+		// kalabilsin diye çerez yenileniyor.
+		wp_set_auth_cookie( $kullanici->ID, false );
+
+		self::redirect( array( 'page' => 'sahra-ayarlar', 'kaydedildi' => 1 ) );
 	}
 
 	/* ------------------------------------------------------- metin ↔ dizi */
@@ -345,6 +454,10 @@ class Sahra_Admin {
 			delete_transient( 'sahra_cred_' . get_current_user_id() );
 		}
 		include SAHRA_DIR . 'templates/admin-users.php';
+	}
+
+	public static function page_account() {
+		include SAHRA_DIR . 'templates/admin-account.php';
 	}
 
 	public static function page_inbox() {

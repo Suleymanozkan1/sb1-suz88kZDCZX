@@ -108,6 +108,19 @@ export interface Invitation {
   sealBreakSound: string;
   envelopeOpenSound: string;
 
+  /* Bölüm başlıkları — boş bırakılırsa varsayılan metin kullanılır. */
+  detailsSectionTitle: string;
+  detailsSectionSubtitle: string;
+  programSectionTitle: string;
+  programSectionSubtitle: string;
+  locationSectionTitle: string;
+  locationSectionSubtitle: string;
+  faqSectionTitle: string;
+  faqSectionSubtitle: string;
+  rsvpSectionTitle: string;
+  rsvpSectionSubtitle: string;
+  contactSectionTitle: string;
+
   /* İçerik blokları */
   storySectionTitle: string;
   storySectionSubtitle: string;

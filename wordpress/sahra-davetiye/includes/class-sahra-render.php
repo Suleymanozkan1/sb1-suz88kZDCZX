@@ -31,6 +31,7 @@ class Sahra_Render {
 		add_rewrite_rule( '^sahra-kart/([^/]+)\.png$', 'index.php?sahra_view=card&sahra_slug=$matches[1]', 'top' );
 		add_rewrite_rule( '^sahra-dosya/([^/]+)/?$', 'index.php?sahra_view=file&sahra_file=$matches[1]', 'top' );
 		add_rewrite_rule( '^sahra-foto/([0-9]+)/?$', 'index.php?sahra_view=photo&sahra_photo=$matches[1]', 'top' );
+		add_rewrite_rule( '^sahra-album/([0-9]+)\.zip$', 'index.php?sahra_view=zip&sahra_album=$matches[1]', 'top' );
 	}
 
 	public static function add_query_vars( $vars ) {
@@ -38,6 +39,7 @@ class Sahra_Render {
 		$vars[] = 'sahra_slug';
 		$vars[] = 'sahra_file';
 		$vars[] = 'sahra_photo';
+		$vars[] = 'sahra_album';
 		return $vars;
 	}
 
@@ -63,6 +65,10 @@ class Sahra_Render {
 		return home_url( '/sahra-kart/' . rawurlencode( $slug ) . '.png' );
 	}
 
+	public static function zip_url( $invitation_id ) {
+		return home_url( '/sahra-album/' . (int) $invitation_id . '.zip' );
+	}
+
 	/** Yönlendirme. */
 	public static function dispatch() {
 		$view = get_query_var( 'sahra_view' );
@@ -85,6 +91,9 @@ class Sahra_Render {
 				break;
 			case 'photo':
 				self::stream_photo();
+				break;
+			case 'zip':
+				self::stream_zip();
 				break;
 		}
 	}
@@ -172,8 +181,95 @@ class Sahra_Render {
 			exit;
 		}
 
+		// ?indir=1 → tarayıcıda açmak yerine kaydet. Çift, misafirin
+		// yüklediği kareyi dokunulmamış çözünürlükte almalı.
+		$indir = isset( $_GET['indir'] ); // phpcs:ignore WordPress.Security.NonceVerification
+		if ( $indir ) {
+			header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $satir->file_id ) . '"' );
+		}
+
 		// Özel içerik: paylaşımlı ara belleklerde tutulmamalı.
 		self::send_binary( $icerik['body'], $icerik['mime'], false );
+	}
+
+	/**
+	 * Albümün tamamı tek dosyada.
+	 *
+	 * Yüzlerce kareyi tek tek indirmek işkence; ZipArchive yoksa özellik
+	 * sessizce kaybolmasın diye açık bir mesaj veriliyor.
+	 */
+	private static function stream_zip() {
+		global $wpdb;
+
+		$id = (int) get_query_var( 'sahra_album' );
+
+		if ( ! is_user_logged_in() ) {
+			status_header( 401 );
+			exit;
+		}
+
+		if ( ! Sahra_Invitation::can_edit( $id ) ) {
+			status_header( 403 );
+			exit;
+		}
+
+		if ( ! class_exists( 'ZipArchive' ) ) {
+			status_header( 501 );
+			header( 'Content-Type: text/plain; charset=utf-8' );
+			echo esc_html__( 'Sunucuda ZipArchive eklentisi yok; fotoğrafları tek tek indirebilirsiniz.', 'sahra-davetiye' );
+			exit;
+		}
+
+		$satirlar = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . Sahra_Tables::photos() . ' WHERE invitation_id = %d ORDER BY created_at', $id ) ); // phpcs:ignore
+		if ( ! $satirlar ) {
+			status_header( 404 );
+			exit;
+		}
+
+		$davetiye = Sahra_Invitation::get( $id );
+
+		/*
+		 * wp_tempnam() DEĞİL: o işlev wp-admin/includes/file.php içinde ve
+		 * bu rota ön yüzde (template_redirect) çalışıyor — orada tanımsız
+		 * olduğu için istek 500 ile düşüyordu. get_temp_dir() çekirdekte,
+		 * her iki tarafta da var.
+		 */
+		$gecici = tempnam( get_temp_dir(), 'sahra-album-' );
+		if ( ! $gecici ) {
+			status_header( 500 );
+			exit;
+		}
+
+		$zip = new ZipArchive();
+		if ( true !== $zip->open( $gecici, ZipArchive::OVERWRITE ) ) {
+			status_header( 500 );
+			exit;
+		}
+
+		foreach ( $satirlar as $sira => $satir ) {
+			$icerik = Sahra_Storage::get( $satir->file_id );
+			if ( is_wp_error( $icerik ) ) {
+				continue;
+			}
+			$uzanti = pathinfo( $satir->file_id, PATHINFO_EXTENSION );
+			$ad     = sprintf( '%03d', $sira + 1 );
+			if ( $satir->uploader_name ) {
+				$ad .= '-' . sanitize_file_name( $satir->uploader_name );
+			}
+			$zip->addFromString( $ad . '.' . $uzanti, $icerik['body'] );
+		}
+
+		$zip->close();
+
+		$dosya_adi = sanitize_file_name( ( $davetiye ? $davetiye['slug'] : 'album' ) . '-album.zip' );
+
+		nocache_headers();
+		header( 'Content-Type: application/zip' );
+		header( 'Content-Disposition: attachment; filename="' . $dosya_adi . '"' );
+		header( 'Content-Length: ' . filesize( $gecici ) );
+		readfile( $gecici ); // phpcs:ignore
+		wp_delete_file( $gecici );
+		exit;
 	}
 
 	private static function send_binary( $body, $mime, $public ) {

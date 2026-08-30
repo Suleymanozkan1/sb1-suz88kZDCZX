@@ -31,6 +31,7 @@ class Sahra_Plugin {
 		add_action( 'admin_init', array( 'Sahra_Roles', 'guard_admin' ) );
 		add_action( 'admin_init', array( 'Sahra_Admin', 'handle_post' ) );
 		add_action( 'admin_enqueue_scripts', array( 'Sahra_Admin', 'assets' ) );
+		add_filter( 'admin_body_class', array( 'Sahra_Admin', 'body_class' ) );
 		add_action( 'admin_notices', array( 'Sahra_Admin', 'notices' ) );
 		add_action( 'init', array( 'Sahra_Roles', 'trim_admin_ui' ) );
 
