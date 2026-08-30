@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import SectionHead from './SectionHead';
 import { Divider, IconCheck, IconArrow } from './Ornaments';
+import { safeUrl } from '@/lib/safe-url';
 import type { Invitation } from '@/lib/types';
 
 /** IBAN'ı dörderli gruplayarak okunur kılar. */
@@ -26,7 +27,7 @@ export default function GiftSection({ invitation }: { invitation: Invitation }) 
   const [copied, setCopied] = useState(false);
 
   const iban = invitation.giftIban?.trim() ?? '';
-  const registry = invitation.giftRegistryUrl?.trim() ?? '';
+  const registry = safeUrl(invitation.giftRegistryUrl);
   if (!invitation.giftEnabled || (!iban && !registry)) return null;
 
   async function copy() {

@@ -234,12 +234,33 @@ export async function updateInvitation(
   return rows[0] ? toInvitation(rows[0]) : null;
 }
 
-export async function deleteInvitation(id: string): Promise<boolean> {
-  const rows = await query<{ id: string }>(
-    'delete from invitations where id = $1 returning id',
+/**
+ * Davetiyeyi ve ona bağlı her şeyi siler.
+ *
+ * Eskiden yalnızca davetiye satırı siliniyordu; katılımlar, misafir
+ * fotoğrafları ve dilekler arkada kalıyordu. Fotoğrafların dosyaları da
+ * depoda öylece duruyordu — silinmiş bir davetiyenin misafir fotoğrafları
+ * süresiz saklanıyor ve yer tutuyordu. Dosya adları çağırana döner; onları
+ * depodan silmek API ucunun işi.
+ */
+export async function deleteInvitation(
+  id: string,
+): Promise<{ removed: boolean; files: string[] }> {
+  const invitation = await getInvitation(id);
+  if (!invitation) return { removed: false, files: [] };
+
+  const doomed = await query<{ file_name: string; thumb_name: string }>(
+    'select file_name, thumb_name from photos where invitation_id = $1',
     [id],
   );
-  return rows.length > 0;
+  const files = doomed.flatMap((p) => [p.file_name, p.thumb_name]);
+
+  await query('delete from photos where invitation_id = $1', [id]);
+  await query('delete from wishes where invitation_id = $1', [id]);
+  await query('delete from rsvps where invitation_slug = $1', [invitation.slug]);
+  await query('delete from invitations where id = $1', [id]);
+
+  return { removed: true, files };
 }
 
 /* ============================================================ katılım bildirimi */
@@ -470,6 +491,10 @@ export async function deleteUser(id: string): Promise<{ removed: boolean; files:
 
   await query(
     'delete from photos where invitation_id in (select id from invitations where owner_id = $1)',
+    [id],
+  );
+  await query(
+    'delete from wishes where invitation_id in (select id from invitations where owner_id = $1)',
     [id],
   );
   await query(

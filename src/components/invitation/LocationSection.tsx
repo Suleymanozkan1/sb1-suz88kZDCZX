@@ -1,5 +1,6 @@
 'use client';
 
+import { safeUrl } from '@/lib/safe-url';
 import { motion } from 'framer-motion';
 import SectionHead from './SectionHead';
 import { IconArrow } from './Ornaments';
@@ -20,7 +21,9 @@ export default function LocationSection({ invitation }: { invitation: Invitation
   if (!query) return null;
 
   const encoded = encodeURIComponent(query);
-  const googleMaps = invitation.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+  // Çiftin girdiği adres doğrulanır; şeması uygun değilse aramaya düşülür.
+  const googleMaps =
+    safeUrl(invitation.mapUrl) ?? `https://www.google.com/maps/search/?api=1&query=${encoded}`;
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${encoded}`;
   const yandex = `https://yandex.com.tr/harita/?text=${encoded}`;
   const embed = `https://www.google.com/maps?q=${encoded}&output=embed`;

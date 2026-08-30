@@ -1,5 +1,6 @@
 'use client';
 
+import { safeUrl } from '@/lib/safe-url';
 import ShareBar from './ShareBar';
 import { motion } from 'framer-motion';
 import { IconInstagram } from './Ornaments';
@@ -13,7 +14,10 @@ import type { Invitation } from '@/lib/types';
  * olarak arkada durur. Ziyaretçinin akılda tutacağı son kare budur.
  */
 export default function ContactSection({ invitation }: { invitation: Invitation }) {
-  const links = invitation.socialLinks ?? [];
+  // Adresi geçersiz olan hesap bağlantısı hiç basılmaz.
+  const links = (invitation.socialLinks ?? [])
+    .map((link) => ({ ...link, href: safeUrl(link.href) }))
+    .filter((link): link is typeof link & { href: string } => Boolean(link.href));
   const conjunction = invitation.conjunction || '&';
 
   return (

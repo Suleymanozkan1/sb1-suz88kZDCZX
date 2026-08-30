@@ -1,3 +1,4 @@
+import { removeFiles } from '@/lib/files';
 import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
@@ -54,9 +55,13 @@ async function handleDelete(_request: Request, { params }: Params) {
     return NextResponse.json({ error: 'Bu işlem için yetkiniz yok' }, { status: 403 });
   }
 
-  if (!(await deleteInvitation(params.id))) {
+  const { removed, files } = await deleteInvitation(params.id);
+  if (!removed) {
     return NextResponse.json({ error: 'Davetiye bulunamadı' }, { status: 404 });
   }
+
+  // Kayıtlarla birlikte misafir fotoğraflarının dosyaları da depodan silinir.
+  await removeFiles(files);
   return NextResponse.json({ ok: true });
 }
 

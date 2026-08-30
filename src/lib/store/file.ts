@@ -188,12 +188,30 @@ export async function updateInvitation(
   return updated;
 }
 
-export async function deleteInvitation(id: string): Promise<boolean> {
+/**
+ * Davetiyeyi ve ona bağlı her şeyi siler — katılımlar, misafir fotoğrafları
+ * ve dilekler dâhil. Fotoğraf dosyalarının adları çağırana döner.
+ */
+export async function deleteInvitation(
+  id: string,
+): Promise<{ removed: boolean; files: string[] }> {
   const rows = await loadInvitations();
-  const next = rows.filter((r) => r.id !== id);
-  if (next.length === rows.length) return false;
-  await saveInvitations(next);
-  return true;
+  const target = rows.find((r) => r.id === id);
+  if (!target) return { removed: false, files: [] };
+
+  const photos = await loadPhotos();
+  const doomed = photos.filter((p) => p.invitationId === id);
+  const files = doomed.flatMap((p) => [p.fileName, p.thumbName]);
+  await savePhotos(photos.filter((p) => p.invitationId !== id));
+
+  const wishes = await loadWishes();
+  await saveWishes(wishes.filter((w) => w.invitationId !== id));
+
+  const rsvps = await loadRsvps();
+  await saveRsvps(rsvps.filter((r) => r.invitationSlug !== target.slug));
+
+  await saveInvitations(rows.filter((r) => r.id !== id));
+  return { removed: true, files };
 }
 
 export async function listRsvps(slug?: string): Promise<Rsvp[]> {
