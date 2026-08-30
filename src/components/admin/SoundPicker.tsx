@@ -63,40 +63,87 @@ export default function SoundPicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState('');
+  const [loading, setLoading] = useState('');
+  /** Yarışan önizleme isteklerini ayırt eder. */
+  const biletRef = useRef(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   // Sayfa değişince ya da bileşen kaldırılınca ses arkada çalmaya devam etmesin.
   useEffect(() => {
     return () => {
+      biletRef.current += 1;
       audioRef.current?.pause();
       audioRef.current = null;
     };
   }, []);
 
-  function preview(url: string) {
+  /**
+   * Önizleme.
+   *
+   * Üç ayrı sorun burada birleşiyordu:
+   *
+   *  1. play() reddedilen HER durumda "tarayıcı engelledi" deniyordu. Oysa
+   *     ret sebebi çoğu zaman bu değil: dosya açılamamış (desteklenmeyen
+   *     biçim, bozuk yükleme) ya da bir sonraki parçaya geçildiği için
+   *     istek iptal edilmiş olabiliyor. Yanlış teşhis, çiftin sorunu
+   *     tarayıcıda aramasına yol açıyordu.
+   *  2. Bir parça çalarken başkasına basınca öncekinin bekleyen play()
+   *     çağrısı iptal oluyor (AbortError) ve o iptal, yeni parça sorunsuz
+   *     çalarken bile ekrana hata yazıyordu.
+   *  3. Dosya ağdan gelene kadar düğme hiçbir şey söylemiyordu; yavaş
+   *     bağlantıda "bastım, bir şey olmadı" hissi veriyordu.
+   */
+  async function preview(url: string) {
     if (!url) return;
+
     if (playing === url) {
-      audioRef.current?.pause();
-      setPlaying('');
+      durdur();
       return;
     }
-    audioRef.current?.pause();
+
+    // Yalnızca en son istek durumu değiştirebilsin.
+    const bilet = ++biletRef.current;
+    durdur();
+    setError('');
+    setLoading(url);
+
     const audio = new Audio(url);
+    audio.preload = 'auto';
     audio.volume = 0.7;
-    audio.onended = () => setPlaying('');
-    audio.onerror = () => {
-      setError('Bu ses dosyası çalınamadı.');
-      setPlaying('');
+    audio.onended = () => {
+      if (biletRef.current === bilet) setPlaying('');
     };
     audioRef.current = audio;
-    audio.play().then(
-      () => setPlaying(url),
-      () => {
-        setError('Tarayıcı sesi engelledi; sayfaya bir kez tıklayıp tekrar deneyin.');
-        setPlaying('');
-      },
-    );
+
+    try {
+      await audio.play();
+      if (biletRef.current !== bilet) {
+        audio.pause();
+        return;
+      }
+      setPlaying(url);
+    } catch (err) {
+      if (biletRef.current !== bilet) return;
+      const ad = err instanceof Error ? err.name : '';
+      // Yeni bir önizlemeye geçildiği için iptal edildiyse söylenecek bir şey yok.
+      if (ad !== 'AbortError') {
+        setError(
+          ad === 'NotAllowedError'
+            ? 'Tarayıcı sesi engelledi. Sayfada bir yere tıklayıp tekrar deneyin.'
+            : 'Bu ses dosyası açılamadı. Farklı bir biçimde (mp3) yüklemeyi deneyin.',
+        );
+      }
+      setPlaying('');
+    } finally {
+      if (biletRef.current === bilet) setLoading('');
+    }
+  }
+
+  function durdur() {
+    audioRef.current?.pause();
+    audioRef.current = null;
+    setPlaying('');
   }
 
   async function handleFile(file: File | undefined) {
@@ -172,13 +219,14 @@ export default function SoundPicker({
                   type="button"
                   onClick={() => preview(track.url)}
                   aria-label={playing === track.url ? 'Durdur' : 'Dinle'}
+                  disabled={loading === track.url}
                   className="shrink-0 px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.18em]"
                   style={{
                     border: '1px solid rgba(176, 141, 63, 0.35)',
                     color: 'var(--c-gold-light)',
                   }}
                 >
-                  {playing === track.url ? 'Durdur' : 'Dinle'}
+                  {loading === track.url ? '…' : playing === track.url ? 'Durdur' : 'Dinle'}
                 </button>
               )}
             </div>
@@ -213,7 +261,7 @@ export default function SoundPicker({
               className="shrink-0 px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.18em]"
               style={{ border: '1px solid rgba(176, 141, 63, 0.35)', color: 'var(--c-gold-light)' }}
             >
-              {playing === value ? 'Durdur' : 'Dinle'}
+              {loading === value ? '…' : playing === value ? 'Durdur' : 'Dinle'}
             </button>
             <button
               type="button"
