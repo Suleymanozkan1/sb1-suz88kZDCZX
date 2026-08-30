@@ -69,8 +69,8 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
               className="relative grid grid-cols-1 items-baseline gap-x-[var(--sp-md)] gap-y-2 py-[var(--sp-sm)] sm:grid-cols-12"
               initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.8, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+              viewport={{ once: true, margin: '-140px' }}
+              transition={{ duration: 1.16, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
             >
               <span className="rule absolute inset-x-0 top-0" aria-hidden />
 
@@ -103,7 +103,7 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 1.16, delay: 0.2 }}
           >
             <a
               href={googleUrl}

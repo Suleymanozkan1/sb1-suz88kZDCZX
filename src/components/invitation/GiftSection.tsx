@@ -69,8 +69,8 @@ export default function GiftSection({ invitation }: { invitation: Invitation }) 
             style={{ border: '1px solid rgba(176, 141, 63, 0.28)' }}
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            viewport={{ once: true, margin: '-160px' }}
+            transition={{ duration: 1.16, ease: [0.22, 1, 0.36, 1] }}
           >
             {invitation.giftAccountName && (
               <p className="t-body" style={{ color: 'var(--c-on-dark)' }}>

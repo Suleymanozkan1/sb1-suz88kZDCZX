@@ -9,11 +9,12 @@ import type { Invitation } from '@/lib/types';
 /**
  * Galeri.
  *
- * Sütun tabanlı (masonry) yerleşim. Fotoğrafların en-boy oranı önceden
- * bilinmediği için sabit oranlı bir ızgara satırları hizalayamaz ve
- * aralarda boşluk bırakır; sütun akışı her görüntüyü doğal oranıyla
- * yerleştirir ve boşluk bırakmaz. Bu yüzden burada `next/image` yerine
- * düz `img` kullanılır: yükseklik içeriğe göre belirlenir.
+ * Eşit kareler. Sütun akışı (masonry) denendi ve bırakıldı: her fotoğraf
+ * kendi doğal yüksekliğinde durunca dikey bir kare yatay bir karenin iki
+ * katı yer kaplıyor, ızgara dağınık görünüyordu. Artık her kutu aynı
+ * oranda; fotoğraf object-cover ile merkezden kırpılıyor, büyütünce
+ * tamamı görünüyor. Kutu oranı sabit olduğu için burada `next/image`
+ * yerine düz `img` yeterli.
  */
 
 export default function GallerySection({ invitation }: { invitation: Invitation }) {
@@ -58,26 +59,35 @@ export default function GallerySection({ invitation }: { invitation: Invitation 
             Fotoğraflar yakında burada olacak.
           </p>
         ) : (
-          <div className="columns-1 gap-[var(--sp-sm)] sm:columns-2 lg:columns-3">
+          /*
+             Eşit kareler.
+
+             Önce sütun akışı (masonry) vardı: her fotoğraf kendi doğal
+             yüksekliğinde duruyordu ve dikey bir kare, yatay bir karenin iki
+             katı yer kaplayınca ızgara dağınık görünüyordu. Artık her
+             fotoğraf aynı orana kırpılıyor; kırpma object-cover ile
+             merkezden yapıldığı için kadraj korunuyor ve büyütünce
+             fotoğrafın tamamı görünüyor.
+          */
+          <div className="grid grid-cols-2 gap-[var(--sp-sm)] sm:grid-cols-3">
             {images.map((src, i) => (
               <motion.button
                 key={`${src.slice(0, 24)}-${i}`}
                 type="button"
                 onClick={() => setOpen(i)}
-                className="group relative mb-[var(--sp-sm)] block w-full break-inside-avoid overflow-hidden"
+                className="group relative block aspect-[4/5] w-full overflow-hidden"
                 initial={{ opacity: 0, y: 34 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 1, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                viewport={{ once: true, margin: '-140px' }}
+                transition={{ duration: 1.45, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 aria-label={`Anı ${i + 1} — büyüt`}
               >
-                {/* Oran bilinmediği için doğal yükseklik kullanılır. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
                   alt={`Anı ${i + 1}`}
                   loading="lazy"
-                  className="block w-full transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+                  className="block h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                 />
 
                 {/* üzerine gelince ince bir çerçeve içe doğru çizilir */}
@@ -114,7 +124,7 @@ export default function GallerySection({ invitation }: { invitation: Invitation 
               initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.96, opacity: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 1.01, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
             >
               <Image

@@ -167,13 +167,16 @@ export default function PhotoGallery({
           lead="Masalara koyduğunuz QR kodu okutan misafirlerin fotoğrafları burada birikir."
         />
       ) : (
-        <div className="columns-2 gap-[var(--sp-sm)] sm:columns-3 lg:columns-4">
+        /* Eşit kareler: farklı oranlardaki fotoğraflar sütun akışında
+           dağınık duruyordu. Kırpma yalnızca önizlemede; büyütünce ve
+           indirirken orijinal tam boy kalır. */
+        <div className="grid grid-cols-2 gap-[var(--sp-sm)] sm:grid-cols-3 lg:grid-cols-4">
           {visible.map((photo, i) => (
             <motion.button
               key={photo.id}
               type="button"
               onClick={() => setOpen(i)}
-              className="group relative mb-[var(--sp-sm)] block w-full break-inside-avoid overflow-hidden"
+              className="group relative block aspect-square w-full overflow-hidden"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: Math.min(i, 12) * 0.03 }}
@@ -185,7 +188,7 @@ export default function PhotoGallery({
                 src={api.photoThumbUrl(photo.id)}
                 alt={photo.uploaderName || `Fotoğraf ${i + 1}`}
                 loading="lazy"
-                className="block w-full transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+                className="block h-full w-full object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
               />
               {photo.uploaderName && (
                 <span

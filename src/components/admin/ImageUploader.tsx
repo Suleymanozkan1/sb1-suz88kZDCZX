@@ -6,6 +6,7 @@ import { IconClose, IconImage } from '@/components/invitation/Ornaments';
 import { describeLimit, newFileName, uploadDirect, uploadLimits } from '@/lib/upload-client';
 
 const TOKEN_URL = '/api/upload/token';
+const PRESIGNED_URL = '/api/upload/presigned';
 
 /**
  * Görseli depoya yükler ve adresini döndürür.
@@ -27,9 +28,11 @@ async function uploadImage(file: File): Promise<string> {
     throw new Error(`${file.name} ${describeLimit(limits.maxBytes)} sınırını aşıyor`);
   }
 
-  if (limits.direct) {
+  if (limits.mode !== 'sunucu') {
     const { url } = await uploadDirect(file, {
       tokenUrl: TOKEN_URL,
+      presignedUrl: PRESIGNED_URL,
+      mode: limits.mode,
       space: 'public',
       fileName: newFileName(file.type),
     });

@@ -6,6 +6,7 @@ import { describeLimit, newFileName, uploadDirect, uploadLimits } from '@/lib/up
 import type { Track } from '@/lib/music';
 
 const TOKEN_URL = '/api/upload/token';
+const PRESIGNED_URL = '/api/upload/presigned';
 
 /**
  * Sesi depoya yükler ve adresini döndürür — görsel yükleyiciyle aynı yol.
@@ -17,9 +18,11 @@ async function uploadAudio(file: File): Promise<string> {
     throw new Error(`Dosya ${describeLimit(limits.maxBytes)} sınırını aşıyor`);
   }
 
-  if (limits.direct) {
+  if (limits.mode !== 'sunucu') {
     const { url } = await uploadDirect(file, {
       tokenUrl: TOKEN_URL,
+      presignedUrl: PRESIGNED_URL,
+      mode: limits.mode,
       space: 'public',
       fileName: newFileName(file.type),
     });

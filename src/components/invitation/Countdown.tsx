@@ -51,7 +51,7 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
       className="flex items-stretch"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 1.6, duration: 1.2 }}
+      transition={{ delay: 1.6, duration: 1.74 }}
     >
       {cells.map((cell, i) => (
         <div

@@ -75,7 +75,7 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
             >
               <motion.svg
                 width="44"
@@ -94,7 +94,7 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
                   strokeLinejoin="round"
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
-                  transition={{ delay: 0.2, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: 0.2, duration: 1.45, ease: [0.22, 1, 0.36, 1] }}
                 />
               </motion.svg>
 
@@ -119,7 +119,7 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 1.16 }}
             >
               {fields.map((field) => (
                 <div key={field.id}>
@@ -159,7 +159,7 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
                           className="absolute inset-x-0 bottom-0 h-px"
                           style={{ background: 'currentColor', transformOrigin: 'left' }}
                           animate={{ scaleX: active ? 1 : 0 }}
-                          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                          transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
                           aria-hidden
                         />
                       </button>
@@ -174,7 +174,7 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
                     className="overflow-hidden"
                   >
                     <span className="field-label">Kaç Kişi Geleceksiniz?</span>
@@ -196,7 +196,7 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
                               className="absolute inset-x-0 bottom-0 h-px"
                               style={{ background: 'currentColor', transformOrigin: 'left' }}
                               animate={{ scaleX: active ? 1 : 0 }}
-                              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                              transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
                               aria-hidden
                             />
                           </button>
@@ -217,7 +217,7 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
                     className="overflow-hidden"
                   >
                     <label className="field-label" htmlFor="rsvp-song">

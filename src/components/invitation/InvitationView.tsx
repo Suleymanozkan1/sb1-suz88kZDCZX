@@ -17,6 +17,7 @@ import RsvpSection from './RsvpSection';
 import ScrollProgress from './ScrollProgress';
 import SealCurtain from './SealCurtain';
 import StorySection from './StorySection';
+import { themeStyle } from '@/lib/theme';
 import type { Invitation, Wish } from '@/lib/types';
 
 /**
@@ -43,7 +44,10 @@ export default function InvitationView({
   const [opened, setOpened] = useState(skipIntro);
 
   return (
-    <>
+    // Tema simgeleri en dışta veriliyor: mühür perdesi ve müzik düğmesi de
+    // <main> dışında durduğu için, simgeler yalnızca <main>'de kalsaydı
+    // davetiye çevrilirken perde eski renkte açılırdı.
+    <div style={themeStyle(invitation.theme) as React.CSSProperties}>
       {!opened && <SealCurtain invitation={invitation} onOpened={() => setOpened(true)} />}
 
       <ScrollProgress />
@@ -53,6 +57,11 @@ export default function InvitationView({
         Sayfa üç evreye bölünür ve renk yalnızca köprülerde döner. Evrelerin
         kendi düz zemini vardır, yani bir bölüme içerik eklenmesi başka bir
         bölümün zeminini kaydırmaz.
+      */}
+      {/*
+        Tema, tasarım simgelerini bu sarmalayıcıda geçersiz kılar. Simgeler
+        tek merkezde tanımlı olduğu için bölümlerin hiçbirine dokunmadan
+        tüm sayfa çevrilir.
       */}
       <main className="journey">
         <div className="phase-dark">
@@ -88,6 +97,6 @@ export default function InvitationView({
           autoStart={opened && !skipIntro}
         />
       )}
-    </>
+    </div>
   );
 }

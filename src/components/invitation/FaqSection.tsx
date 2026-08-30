@@ -37,8 +37,8 @@ export default function FaqSection({ invitation }: { invitation: Invitation }) {
                   className="group flex w-full items-start justify-between gap-[var(--sp-sm)] py-[var(--sp-sm)] text-left"
                   initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ duration: 0.7, delay: i * 0.05 }}
+                  viewport={{ once: true, margin: '-140px' }}
+                  transition={{ duration: 1.01, delay: i * 0.05 }}
                 >
                   <span
                     className="t-h2 transition-opacity duration-300"
@@ -63,7 +63,7 @@ export default function FaqSection({ invitation }: { invitation: Invitation }) {
                       className="absolute left-1/2 top-0 h-full w-px"
                       style={{ background: 'currentColor' }}
                       animate={{ rotate: isOpen ? 90 : 0, opacity: isOpen ? 0 : 1 }}
-                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
                     />
                   </span>
                 </motion.button>
@@ -74,7 +74,7 @@ export default function FaqSection({ invitation }: { invitation: Invitation }) {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
                       className="overflow-hidden"
                     >
                       <p

@@ -1,6 +1,6 @@
 'use client';
 
-import { upload } from '@vercel/blob/client';
+import { upload, uploadPresigned } from '@vercel/blob/client';
 
 /**
  * Yükleme, ortama göre iki yoldan birini kullanır.
@@ -42,15 +42,22 @@ export function newFileName(mimeType: string, suffix = ''): string {
 /**
  * Sunucunun bildirdiği yükleme koşulları; sayfa başına bir kez sorulur.
  *
- * `maxBytes` sunucudan gelir çünkü gerçek sınır yola bağlıdır: doğrudan
- * yüklemede 25 MB, sunucudan geçen yolda Vercel'in 4,5 MB istek sınırı.
+ * Üç yol var ve seçim depoya nasıl bağlanıldığına göre yapılır:
+ *   • 'jeton'   — okuma-yazma belirteci var; istemci jetonuyla doğrudan depoya.
+ *   • 'imzali'  — belirteç yok (OIDC); imzalı adresle yine doğrudan depoya.
+ *   • 'sunucu'  — Blob hiç yok (yerel geliştirme); dosya sunucu ucundan geçer.
+ *
+ * İlk ikisinde dosya sunucuya hiç uğramaz, dolayısıyla Vercel'in 4,5 MB
+ * istek gövdesi sınırı devreye girmez ve sınır 25 MB'dır.
  */
+export type UploadMode = 'jeton' | 'imzali' | 'sunucu';
+
 export interface UploadLimits {
-  direct: boolean;
+  mode: UploadMode;
   maxBytes: number;
 }
 
-const FALLBACK: UploadLimits = { direct: false, maxBytes: 25 * 1024 * 1024 };
+const FALLBACK: UploadLimits = { mode: 'sunucu', maxBytes: 25 * 1024 * 1024 };
 const probes = new Map<string, Promise<UploadLimits>>();
 
 export function uploadLimits(tokenUrl: string): Promise<UploadLimits> {
@@ -59,7 +66,7 @@ export function uploadLimits(tokenUrl: string): Promise<UploadLimits> {
     probe = fetch(tokenUrl, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : FALLBACK))
       .then((body) => ({
-        direct: Boolean(body.direct),
+        mode: (body.mode as UploadMode) ?? FALLBACK.mode,
         maxBytes: Number(body.maxBytes) || FALLBACK.maxBytes,
       }))
       .catch(() => FALLBACK);
@@ -97,19 +104,24 @@ export async function uploadDirect(
   file: File | Blob,
   options: {
     tokenUrl: string;
+    /** İmzalı adres ucu; 'imzali' kipinde kullanılır. */
+    presignedUrl: string;
+    mode: 'jeton' | 'imzali';
     space: 'private' | 'public';
     fileName: string;
     clientPayload?: string;
   },
 ): Promise<{ fileName: string; url: string }> {
+  const gonder = options.mode === 'imzali' ? uploadPresigned : upload;
+  const ucAdresi = options.mode === 'imzali' ? options.presignedUrl : options.tokenUrl;
   const order: Access[] = storeAccess ? [storeAccess] : ['public', 'private'];
   let lastError: unknown;
 
   for (const access of order) {
     try {
-      await upload(`${options.space}/${options.fileName}`, file, {
+      await gonder(`${options.space}/${options.fileName}`, file, {
         access,
-        handleUploadUrl: options.tokenUrl,
+        handleUploadUrl: ucAdresi,
         contentType: file.type || undefined,
         clientPayload: options.clientPayload,
         multipart: file.size > 8 * 1024 * 1024,

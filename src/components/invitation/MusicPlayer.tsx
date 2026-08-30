@@ -74,7 +74,7 @@ export default function MusicPlayer({
                 className="w-[3px] rounded-full"
                 style={{ background: 'currentColor' }}
                 animate={{ height: ['6px', '16px', '8px', '14px', '6px'] }}
-                transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.12 }}
+                transition={{ duration: 1.59, repeat: Infinity, delay: i * 0.12 }}
               />
             ))}
           </div>

@@ -30,8 +30,8 @@ export default function ProgramSection({ invitation }: { invitation: Invitation 
                 className="group relative grid grid-cols-[auto_1fr] items-baseline gap-x-[var(--sp-sm)] gap-y-1 py-[var(--sp-sm)] sm:grid-cols-[7rem_auto_1fr] sm:gap-x-[var(--sp-md)]"
                 initial={{ opacity: 0, x: -18 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.8, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                viewport={{ once: true, margin: '-140px' }}
+                transition={{ duration: 1.16, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
               >
                 <span className="rule absolute inset-x-0 top-0" aria-hidden />
 

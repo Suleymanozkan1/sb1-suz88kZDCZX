@@ -14,6 +14,9 @@ export const SEAL_OPTIONS: { id: SealType; label: string }[] = [
   { id: 'emerald-wax', label: 'Zümrüt Balmumu' },
   { id: 'bronze-wax', label: 'Bronz Balmumu' },
   { id: 'silver-wax', label: 'Gümüş Balmumu' },
+  { id: 'navy-wax', label: 'Lacivert Balmumu' },
+  { id: 'rose-wax', label: 'Gül Kurusu Balmumu' },
+  { id: 'ivory-wax', label: 'Fildişi Balmumu' },
   { id: 'ottoman', label: 'Osmanlı Tuğrası' },
 ];
 
@@ -21,6 +24,8 @@ export const DESIGN_OPTIONS: { id: InvitationDesign; label: string }[] = [
   { id: 'ottoman', label: 'Osmanlı' },
   { id: 'classic', label: 'Klasik' },
   { id: 'minimal', label: 'Minimal' },
+  { id: 'arch', label: 'Kemerli' },
+  { id: 'vellum', label: 'Vellum' },
 ];
 
 export const THEME_OPTIONS: {

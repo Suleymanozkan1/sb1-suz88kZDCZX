@@ -65,6 +65,7 @@ async function makeThumbnail(
 }
 
 const TOKEN_URL = '/api/photos/token';
+const PRESIGNED_URL = '/api/photos/presigned';
 
 interface UploadMeta {
   slug: string;
@@ -79,21 +80,23 @@ async function uploadThroughBlob(
   file: File,
   thumb: Blob | null,
   meta: UploadMeta,
+  mode: 'jeton' | 'imzali',
 ): Promise<Response> {
-  const original = await uploadDirect(file, {
+  const ortak = {
     tokenUrl: TOKEN_URL,
-    space: 'private',
-    fileName: newFileName(file.type),
+    presignedUrl: PRESIGNED_URL,
+    mode,
+    space: 'private' as const,
     clientPayload: meta.slug,
-  });
+  };
+
+  const original = await uploadDirect(file, { ...ortak, fileName: newFileName(file.type) });
 
   let thumbName = original.fileName;
   if (thumb) {
     const uploaded = await uploadDirect(thumb, {
-      tokenUrl: TOKEN_URL,
-      space: 'private',
+      ...ortak,
       fileName: newFileName('image/jpeg', '-thumb'),
-      clientPayload: meta.slug,
     });
     thumbName = uploaded.fileName;
   }
@@ -198,9 +201,10 @@ export default function PhotoUpload({
         // kaydın kendisi gönderilir. Telefon fotoğrafları Vercel'in 4,5 MB
         // istek sınırını aştığı için sunucudan geçen yol büyük dosyalarda
         // işlemeye hiç ulaşmıyordu.
-        const response = current.direct
-          ? await uploadThroughBlob(item.file, blob, meta)
-          : await uploadThroughServer(item.file, blob, meta);
+        const response =
+          current.mode === 'sunucu'
+            ? await uploadThroughServer(item.file, blob, meta)
+            : await uploadThroughBlob(item.file, blob, meta, current.mode);
 
         if (!response.ok) {
           const body = await response.json().catch(() => ({}));

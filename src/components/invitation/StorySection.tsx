@@ -20,8 +20,8 @@ function Entry({ item, index, total }: { item: StoryItem; index: number; total: 
       className="relative grid gap-x-[var(--sp-md)] gap-y-3 py-[var(--sp-md)] sm:grid-cols-12"
       initial={{ opacity: 0, y: 26 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.9, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, margin: '-160px' }}
+      transition={{ duration: 1.3, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
     >
       <span className="rule absolute inset-x-0 top-0" aria-hidden />
 

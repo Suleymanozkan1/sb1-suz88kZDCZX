@@ -35,8 +35,8 @@ export default function SectionHead({
       className={`mb-[var(--sp-lg)] ${centered ? 'text-center' : ''}`}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, margin: '-140px' }}
+      transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
     >
       <div
         className={`flex items-baseline gap-4 ${centered ? 'justify-center' : ''}`}

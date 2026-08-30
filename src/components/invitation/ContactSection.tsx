@@ -40,7 +40,7 @@ export default function ContactSection({ invitation }: { invitation: Invitation 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.9 }}
+          transition={{ duration: 1.3 }}
         >
           Görüşmek Üzere
         </motion.p>
@@ -51,7 +51,7 @@ export default function ContactSection({ invitation }: { invitation: Invitation 
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1.59, ease: [0.22, 1, 0.36, 1] }}
         >
           {invitation.groomName}{' '}
           <span className="italic" style={{ color: 'var(--c-gold)' }}>
@@ -66,7 +66,7 @@ export default function ContactSection({ invitation }: { invitation: Invitation 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.9, delay: 0.2 }}
+            transition={{ duration: 1.3, delay: 0.2 }}
           >
             {links.map((link) => (
               <a
@@ -91,7 +91,7 @@ export default function ContactSection({ invitation }: { invitation: Invitation 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.9, delay: 0.3 }}
+            transition={{ duration: 1.3, delay: 0.3 }}
           >
             {invitation.hashtag}
           </motion.p>

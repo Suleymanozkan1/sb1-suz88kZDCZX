@@ -133,7 +133,7 @@ function LightRays({ active }: { active: boolean }) {
           }}
           initial={{ opacity: 0, scaleY: 0 }}
           animate={{ opacity: [0, 0.7, 0.4], scaleY: 1 }}
-          transition={{ delay: 0.2 + 0.08 * i, duration: 1.8, ease: 'easeOut' }}
+          transition={{ delay: 0.2 + 0.08 * i, duration: 2.61, ease: 'easeOut' }}
         />
       ))}
     </div>
@@ -222,7 +222,7 @@ function WaxSeal({
               strokeWidth="1"
               initial={{ r: 50, opacity: 0.3 }}
               animate={{ r: [50, 54, 50], opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              transition={{ duration: 2.9, repeat: Infinity }}
             />
             <circle cx="55" cy="55" r="46" fill="url(#wax)" filter="url(#waxShadow)" />
             <circle cx="55" cy="55" r="38" fill="none" stroke={colors.grad1} strokeWidth="0.8" opacity="0.55" />
@@ -319,7 +319,7 @@ function Sparks({ active }: { active: boolean }) {
               opacity: 0,
               scale: 0.2,
             }}
-            transition={{ duration: 0.9, ease: 'easeOut' }}
+            transition={{ duration: 1.3, ease: 'easeOut' }}
           />
         );
       })}
@@ -353,13 +353,16 @@ export default function SealCurtain({
     setPhase('cracking');
     playCue(invitation.sealBreakSound, volume);
 
-    window.setTimeout(() => setPhase('burst'), 450);
+    // Açılış zaman çizgisi, bölüm animasyonlarıyla aynı oranda uzatıldı;
+    // aksi hâlde bir sonraki aşama, öncekinin animasyonu bitmeden başlıyor
+    // ve sahne aceleye gelmiş görünüyordu.
+    window.setTimeout(() => setPhase('burst'), 650);
     window.setTimeout(() => {
       setPhase('parting');
       playCue(invitation.envelopeOpenSound, volume);
-    }, 1100);
-    window.setTimeout(() => setPhase('revealed'), 2600);
-    window.setTimeout(finish, 3600);
+    }, 1600);
+    window.setTimeout(() => setPhase('revealed'), 3600);
+    window.setTimeout(finish, 4900);
   }, [finish, invitation.sealBreakSound, invitation.envelopeOpenSound, invitation.soundEnabled, invitation.soundVolume]);
 
   /* Escape ile atla */
@@ -386,7 +389,7 @@ export default function SealCurtain({
       className="fixed inset-0 z-[10000] overflow-hidden"
       style={{ background: '#0f0a06' }}
       animate={phase === 'revealed' ? { opacity: 0 } : { opacity: 1 }}
-      transition={{ duration: 0.9 }}
+      transition={{ duration: 1.3 }}
     >
       {/* kapak fotoğrafı */}
       {invitation.coverImage && (
@@ -452,7 +455,7 @@ export default function SealCurtain({
         className="absolute left-0 right-0 top-0 z-40"
         initial={{ y: 0 }}
         animate={{ y: parted ? '-120%' : 0 }}
-        transition={{ duration: 1.6, ease: [0.76, 0, 0.24, 1] }}
+        transition={{ duration: 2.32, ease: [0.76, 0, 0.24, 1] }}
       >
         <div className="valance-bar relative h-20 w-full sm:h-24">
           <div
@@ -483,7 +486,7 @@ export default function SealCurtain({
             className="absolute left-1/2 top-1/2 z-[55] text-center"
             style={{ x: '-50%', y: '-50%' }}
             exit={{ opacity: 0, scale: 0.5 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.72 }}
           >
             <motion.p
               className="mb-5 font-sans text-[10px] uppercase tracking-title sm:text-xs"
@@ -499,7 +502,7 @@ export default function SealCurtain({
               className="mb-6 font-serif"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.9 }}
+              transition={{ delay: 0.7, duration: 1.3 }}
               style={{
                 fontSize: 'clamp(1.25rem, 3.6vw, 1.9rem)',
                 color: colors.grad1,
@@ -518,7 +521,7 @@ export default function SealCurtain({
               style={{ color: 'rgba(232,213,163,0.75)', textShadow: '0 2px 16px rgba(0,0,0,0.9)' }}
               initial={{ opacity: 0, letterSpacing: '0.1em' }}
               animate={{ opacity: 1, letterSpacing: '0.2em' }}
-              transition={{ delay: 1.8, duration: 1 }}
+              transition={{ delay: 1.8, duration: 1.45 }}
             >
               Mührü kırarak perdeyi açın
             </motion.p>
@@ -536,7 +539,7 @@ export default function SealCurtain({
             style={{ background: 'radial-gradient(circle at center, rgba(255,240,200,0.9), transparent 60%)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 1, 0] }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1.16 }}
           />
         )}
       </AnimatePresence>

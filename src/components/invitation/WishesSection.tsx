@@ -73,8 +73,8 @@ export default function WishesSection({
                 style={{ border: '1px solid rgba(176, 141, 63, 0.2)' }}
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.7, delay: Math.min(i, 6) * 0.05 }}
+                viewport={{ once: true, margin: '-140px' }}
+                transition={{ duration: 1.01, delay: Math.min(i, 6) * 0.05 }}
               >
                 <blockquote
                   className="t-body italic"
@@ -102,7 +102,7 @@ export default function WishesSection({
               className="text-center"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
+              transition={{ duration: 1.01 }}
             >
               <span style={{ color: 'var(--c-gold-light)' }}>
                 <IconCheck size={22} />
@@ -121,8 +121,8 @@ export default function WishesSection({
               className="mx-auto max-w-xl space-y-[var(--sp-sm)]"
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.8 }}
+              viewport={{ once: true, margin: '-140px' }}
+              transition={{ duration: 1.16 }}
             >
               <div>
                 <label className="field-label" htmlFor="wish-name">

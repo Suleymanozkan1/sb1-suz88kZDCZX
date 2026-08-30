@@ -19,14 +19,16 @@ export const dynamic = 'force-dynamic';
 async function handleGet() {
   // Doğrudan yükleme istemci jetonu gerektirir; jeton yalnızca okuma-yazma
   // belirtecinden türetilebilir. OIDC kipinde dosya sunucu ucundan geçer.
-  const direct = usingBlob && canMintClientToken();
+  /*
+     Blob bağlıysa dosya her hâlükârda doğrudan depoya gider — belirteç varsa
+     istemci jetonuyla, yoksa (OIDC) imzalı adresle. İkisinde de dosya
+     sunucuya uğramadığı için Vercel'in 4,5 MB istek sınırı devreye girmez.
+     Sunucudan geçen yol yalnızca Blob'un hiç olmadığı yerel geliştirmede
+     kalır ve orada da böyle bir sınır yoktur.
+  */
+  const mode = !usingBlob ? 'sunucu' : canMintClientToken() ? 'jeton' : 'imzali';
 
-  // Sunucudan geçen yolda Vercel'in 4,5 MB istek gövdesi sınırı geçerlidir;
-  // bunu 25 MB diye bildirmek, sınırı aşan dosyada sebebi görünmeyen bir
-  // hataya yol açıyordu.
-  const maxBytes = direct || !process.env.VERCEL ? MAX_PHOTO_BYTES : 4 * 1024 * 1024;
-
-  return NextResponse.json({ direct, maxBytes });
+  return NextResponse.json({ mode, maxBytes: MAX_PHOTO_BYTES });
 }
 
 async function handlePost(request: Request) {

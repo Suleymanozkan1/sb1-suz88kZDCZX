@@ -4,9 +4,12 @@ export type SealType =
   | 'emerald-wax'
   | 'bronze-wax'
   | 'silver-wax'
+  | 'navy-wax'
+  | 'rose-wax'
+  | 'ivory-wax'
   | 'ottoman';
 
-export type InvitationDesign = 'ottoman' | 'classic' | 'minimal';
+export type InvitationDesign = 'ottoman' | 'classic' | 'minimal' | 'arch' | 'vellum';
 
 export type ThemeId =
   | 'cream-gold'

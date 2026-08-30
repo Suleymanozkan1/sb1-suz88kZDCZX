@@ -38,8 +38,8 @@ export default function LocationSection({ invitation }: { invitation: Invitation
             className="lg:col-span-4"
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            viewport={{ once: true, margin: '-140px' }}
+            transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="t-h2" style={{ color: 'var(--c-on-light)' }}>
               {invitation.venueName}
@@ -85,17 +85,39 @@ export default function LocationSection({ invitation }: { invitation: Invitation
           </motion.div>
 
           <motion.div
-            className="overflow-hidden lg:col-span-8"
+            className="relative overflow-hidden lg:col-span-8"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            style={{ border: '1px solid var(--c-rule)' }}
+            viewport={{ once: true, margin: '-140px' }}
+            transition={{ duration: 1.45, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            style={{ border: '1px solid var(--c-rule)', minHeight: 420 }}
           >
+            {/*
+              Haritanın ARKASINDA duran katman. Harita geç yükleniyorsa ya da
+              misafirin ağı Google'ı engelliyorsa (kurum ağları, bazı ülkeler)
+              burası bomboş, kocaman bir açık dikdörtgen kalıyordu. Artık aynı
+              yerde mekânın adı ve adresi duruyor.
+            */}
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-[var(--sp-md)] text-center"
+              aria-hidden
+            >
+              <p className="t-label" style={{ color: 'var(--c-gold-deep)' }}>
+                Harita
+              </p>
+              <p className="font-serif text-xl" style={{ color: 'var(--c-on-light)' }}>
+                {invitation.venueName}
+              </p>
+              <p className="t-body" style={{ color: 'var(--c-on-light-faint)' }}>
+                {[invitation.address, invitation.district, invitation.city].filter(Boolean).join(', ')}
+              </p>
+            </div>
+
             <iframe
               src={embed}
               width="100%"
               height="420"
+              className="relative block"
               style={{ border: 0, filter: 'grayscale(0.35) sepia(0.15)' }}
               allowFullScreen
               loading="lazy"

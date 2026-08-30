@@ -86,7 +86,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
           className="t-label"
           style={{ color: 'var(--c-gold)' }}
           {...RISE}
-          transition={{ delay: 0.3, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: 0.3, duration: 1.45, ease: [0.22, 1, 0.36, 1] }}
         >
           Düğünümüze Davetlisiniz
         </motion.p>
@@ -97,7 +97,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
             className="t-hero block"
             style={{ color: 'var(--c-on-dark)' }}
             {...RISE}
-            transition={{ delay: 0.5, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 0.5, duration: 1.74, ease: [0.22, 1, 0.36, 1] }}
           >
             {groom}
           </motion.span>
@@ -111,7 +111,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
               marginBottom: 'clamp(-0.75rem, -1.5vw, -0.25rem)',
             }}
             {...RISE}
-            transition={{ delay: 0.75, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 0.75, duration: 1.74, ease: [0.22, 1, 0.36, 1] }}
           >
             {conjunction}
           </motion.span>
@@ -120,7 +120,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
             className="t-hero block"
             style={{ color: 'var(--c-on-dark)', marginLeft: 'clamp(0.5rem, 2.6vw, 2.5rem)' }}
             {...RISE}
-            transition={{ delay: 0.95, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 0.95, duration: 1.74, ease: [0.22, 1, 0.36, 1] }}
           >
             {bride}
           </motion.span>
@@ -130,7 +130,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
         <motion.div
           className="mt-[var(--sp-md)] flex flex-wrap items-center gap-x-5 gap-y-2"
           {...RISE}
-          transition={{ delay: 1.25, duration: 1 }}
+          transition={{ delay: 1.25, duration: 1.45 }}
         >
           {meta.map((item, i) => (
             <span key={item} className="flex items-center gap-5">
@@ -158,7 +158,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
         <motion.div
           className="mt-[var(--sp-md)] flex flex-wrap items-center gap-x-8 gap-y-4"
           {...RISE}
-          transition={{ delay: 1.9, duration: 1 }}
+          transition={{ delay: 1.9, duration: 1.45 }}
         >
           <a href="#rsvp" className="cta nudge">
             Katılım Durumunu Belirt
@@ -180,7 +180,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
         className="absolute bottom-[var(--sp-sm)] left-1/2 z-20 flex w-full max-w-6xl -translate-x-1/2 items-center gap-3 px-[var(--sp-md)]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2.4, duration: 1 }}
+        transition={{ delay: 2.4, duration: 1.45 }}
       >
         <span className="t-label" style={{ color: 'var(--c-on-dark-faint)' }}>
           Kaydır
