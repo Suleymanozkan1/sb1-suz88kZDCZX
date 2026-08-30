@@ -88,6 +88,21 @@ export interface Invitation {
   gallerySectionTitle: string;
   gallerySectionSubtitle: string;
 
+  /* Hediye — para hediyesi Türkiye'de yaygın; boş bırakılırsa bölüm görünmez. */
+  giftEnabled: boolean;
+  giftTitle: string;
+  giftNote: string;
+  giftAccountName: string;
+  giftIban: string;
+  giftBankName: string;
+  /** Hediye listesi bağlantısı (varsa). */
+  giftRegistryUrl: string;
+
+  /* Dilek defteri */
+  wishesEnabled: boolean;
+  wishesTitle: string;
+  wishesSubtitle: string;
+
   /* Ses */
   soundEnabled: boolean;
   soundVolume: number;
@@ -124,7 +139,26 @@ export interface Rsvp {
   phone: string;
   count: string;
   note: string;
+  /** Misafirin DJ için istediği şarkı — düğün sitelerinde yaygın, isteğe bağlı. */
+  songRequest: string;
   attending: boolean;
+  createdAt: string;
+}
+
+/**
+ * Dilek defteri kaydı.
+ *
+ * Misafirler davetiyeden mesaj bırakır; mesaj çift onaylayana kadar
+ * yayımlanmaz. Onay şart: adres bilen herkes yazabildiği için, denetimsiz
+ * bir duvar davetiyenin ortasında istenmeyen içerik demek olurdu.
+ */
+export interface Wish {
+  id: string;
+  invitationId: string;
+  invitationSlug: string;
+  name: string;
+  message: string;
+  approved: boolean;
   createdAt: string;
 }
 

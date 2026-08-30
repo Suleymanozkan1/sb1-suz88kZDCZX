@@ -40,6 +40,7 @@ const STEPS = [
   'Mühür & Tuğra',
   'Mektup Tasarımı',
   'Fotoğraflar',
+  'Hediye & Dilekler',
   'Ses Ayarları',
   'Tema',
   'Program',
@@ -433,7 +434,42 @@ export default function InvitationForm({
       </div>
     </div>,
 
-    /* 7 — Ses Ayarları */
+    /* 7 — Hediye & Dilekler */
+    <div key="gift" className="space-y-4">
+      <Toggle
+        label="Hediye Bölümü"
+        checked={draft.giftEnabled}
+        onChange={(v) => set('giftEnabled', v)}
+      />
+      <p className="t-body" style={{ color: 'var(--c-on-dark-faint)' }}>
+        IBAN kişisel bir bilgidir; bu bölüm açılmadan davetiyede görünmez.
+      </p>
+      <Field label="Başlık" value={draft.giftTitle} placeholder="Hediye" onChange={(v) => set('giftTitle', v)} />
+      <Field label="Açıklama" value={draft.giftNote} placeholder="Varlığınız en büyük hediye…" onChange={(v) => set('giftNote', v)} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Hesap Sahibi" value={draft.giftAccountName} placeholder="Ad Soyad" onChange={(v) => set('giftAccountName', v)} />
+        <Field label="Banka" value={draft.giftBankName} placeholder="Banka adı" onChange={(v) => set('giftBankName', v)} />
+      </div>
+      <Field label="IBAN" value={draft.giftIban} placeholder="TR00 0000 0000 0000 0000 0000 00" onChange={(v) => set('giftIban', v)} />
+      <Field label="Hediye Listesi Bağlantısı" value={draft.giftRegistryUrl} placeholder="https://…" onChange={(v) => set('giftRegistryUrl', v)} />
+
+      <div className="pt-[var(--sp-sm)]">
+        <Toggle
+          label="Dilek Defteri"
+          checked={draft.wishesEnabled}
+          onChange={(v) => set('wishesEnabled', v)}
+        />
+        <p className="t-body" style={{ color: 'var(--c-on-dark-faint)' }}>
+          Misafirler mesaj bırakır; siz onaylamadan davetiyede görünmez.
+        </p>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Dilek Defteri Başlığı" value={draft.wishesTitle} placeholder="Dilek Defteri" onChange={(v) => set('wishesTitle', v)} />
+        <Field label="Üst Etiket" value={draft.wishesSubtitle} placeholder="Bize Bir Not Bırakın" onChange={(v) => set('wishesSubtitle', v)} />
+      </div>
+    </div>,
+
+    /* 8 — Ses Ayarları */
     <div key="sound" className="space-y-4">
       <Toggle label="Ses Aktif" checked={draft.soundEnabled} onChange={(v) => set('soundEnabled', v)} />
       <SoundPicker
@@ -472,7 +508,7 @@ export default function InvitationForm({
       </label>
     </div>,
 
-    /* 8 — Tema */
+    /* 9 — Tema */
     <div key="theme">
       <span className="field-label">Tema Seçin</span>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -498,7 +534,7 @@ export default function InvitationForm({
       </div>
     </div>,
 
-    /* 9 — Program */
+    /* 10 — Program */
     <div key="program" className="space-y-3">
       <div className="flex items-center justify-between">
         <span className="field-label mb-0">Düğün Programı</span>
@@ -562,7 +598,7 @@ export default function InvitationForm({
       ))}
     </div>,
 
-    /* 10 — SSS */
+    /* 11 — SSS */
     <div key="faq" className="space-y-3">
       <div className="flex items-center justify-between">
         <span className="field-label mb-0">Sık Sorulan Sorular</span>
@@ -611,7 +647,7 @@ export default function InvitationForm({
       ))}
     </div>,
 
-    /* 11 — Hikayemiz */
+    /* 12 — Hikayemiz */
     <div key="story" className="space-y-3">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Bölüm Alt Başlık" value={draft.storySectionSubtitle} placeholder="Bizim" onChange={(v) => set('storySectionSubtitle', v)} />

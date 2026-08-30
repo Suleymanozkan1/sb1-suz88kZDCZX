@@ -1,5 +1,6 @@
 'use client';
 
+import ShareBar from './ShareBar';
 import { motion } from 'framer-motion';
 import { IconInstagram } from './Ornaments';
 import type { Invitation } from '@/lib/types';
@@ -91,6 +92,14 @@ export default function ContactSection({ invitation }: { invitation: Invitation 
             {invitation.hashtag}
           </motion.p>
         )}
+
+        {/*
+          Paylaşma kapanışta durur: davetiye okunduktan sonra iletilir,
+          okunmadan önce değil.
+        */}
+        <div className="mt-[var(--sp-lg)]">
+          <ShareBar invitation={invitation} />
+        </div>
 
         <p className="t-label mt-[var(--sp-lg)]" style={{ color: 'var(--c-on-dark-faint)' }}>
           Sevgiyle hazırlandı

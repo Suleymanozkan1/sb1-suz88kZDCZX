@@ -185,6 +185,20 @@ export function emptyInvitation(): InvitationDraft {
     galleryImages: [],
     gallerySectionTitle: 'Fotoğraf Galerisi',
     gallerySectionSubtitle: 'Anılar',
+    // Hediye bölümü varsayılan olarak kapalı: IBAN kişisel bir bilgidir,
+    // çift açıkça açmadan davetiyede görünmemeli.
+    giftEnabled: false,
+    giftTitle: 'Hediye',
+    giftNote: 'Varlığınız en büyük hediye. Yine de katkıda bulunmak isterseniz:',
+    giftAccountName: '',
+    giftIban: '',
+    giftBankName: '',
+    giftRegistryUrl: '',
+
+    wishesEnabled: true,
+    wishesTitle: 'Dilek Defteri',
+    wishesSubtitle: 'Bize Bir Not Bırakın',
+
     soundEnabled: true,
     soundVolume: 50,
     backgroundMusicUrl: DEFAULT_MUSIC,

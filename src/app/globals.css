@@ -95,38 +95,40 @@ body {
    Gradyan gövdede değil bu sarmalayıcıda durur, böylece yönetim
    panelleri kendi zeminlerini korur.                                     */
 .journey {
-  /* Duraklar bölümlerin ÖLÇÜLEN konumlarına göre yerleştirildi. Ara tonlar
-     (ne açık ne koyu metnin okunduğu bant) yalnızca köprü boşluklarına
-     denk gelir — hiçbir metin bloğu o bandın üzerinde durmaz. */
+  /* Duraklar bölümlerin ÖLÇÜLEN konumlarına göre yerleştirildi; hediye ve
+     dilek defteri bölümleri eklenince sayfa uzadı ve eski duraklar bölümlerle
+     hizasını kaybetmişti. Ölçülen kısıtlar (1440px ve 390px'in katısı):
+       koyu zemin  %0 – %13.0   ·  açık zemin %18.6 – %61.8  ·  koyu %68.9 – %100
+     Ara tonlar yalnızca bu boşluklara denk gelir; hiçbir metin o bandın
+     üzerinde durmaz. */
   background: linear-gradient(
     to bottom,
     var(--c-night) 0%,
-    var(--c-night) 16%,
-    var(--c-ink) 17.2%,
-    var(--c-ember) 18.2%,
-    #4a2f18 19%,
-    var(--c-bronze) 19.6%,
-    #9a7550 20.2%,
-    var(--c-tan) 20.8%,
-    #ddc9a8 21.4%,
-    var(--c-sand) 22%,
-    var(--c-cream) 23.4%,
-    var(--c-cream) 62%,
-    var(--c-sand) 70%,
-    var(--c-sand) 78.5%,
-    #ddc9a8 79.6%,
-    var(--c-tan) 80.6%,
-    #9a7550 81.5%,
-    var(--c-bronze) 82.4%,
-    #4a2f18 83.3%,
-    var(--c-ember) 84.2%,
-    var(--c-ink) 85.2%,
-    var(--c-night) 86.5%,
+    var(--c-night) 12.6%,
+    var(--c-ink) 13.3%,
+    var(--c-ember) 13.9%,
+    #4a2f18 14.5%,
+    var(--c-bronze) 15.1%,
+    #9a7550 15.7%,
+    var(--c-tan) 16.3%,
+    #ddc9a8 16.9%,
+    var(--c-sand) 17.4%,
+    var(--c-cream) 18%,
+    var(--c-cream) 55%,
+    var(--c-sand) 62.5%,
+    var(--c-sand) 64%,
+    #ddc9a8 64.8%,
+    var(--c-tan) 65.6%,
+    #9a7550 66.4%,
+    var(--c-bronze) 67.1%,
+    #4a2f18 67.7%,
+    var(--c-ember) 68.2%,
+    var(--c-ink) 68.6%,
+    var(--c-night) 69%,
     var(--c-night) 100%
   );
 }
 
-/* Bölümler kendi zeminini boyamaz — gövdenin yolculuğunu gösterir. */
 .journey section {
   background: transparent;
 }

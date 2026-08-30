@@ -177,6 +177,11 @@ export default function InvitationList({
                         “{rsvp.note}”
                       </p>
                     )}
+                    {rsvp.songRequest && (
+                      <p className="t-label mt-2" style={{ color: 'var(--c-gold-light)' }}>
+                        Şarkı isteği: {rsvp.songRequest}
+                      </p>
+                    )}
                   </div>
                   <Action
                     danger

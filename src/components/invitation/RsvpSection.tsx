@@ -18,7 +18,7 @@ const COUNTS = ['1', '2', '3', '4', '5+'];
  * el yazısıyla doldurulmuş gibi durması.
  */
 export default function RsvpSection({ invitation }: { invitation: Invitation }) {
-  const [form, setForm] = useState({ name: '', phone: '', count: '1', note: '' });
+  const [form, setForm] = useState({ name: '', phone: '', count: '1', note: '', songRequest: '' });
   const [attending, setAttending] = useState(true);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -203,6 +203,34 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
                         );
                       })}
                     </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/*
+                Şarkı isteği yalnızca gelenlere sorulur: gelmeyecek birine
+                DJ için şarkı sormak anlamsız.
+              */}
+              <AnimatePresence>
+                {attending && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <label className="field-label" htmlFor="rsvp-song">
+                      Çalmasını İstediğiniz Şarkı (İsteğe Bağlı)
+                    </label>
+                    <input
+                      id="rsvp-song"
+                      type="text"
+                      placeholder="Şarkı ve sanatçı"
+                      value={form.songRequest}
+                      onChange={(e) => setForm((f) => ({ ...f, songRequest: e.target.value }))}
+                      className="field t-lead"
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import InvitationView from '@/components/invitation/InvitationView';
 import { formatDate } from '@/lib/format';
-import { getInvitationBySlug } from '@/lib/store';
+import { getInvitationBySlug, listApprovedWishes } from '@/lib/store';
 import type { Invitation } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -45,5 +45,8 @@ export default async function InvitationPage({ params }: Props) {
   const invitation = await load(params.slug);
   if (!invitation) notFound();
 
-  return <InvitationView invitation={invitation} />;
+  // Yalnızca onaylananlar; bekleyen dilekler davetiyede görünmez.
+  const wishes = invitation.wishesEnabled ? await listApprovedWishes(invitation.id) : [];
+
+  return <InvitationView invitation={invitation} wishes={wishes} />;
 }

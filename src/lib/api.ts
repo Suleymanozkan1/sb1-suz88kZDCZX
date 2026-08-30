@@ -1,4 +1,4 @@
-import type { GuestPhoto, Invitation, InvitationInput, Rsvp, SafeUser, Session } from './types';
+import type { GuestPhoto, Invitation, InvitationInput, Rsvp, SafeUser, Session, Wish } from './types';
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -147,4 +147,25 @@ export function photosZipUrl(invitationId?: string): string {
 
 export async function logout(): Promise<void> {
   await fetch('/api/auth', { method: 'DELETE' });
+}
+
+/* ------------------------------------------------------------------ dilekler */
+
+export function listWishes(invitationId?: string): Promise<Wish[]> {
+  const query = invitationId ? `?invitationId=${encodeURIComponent(invitationId)}` : '';
+  return fetch(`/api/wishes${query}`, { cache: 'no-store' }).then(json<Wish[]>);
+}
+
+export async function setWishApproved(id: string, approved: boolean): Promise<Wish> {
+  return json<Wish>(
+    await fetch(`/api/wishes/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approved }),
+    }),
+  );
+}
+
+export async function deleteWish(id: string): Promise<void> {
+  await json(await fetch(`/api/wishes/${id}`, { method: 'DELETE' }));
 }

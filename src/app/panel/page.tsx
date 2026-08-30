@@ -3,6 +3,7 @@ import AccountSettings from '@/components/admin/AccountSettings';
 import InvitationList from '@/components/admin/InvitationList';
 import PanelHeader from '@/components/admin/PanelHeader';
 import PhotoGallery from '@/components/panel/PhotoGallery';
+import WishBoard from '@/components/panel/WishBoard';
 import { currentSession } from '@/lib/auth';
 import { listInvitations } from '@/lib/store';
 
@@ -30,6 +31,8 @@ export default async function PanelPage() {
       <AccountSettings session={session} n={3} />
 
       <PhotoGallery invitations={invitations} n={4} />
+
+      <WishBoard invitations={invitations} n={5} />
     </div>
   );
 }

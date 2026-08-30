@@ -45,6 +45,7 @@ async function handlePost(request: Request) {
     phone: String(body.phone).slice(0, 40),
     count: String(body.count ?? '1'),
     note: String(body.note ?? '').slice(0, 1000),
+    songRequest: String(body.songRequest ?? '').slice(0, 200),
     attending: body.attending !== false,
   });
 

@@ -5,7 +5,16 @@ import { emptyInvitation } from '../defaults';
 import { ConfigError } from '../errors';
 import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
-import type { GuestPhoto, Invitation, InvitationInput, Rsvp, Role, SafeUser, User } from '../types';
+import type {
+  GuestPhoto,
+  Invitation,
+  InvitationInput,
+  Role,
+  Rsvp,
+  SafeUser,
+  User,
+  Wish,
+} from '../types';
 
 /**
  * Dosya tabanlı depo — yerel geliştirme sürücüsü.
@@ -26,12 +35,14 @@ const INVITATIONS_FILE = path.join(DATA_DIR, 'invitations.json');
 const RSVPS_FILE = path.join(DATA_DIR, 'rsvps.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const PHOTOS_FILE = path.join(DATA_DIR, 'photos.json');
+const WISHES_FILE = path.join(DATA_DIR, 'wishes.json');
 
 type Cache = {
   invitations: Invitation[] | null;
   rsvps: Rsvp[] | null;
   users: User[] | null;
   photos: GuestPhoto[] | null;
+  wishes: Wish[] | null;
 };
 
 const globalCache = globalThis as unknown as { __davetiyeCache?: Cache };
@@ -40,6 +51,7 @@ const cache: Cache = (globalCache.__davetiyeCache ??= {
   rsvps: null,
   users: null,
   photos: null,
+  wishes: null,
 });
 
 async function readFile<T>(file: string): Promise<T[]> {
@@ -187,7 +199,10 @@ export async function deleteInvitation(id: string): Promise<boolean> {
 export async function listRsvps(slug?: string): Promise<Rsvp[]> {
   const rows = await loadRsvps();
   const filtered = slug ? rows.filter((r) => r.invitationSlug === slug) : rows;
-  return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  return [...filtered]
+    // Alan sonradan eklendi; eski kayıtlarda yok.
+    .map((r) => ({ ...r, songRequest: r.songRequest ?? '' }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export async function createRsvp(input: Omit<Rsvp, 'id' | 'createdAt'>): Promise<Rsvp> {
@@ -377,6 +392,9 @@ export async function deleteUser(id: string): Promise<{ removed: boolean; files:
   const rsvps = await loadRsvps();
   await saveRsvps(rsvps.filter((r) => !ownedSlugs.has(r.invitationSlug)));
 
+  const wishes = await loadWishes();
+  await saveWishes(wishes.filter((w) => !ownedIds.has(w.invitationId)));
+
   await saveInvitations(invitations.filter((r) => r.ownerId !== id));
   await saveUsers(rows.filter((r) => r.id !== id));
 
@@ -437,4 +455,76 @@ export async function deletePhoto(id: string): Promise<GuestPhoto | null> {
 export async function ownsInvitation(invitationId: string, userId: string): Promise<boolean> {
   const invitation = await getInvitation(invitationId);
   return invitation?.ownerId === userId;
+}
+
+/* ========================================================= dilek defteri */
+
+async function loadWishes(): Promise<Wish[]> {
+  cache.wishes ??= await readFile<Wish>(WISHES_FILE);
+  return cache.wishes;
+}
+
+async function saveWishes(rows: Wish[]): Promise<void> {
+  cache.wishes = rows;
+  await writeFile(WISHES_FILE, rows);
+}
+
+/** Davetiyede gösterilenler: yalnızca onaylanmış dilekler. */
+export async function listApprovedWishes(invitationId: string): Promise<Wish[]> {
+  const rows = await loadWishes();
+  return rows
+    .filter((w) => w.invitationId === invitationId && w.approved)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+/** Panelde gösterilenler: bekleyenler dâhil hepsi. */
+export async function listWishes(invitationId?: string): Promise<Wish[]> {
+  const rows = await loadWishes();
+  const filtered = invitationId ? rows.filter((w) => w.invitationId === invitationId) : rows;
+  return [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function listWishesForOwner(ownerId: string): Promise<Wish[]> {
+  const invitations = await loadInvitations();
+  const own = new Set(invitations.filter((i) => i.ownerId === ownerId).map((i) => i.id));
+  const rows = await loadWishes();
+  return rows
+    .filter((w) => own.has(w.invitationId))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function getWish(id: string): Promise<Wish | null> {
+  const rows = await loadWishes();
+  return rows.find((w) => w.id === id) ?? null;
+}
+
+export async function createWish(
+  input: Omit<Wish, 'id' | 'createdAt' | 'approved'>,
+): Promise<Wish> {
+  const rows = await loadWishes();
+  const wish: Wish = {
+    ...input,
+    id: randomUUID(),
+    approved: false,
+    createdAt: new Date().toISOString(),
+  };
+  await saveWishes([...rows, wish]);
+  return wish;
+}
+
+export async function setWishApproved(id: string, approved: boolean): Promise<Wish | null> {
+  const rows = await loadWishes();
+  const target = rows.find((w) => w.id === id);
+  if (!target) return null;
+  const next = { ...target, approved };
+  await saveWishes(rows.map((w) => (w.id === id ? next : w)));
+  return next;
+}
+
+export async function deleteWish(id: string): Promise<boolean> {
+  const rows = await loadWishes();
+  const next = rows.filter((w) => w.id !== id);
+  if (next.length === rows.length) return false;
+  await saveWishes(next);
+  return true;
 }

@@ -7,6 +7,7 @@ import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
 import type {
   GuestPhoto,
+  Wish,
   Invitation,
   InvitationInput,
   Role,
@@ -78,9 +79,24 @@ const SCHEMA = `
     count text not null default '1',
     note text not null default '',
     attending boolean not null default true,
+    song_request text not null default '',
     created_at timestamptz not null default now()
   );
   create index if not exists rsvps_slug_idx on rsvps (invitation_slug);
+  -- Mevcut kurulumlar için: sütun sonradan eklendi.
+  alter table rsvps add column if not exists song_request text not null default '';
+
+  create table if not exists wishes (
+    id text primary key,
+    invitation_id text not null,
+    invitation_slug text not null,
+    name text not null default '',
+    message text not null,
+    approved boolean not null default false,
+    created_at timestamptz not null default now()
+  );
+  create index if not exists wishes_invitation_idx on wishes (invitation_id);
+  create index if not exists wishes_slug_idx on wishes (invitation_slug);
 
   create table if not exists photos (
     id text primary key,
@@ -236,6 +252,7 @@ type RsvpRow = {
   count: string;
   note: string;
   attending: boolean;
+  song_request: string;
   created_at: Date;
 };
 
@@ -246,6 +263,7 @@ const toRsvp = (row: RsvpRow): Rsvp => ({
   phone: row.phone,
   count: row.count,
   note: row.note,
+  songRequest: row.song_request ?? '',
   attending: row.attending,
   createdAt: iso(row.created_at),
 });
@@ -262,8 +280,8 @@ export async function listRsvps(slug?: string): Promise<Rsvp[]> {
 
 export async function createRsvp(input: Omit<Rsvp, 'id' | 'createdAt'>): Promise<Rsvp> {
   const rows = await query<RsvpRow>(
-    `insert into rsvps (id, invitation_slug, name, phone, count, note, attending)
-     values ($1, $2, $3, $4, $5, $6, $7) returning *`,
+    `insert into rsvps (id, invitation_slug, name, phone, count, note, attending, song_request)
+     values ($1, $2, $3, $4, $5, $6, $7, $8) returning *`,
     [
       randomUUID(),
       input.invitationSlug,
@@ -272,6 +290,7 @@ export async function createRsvp(input: Omit<Rsvp, 'id' | 'createdAt'>): Promise
       input.count,
       input.note,
       input.attending,
+      input.songRequest,
     ],
   );
   return toRsvp(rows[0]);
@@ -558,4 +577,86 @@ export async function ownsInvitation(invitationId: string, userId: string): Prom
     [invitationId],
   );
   return rows[0]?.owner_id === userId;
+}
+
+/* ─────────────────────────────────────────────────────────── dilekler */
+
+type WishRow = {
+  id: string;
+  invitation_id: string;
+  invitation_slug: string;
+  name: string;
+  message: string;
+  approved: boolean;
+  created_at: Date;
+};
+
+const toWish = (row: WishRow): Wish => ({
+  id: row.id,
+  invitationId: row.invitation_id,
+  invitationSlug: row.invitation_slug,
+  name: row.name,
+  message: row.message,
+  approved: row.approved,
+  createdAt: iso(row.created_at),
+});
+
+/** Davetiyede gösterilenler: yalnızca onaylanmış dilekler. */
+export async function listApprovedWishes(invitationId: string): Promise<Wish[]> {
+  const rows = await query<WishRow>(
+    'select * from wishes where invitation_id = $1 and approved = true order by created_at asc',
+    [invitationId],
+  );
+  return rows.map(toWish);
+}
+
+/** Panelde gösterilenler: bekleyenler dâhil hepsi. */
+export async function listWishes(invitationId?: string): Promise<Wish[]> {
+  const rows = invitationId
+    ? await query<WishRow>(
+        'select * from wishes where invitation_id = $1 order by created_at desc',
+        [invitationId],
+      )
+    : await query<WishRow>('select * from wishes order by created_at desc');
+  return rows.map(toWish);
+}
+
+export async function listWishesForOwner(ownerId: string): Promise<Wish[]> {
+  const rows = await query<WishRow>(
+    `select w.* from wishes w
+     join invitations i on i.id = w.invitation_id
+     where i.owner_id = $1
+     order by w.created_at desc`,
+    [ownerId],
+  );
+  return rows.map(toWish);
+}
+
+export async function getWish(id: string): Promise<Wish | null> {
+  const rows = await query<WishRow>('select * from wishes where id = $1', [id]);
+  return rows[0] ? toWish(rows[0]) : null;
+}
+
+export async function createWish(
+  input: Omit<Wish, 'id' | 'createdAt' | 'approved'>,
+): Promise<Wish> {
+  const rows = await query<WishRow>(
+    `insert into wishes (id, invitation_id, invitation_slug, name, message, approved)
+     values ($1, $2, $3, $4, $5, false) returning *`,
+    [randomUUID(), input.invitationId, input.invitationSlug, input.name, input.message],
+  );
+  return toWish(rows[0]);
+}
+
+export async function setWishApproved(id: string, approved: boolean): Promise<Wish | null> {
+  const rows = await query<WishRow>(
+    'update wishes set approved = $2 where id = $1 returning *',
+    [id, approved],
+  );
+  return rows[0] ? toWish(rows[0]) : null;
+}
+
+export async function deleteWish(id: string): Promise<boolean> {
+  const rows = await query<{ id: string }>('delete from wishes where id = $1 returning id', [id]);
+  return rows.length > 0;
 }

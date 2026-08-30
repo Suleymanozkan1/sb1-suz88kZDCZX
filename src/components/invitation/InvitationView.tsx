@@ -8,13 +8,15 @@ import GallerySection from './GallerySection';
 import Hero from './Hero';
 import LetterSection from './LetterSection';
 import LocationSection from './LocationSection';
+import GiftSection from './GiftSection';
 import MusicPlayer from './MusicPlayer';
+import WishesSection from './WishesSection';
 import ProgramSection from './ProgramSection';
 import RsvpSection from './RsvpSection';
 import ScrollProgress from './ScrollProgress';
 import SealCurtain from './SealCurtain';
 import StorySection from './StorySection';
-import type { Invitation } from '@/lib/types';
+import type { Invitation, Wish } from '@/lib/types';
 
 /**
  * Davetiyenin tam akışı.
@@ -30,9 +32,12 @@ import type { Invitation } from '@/lib/types';
 export default function InvitationView({
   invitation,
   skipIntro = false,
+  wishes = [],
 }: {
   invitation: Invitation;
   skipIntro?: boolean;
+  /** Onaylanmış dilekler; sunucuda okunup buraya verilir. */
+  wishes?: Wish[];
 }) {
   const [opened, setOpened] = useState(skipIntro);
 
@@ -53,6 +58,8 @@ export default function InvitationView({
         <LocationSection invitation={invitation} />
         <FaqSection invitation={invitation} />
         <RsvpSection invitation={invitation} />
+        <GiftSection invitation={invitation} />
+        <WishesSection invitation={invitation} wishes={wishes} />
         <ContactSection invitation={invitation} />
       </main>
 

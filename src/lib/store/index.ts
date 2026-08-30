@@ -41,3 +41,10 @@ export const createPhoto = driver.createPhoto;
 export const deletePhoto = driver.deletePhoto;
 
 export const ownsInvitation = driver.ownsInvitation;
+export const listApprovedWishes = driver.listApprovedWishes;
+export const listWishes = driver.listWishes;
+export const listWishesForOwner = driver.listWishesForOwner;
+export const getWish = driver.getWish;
+export const createWish = driver.createWish;
+export const setWishApproved = driver.setWishApproved;
+export const deleteWish = driver.deleteWish;

@@ -3,6 +3,7 @@ import AccountSettings from '@/components/admin/AccountSettings';
 import InvitationList from '@/components/admin/InvitationList';
 import PanelHeader from '@/components/admin/PanelHeader';
 import PhotoGallery from '@/components/panel/PhotoGallery';
+import WishBoard from '@/components/panel/WishBoard';
 import SetupNotice from '@/components/admin/SetupNotice';
 import UserManager from '@/components/admin/UserManager';
 import { currentSession } from '@/lib/auth';
@@ -36,6 +37,8 @@ export default async function AdminPage() {
       <AccountSettings session={session} n={4} />
 
       <PhotoGallery invitations={invitations} />
+
+      <WishBoard invitations={invitations} n={6} />
     </div>
   );
 }
