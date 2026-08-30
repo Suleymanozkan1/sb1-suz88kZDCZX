@@ -548,10 +548,12 @@ export default function SealCurtain({
           onClick={finish}
           className="fixed right-6 top-6 z-[10001] rounded-full px-4 py-2 font-sans text-xs uppercase tracking-widest transition-all"
           style={{
-            color: 'rgba(232,213,163,0.5)',
-            background: 'rgba(0,0,0,0.3)',
+            // %50 opaklıkta bu düğme perdenin üzerinde neredeyse
+            // görünmüyordu; atlama yolu bulunamayan bir çıkış olmamalı.
+            color: 'rgba(232,213,163,0.92)',
+            background: 'rgba(0,0,0,0.55)',
             backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(201,168,76,0.15)',
+            border: '1px solid rgba(201,168,76,0.4)',
           }}
         >
           Geç →

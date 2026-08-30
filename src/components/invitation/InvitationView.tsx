@@ -8,6 +8,7 @@ import GallerySection from './GallerySection';
 import Hero from './Hero';
 import LetterSection from './LetterSection';
 import LocationSection from './LocationSection';
+import Bridge from './Bridge';
 import GiftSection from './GiftSection';
 import MusicPlayer from './MusicPlayer';
 import WishesSection from './WishesSection';
@@ -48,19 +49,36 @@ export default function InvitationView({
       <ScrollProgress />
       <div className="grain" aria-hidden />
 
+      {/*
+        Sayfa üç evreye bölünür ve renk yalnızca köprülerde döner. Evrelerin
+        kendi düz zemini vardır, yani bir bölüme içerik eklenmesi başka bir
+        bölümün zeminini kaydırmaz.
+      */}
       <main className="journey">
-        <Hero invitation={invitation} />
-        <LetterSection invitation={invitation} />
-        <StorySection invitation={invitation} />
-        <DetailsSection invitation={invitation} />
-        <ProgramSection invitation={invitation} />
-        <GallerySection invitation={invitation} />
-        <LocationSection invitation={invitation} />
-        <FaqSection invitation={invitation} />
-        <RsvpSection invitation={invitation} />
-        <GiftSection invitation={invitation} />
-        <WishesSection invitation={invitation} wishes={wishes} />
-        <ContactSection invitation={invitation} />
+        <div className="phase-dark">
+          <Hero invitation={invitation} />
+          <LetterSection invitation={invitation} />
+        </div>
+
+        <Bridge direction="toLight" />
+
+        <div className="phase-light">
+          <StorySection invitation={invitation} />
+          <DetailsSection invitation={invitation} />
+          <ProgramSection invitation={invitation} />
+          <GallerySection invitation={invitation} />
+          <LocationSection invitation={invitation} />
+          <FaqSection invitation={invitation} />
+        </div>
+
+        <Bridge direction="toDark" />
+
+        <div className="phase-dark">
+          <RsvpSection invitation={invitation} />
+          <GiftSection invitation={invitation} />
+          <WishesSection invitation={invitation} wishes={wishes} />
+          <ContactSection invitation={invitation} />
+        </div>
       </main>
 
       {invitation.soundEnabled && invitation.backgroundMusicUrl && (

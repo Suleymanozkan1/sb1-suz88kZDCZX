@@ -56,17 +56,6 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
     `&location=${encodeURIComponent(location)}` +
     `&details=${encodeURIComponent(invitation.invitationText ?? '')}`;
 
-  const ics = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'BEGIN:VEVENT',
-    `SUMMARY:${title}`,
-    `DTSTART:${start}`,
-    `DTEND:${end}`,
-    `LOCATION:${location}`,
-    'END:VEVENT',
-    'END:VCALENDAR',
-  ].join('\n');
 
   return (
     <section id="details" className="section-gap relative">
@@ -124,14 +113,6 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
             >
               Takvime Ekle
               <IconArrow size={15} />
-            </a>
-            <a
-              href={`data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`}
-              download={`${invitation.slug || 'dugun'}.ics`}
-              className="link-underline"
-              style={{ color: 'var(--c-on-light-soft)' }}
-            >
-              .ics Dosyası
             </a>
           </motion.div>
         )}

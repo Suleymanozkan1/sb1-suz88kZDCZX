@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import Bridge from './Bridge';
 import SectionHead from './SectionHead';
 import type { Invitation } from '@/lib/types';
 
@@ -43,7 +42,10 @@ export default function FaqSection({ invitation }: { invitation: Invitation }) {
                 >
                   <span
                     className="t-h2 transition-opacity duration-300"
-                    style={{ color: 'var(--c-on-light)', opacity: isOpen ? 1 : 0.75 }}
+                    /* Kapalı soru eskiden %75 opaklıkla soluyordu; açık ile
+                       kapalı arasındaki fark artık renkle değil, yalnızca
+                       işaretin dönmesiyle veriliyor. */
+                    style={{ color: 'var(--c-on-light)' }}
                   >
                     {item.q}
                   </span>
@@ -92,7 +94,6 @@ export default function FaqSection({ invitation }: { invitation: Invitation }) {
       </div>
 
       {/* gündüz → akşam dönüşü bu boşlukta tamamlanır */}
-      <Bridge height="72vh" />
     </section>
   );
 }

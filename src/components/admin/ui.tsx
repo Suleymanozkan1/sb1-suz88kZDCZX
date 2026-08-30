@@ -33,7 +33,7 @@ export function PanelSection({
       <header className="mb-[var(--sp-sm)] flex flex-wrap items-end justify-between gap-[var(--sp-sm)]">
         <div className="min-w-0">
           <div className="flex items-baseline gap-4" style={{ color: 'var(--c-gold)' }}>
-            <SectionNumber n={n} className="text-xs opacity-60" />
+            <SectionNumber n={n} className="text-xs opacity-85" />
             <span className="t-label">{label}</span>
           </div>
           <h2 className="t-h2 mt-3" style={{ color: 'var(--c-on-dark)' }}>

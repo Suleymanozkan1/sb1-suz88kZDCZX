@@ -44,7 +44,7 @@ export default function ProgramSection({ invitation }: { invitation: Invitation 
 
                 <span
                   className="hidden self-center transition-transform duration-500 group-hover:-translate-y-0.5 sm:block"
-                  style={{ color: 'var(--c-on-light-faint)' }}
+                  style={{ color: 'var(--c-gold-deep)' }}
                 >
                   <Icon size={20} />
                 </span>

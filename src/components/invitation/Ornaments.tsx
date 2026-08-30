@@ -9,10 +9,12 @@
 
 type IconProps = { size?: number; className?: string };
 
+// Çizgi kalınlığı 1'den 1.5'e çıkarıldı: 20px'lik bir ikonda 1 birimlik
+// çizgi kıl gibi kalıyor ve özellikle açık zeminde neredeyse kayboluyordu.
 const stroke = {
   fill: 'none',
   stroke: 'currentColor',
-  strokeWidth: 1,
+  strokeWidth: 1.5,
   strokeLinecap: 'round' as const,
   strokeLinejoin: 'round' as const,
 };

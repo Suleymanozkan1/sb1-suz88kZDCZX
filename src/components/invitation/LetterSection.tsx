@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Bridge from './Bridge';
 import { Divider } from './Ornaments';
 import { BESMELE, READY_AYET, READY_HADIS } from '@/lib/defaults';
 import { formatDate } from '@/lib/format';
@@ -141,7 +140,6 @@ export default function LetterSection({ invitation }: { invitation: Invitation }
       </div>
 
       {/* gece → gündüz dönüşü bu boşlukta tamamlanır */}
-      <Bridge />
     </section>
   );
 }

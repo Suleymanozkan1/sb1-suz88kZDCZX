@@ -72,7 +72,9 @@ export default function Countdown({ targetDate }: { targetDate: string }) {
           >
             {String(cell.value).padStart(cell.pad, '0')}
           </span>
-          <span className="t-label mt-3" style={{ color: 'var(--c-on-dark-faint)' }}>
+          {/* Ölçü etiketi rakamın anlamını taşıyor; en soluk tonda değil
+              okunur bir tonda durmalı. */}
+          <span className="t-label mt-3" style={{ color: 'var(--c-on-dark-soft)' }}>
             {cell.label}
           </span>
         </div>

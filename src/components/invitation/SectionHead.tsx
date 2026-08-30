@@ -42,7 +42,9 @@ export default function SectionHead({
         className={`flex items-baseline gap-4 ${centered ? 'justify-center' : ''}`}
         style={{ color: accent }}
       >
-        <SectionNumber n={n} className="text-sm opacity-60" />
+        {/* %60 opaklıkta rakam neredeyse kayboluyordu; sıra numarası
+               süs değil, bölümün adresi. */}
+            <SectionNumber n={n} className="text-sm opacity-85" />
         <span className="t-label">{label}</span>
         {!centered && <span className="rule ml-2 hidden flex-1 sm:block" />}
       </div>
