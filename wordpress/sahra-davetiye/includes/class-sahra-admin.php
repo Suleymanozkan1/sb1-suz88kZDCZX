@@ -520,6 +520,26 @@ class Sahra_Admin {
 			array( 'id' => 0, 'slug' => '', 'isActive' => true, 'venueFeatures' => array() )
 		);
 
+		/*
+		 * Olmayan davetiye: `get()` null döner ve şablon her alanı null
+		 * üzerinde okumaya çalışıp sayfayı uyarı çöplüğüne çevirirdi.
+		 *
+		 * Bu artık uç bir durum değil: günlük bakım süresi dolan
+		 * davetiyeleri kendisi siliyor, yani çiftin yer imi ya da
+		 * yöneticinin açık sekmesi bir sabah geçersiz olabiliyor.
+		 * Yetki hatası da denemez — davetiye gerçekten yok.
+		 */
+		if ( ! $d ) {
+			wp_die(
+				esc_html__( 'Bu davetiye bulunamadı. Süresi dolduğu için silinmiş olabilir.', 'sahra-davetiye' ),
+				esc_html__( 'Davetiye bulunamadı', 'sahra-davetiye' ),
+				array(
+					'response'  => 404,
+					'back_link' => true,
+				)
+			);
+		}
+
 		$metinler = array(
 			'gallery' => implode( "\n", (array) $d['galleryImages'] ),
 			'story'   => self::rows_to_text( $d['storyItems'], array( 'year', 'title', 'desc' ) ),

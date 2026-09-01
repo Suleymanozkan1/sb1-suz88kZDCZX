@@ -146,6 +146,34 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			</p>
 		</header>
 
+		<?php
+		/*
+		 * Silme uyarısı albümün EN ÜSTÜNDE, fotoğrafların hemen yanında.
+		 * Çift burayı düğün albümü sanıyor ve süresiz duracağını
+		 * varsayıyor; silineceğini silindikten sonra öğrenmemeli.
+		 *
+		 * Kaç gün sonra olduğu burada, hangi TARİHTE olduğu her davetiyenin
+		 * kendi başlığında: bir yöneticinin listesinde farklı düğün
+		 * tarihli davetiyeler yan yana duruyor, tek bir tarih hepsi için
+		 * yanlış olurdu.
+		 */
+		$sahra_gun = Sahra_Lifecycle::photo_days_after_wedding();
+		?>
+		<?php if ( $sahra_gun ) : ?>
+			<p class="sahra-uyari">
+				<span class="sahra-uyari-ikon" aria-hidden="true">!</span>
+				<span>
+					<?php
+					printf(
+						/* translators: %d: gün sayısı. */
+						esc_html__( 'Fotoğraflar düğünden %d gün sonra kalıcı olarak silinir. İndirmeyi unutmayın.', 'sahra-davetiye' ),
+						(int) $sahra_gun
+					);
+					?>
+				</span>
+			</p>
+		<?php endif; ?>
+
 		<?php if ( ! $fotograflar ) : ?>
 			<p class="sahra-bos"><?php esc_html_e( 'Henüz fotoğraf yok. Masalara koyduğunuz QR kod bu albümü doldurur.', 'sahra-davetiye' ); ?></p>
 		<?php else : ?>
@@ -158,6 +186,7 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			?>
 			<?php foreach ( $grup as $davetiye_id => $liste ) : ?>
 				<?php $dv = Sahra_Invitation::get( $davetiye_id ); ?>
+				<?php $sahra_silme = $dv ? Sahra_Lifecycle::photo_delete_date( $dv ) : ''; ?>
 				<div style="margin-bottom:var(--sp-md)">
 					<div style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:0.75rem">
 						<span class="t-lead"><?php echo esc_html( $dv ? trim( $dv['brideName'] . ' & ' . $dv['groomName'] ) : __( 'Davetiye', 'sahra-davetiye' ) ); ?></span>
@@ -168,6 +197,18 @@ include SAHRA_DIR . 'templates/admin-header.php';
 							?>
 						</a>
 					</div>
+
+					<?php if ( $sahra_silme ) : ?>
+						<p class="sahra-silme-tarihi">
+							<?php
+							printf(
+								/* translators: %s: tarih. */
+								esc_html__( 'Bu albüm %s tarihinde silinir.', 'sahra-davetiye' ),
+								esc_html( Sahra_Render::format_date( $sahra_silme ) )
+							);
+							?>
+						</p>
+					<?php endif; ?>
 
 					<div class="sahra-fotograflar">
 						<?php foreach ( $liste as $foto ) : ?>

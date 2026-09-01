@@ -748,6 +748,44 @@ body.sahra-ekran #wpwrap::before {
 
 /* ── Boş durum ───────────────────────────────────────────────────────── */
 
+/* Silme uyarısı: göz kaçırmasın diye altın çerçeveli ve dolgulu, ama
+   kırmızı değil — bir hata değil, planlanmış bir son tarih. */
+.sahra-uyari {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0 0 var(--sp-md);
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--c-rule-dark);
+  border-left: 3px solid var(--c-gold);
+  background: rgba(195, 154, 72, 0.09);
+  color: var(--c-on-dark);
+  font-size: var(--t-body);
+  line-height: 1.55;
+}
+
+.sahra-uyari-ikon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.1rem;
+  border-radius: 50%;
+  background: var(--c-gold);
+  color: var(--c-night);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
+}
+
+/* Albüm başlığının altındaki tarih: uyarının tekrarı değil, o davetiyeye
+   ait olanı. Bu yüzden daha sessiz. */
+.sahra-silme-tarihi {
+  margin: -0.35rem 0 0.75rem;
+  color: var(--c-on-dark-faint);
+  font-size: 0.82rem;
+}
+
 .sahra-bos {
   padding: var(--sp-md) 0;
   color: var(--c-on-dark-faint);

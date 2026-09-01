@@ -123,6 +123,71 @@ class Sahra_Lifecycle {
 	}
 
 	/**
+	 * Fotoğrafların kalıcı olarak silineceği gün.
+	 *
+	 * Hesap `run()` ile BİREBİR aynı: davetiye yayından kalkmışsa sayaç o
+	 * günden, kalkmamışsa düğün + yayından kalkma süresinden işler. İki
+	 * yerde iki ayrı hesap olsaydı panelde yazan tarihle gerçekte silinen
+	 * gün tutmayacaktı — çift, aslında hâlâ duran albümü kaybettiğini
+	 * sanacak ya da tam tersi, indirmeyi son güne bırakıp kaybedecekti.
+	 *
+	 * Silme kapalıysa ya da düğün tarihi yoksa boş döner: ikisinde de
+	 * `run()` o davetiyeye dokunmuyor, yani gerçekten silinmiyor.
+	 */
+	public static function photo_delete_date( $invitation ) {
+		$ayar = Sahra_Settings::lifecycle();
+
+		if ( empty( $ayar['deleteEnabled'] ) || empty( $invitation['weddingDate'] ) ) {
+			return '';
+		}
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $invitation['weddingDate'] ) ) {
+			return '';
+		}
+
+		$kalkis = ! empty( $invitation['id'] )
+			? get_post_meta( (int) $invitation['id'], self::META_UNPUBLISHED, true )
+			: '';
+		if ( ! $kalkis ) {
+			$kalkis = self::gun_ekle( $invitation['weddingDate'], $ayar['unpublishDays'] );
+		}
+
+		return self::gun_ekle( $kalkis, $ayar['deleteDays'] );
+	}
+
+	/** Düğünden kaç gün sonra silindiği — tarihi olmayan davetiyeler için. */
+	public static function photo_days_after_wedding() {
+		$ayar = Sahra_Settings::lifecycle();
+		if ( empty( $ayar['deleteEnabled'] ) ) {
+			return 0;
+		}
+		return (int) $ayar['unpublishDays'] + (int) $ayar['deleteDays'];
+	}
+
+	/**
+	 * Albümün üstünde duran uyarı.
+	 *
+	 * Çift bu fotoğrafları düğün albümü sanıyor ve orada süresiz
+	 * duracağını varsayıyor. Silineceğini silindikten sonra öğrenmesin:
+	 * hem kaç gün sonra olduğu, hem de indirmeyi planlayabilsin diye
+	 * tam tarih yazılıyor.
+	 */
+	public static function photo_notice( $invitation ) {
+		$tarih = self::photo_delete_date( $invitation );
+		if ( ! $tarih ) {
+			return '';
+		}
+
+		$gun = self::photo_days_after_wedding();
+
+		return sprintf(
+			/* translators: 1: gün sayısı, 2: tarih. */
+			__( 'Fotoğraflar düğünden %1$d gün sonra, %2$s tarihinde kalıcı olarak silinir. İndirmeyi unutmayın.', 'sahra-davetiye' ),
+			$gun,
+			Sahra_Render::format_date( $tarih )
+		);
+	}
+
+	/**
 	 * Bir davetiyenin ne zaman kapanacağı — panelde gösterilir.
 	 *
 	 * Çift "davetiyem ne zamana kadar açık?" diye sormadan görmeli;
