@@ -139,13 +139,127 @@
 				.replace( /^-|-$/g, '' );
 		}
 
+		/* Bağlantı adresindeki ay adları — PHP'deki AY_SLUG ile birebir. */
+		var AYLAR = [ 'ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran',
+			'temmuz', 'agustos', 'eylul', 'ekim', 'kasim', 'aralik' ];
+
+		/** "31-eylul-2026-zehra-ahmet" — PHP'deki build_slug'ın karşılığı. */
+		function otoSlug( g, d ) {
+			var tarih = document.getElementById( 'f-weddingdate' );
+			var parca = [];
+			var m = tarih && tarih.value ? tarih.value.match( /^(\d{4})-(\d{2})-(\d{2})$/ ) : null;
+
+			if ( m && AYLAR[ parseInt( m[ 2 ], 10 ) - 1 ] ) {
+				parca.push( String( parseInt( m[ 3 ], 10 ) ) );
+				parca.push( AYLAR[ parseInt( m[ 2 ], 10 ) - 1 ] );
+				parca.push( m[ 1 ] );
+			}
+			parca.push( g, d );
+			return slugla( parca.join( '-' ) );
+		}
+
+		/*
+		 * Ad yazımı ANINDA düzelmiyor: kullanıcı "meh" yazarken her harfte
+		 * alanı yeniden yazmak imleci zıplatıyor. Yalnızca ÖNİZLEME
+		 * düzeltilmiş hâli gösteriyor; alanın kendisi kaydederken (PHP)
+		 * düzeliyor.
+		 */
+		function duzelt( metin ) {
+			return metin.replace( /\S+/g, function ( sozcuk ) {
+				return sozcuk.charAt( 0 ).toLocaleUpperCase( 'tr' ) +
+					sozcuk.slice( 1 ).toLocaleLowerCase( 'tr' );
+			} );
+		}
+
 		function guncelle() {
-			var d = damat.value || 'Damat';
-			var g = gelin.value || 'Gelin';
-			baslik.textContent = d + ' ' + bagla() + ' ' + g;
+			var g = duzelt( gelin.value ) || 'Gelin';
+			var d = duzelt( damat.value ) || 'Damat';
+
+			// Gelin solda, damat sağda.
+			baslik.textContent = g + ' ' + bagla() + ' ' + d;
 
 			if ( slugOn ) {
-				slugOn.textContent = slug && slug.value ? slugla( slug.value ) : slugla( d + '-' + g );
+				slugOn.textContent = slug && slug.value ? slugla( slug.value ) : otoSlug( g, d );
+			}
+
+			muhurCiz();
+			mektupCiz();
+		}
+
+		/* ── Mühür önizlemesi ───────────────────────────────────────────
+		   Davetiyedeki SVG mührün küçük kopyası: balmumu disk, çentikler
+		   ve monogram. Renkler seçili mühür seçeneğinin data'sından. */
+		function muhurCiz() {
+			var kutu = document.getElementById( 'sahra-muhur-onizleme' );
+			if ( ! kutu ) {
+				return;
+			}
+
+			var secili = document.querySelector( 'input[name="sahra[sealType]"]:checked' );
+			var ornek = secili ? secili.closest( '.secenek' ).querySelector( '.ornek' ) : null;
+			var renkler = ornek ? ( ornek.getAttribute( 'style' ) || '' ).match( /#[0-9a-f]{3,8}|rgba?\([^)]+\)/gi ) : null;
+			if ( ! renkler || renkler.length < 3 ) {
+				renkler = [ '#F5E6B8', '#C9A84C', '#6B4F1A' ];
+			}
+
+			var mono = document.getElementById( 'f-sealmonogram' );
+			var yazi = mono && mono.value ? mono.value : baslikHarfleri();
+
+			var centik = '';
+			for ( var i = 0; i < 24; i++ ) {
+				var a = ( i / 24 ) * Math.PI * 2;
+				centik += '<circle cx="' + ( 60 + Math.cos( a ) * 46 ).toFixed( 1 ) +
+					'" cy="' + ( 60 + Math.sin( a ) * 46 ).toFixed( 1 ) +
+					'" r="3.4" fill="' + renkler[ 2 ] + '" opacity="0.55"/>';
+			}
+
+			kutu.innerHTML =
+				'<svg viewBox="0 0 120 120" role="img" aria-label="Mühür önizlemesi">' +
+				'<defs><radialGradient id="sahraMuhur" cx="35%" cy="30%">' +
+				'<stop offset="0%" stop-color="' + renkler[ 0 ] + '"/>' +
+				'<stop offset="55%" stop-color="' + renkler[ 1 ] + '"/>' +
+				'<stop offset="100%" stop-color="' + renkler[ 2 ] + '"/>' +
+				'</radialGradient></defs>' +
+				centik +
+				'<circle cx="60" cy="60" r="44" fill="url(#sahraMuhur)"/>' +
+				'<circle cx="60" cy="60" r="36" fill="none" stroke="' + renkler[ 0 ] + '" stroke-opacity="0.55"/>' +
+				'<text x="60" y="60" text-anchor="middle" dominant-baseline="central" ' +
+				'font-family="Cormorant Garamond, Georgia, serif" font-style="italic" font-size="26" ' +
+				'fill="' + renkler[ 0 ] + '">' + yaziKac( yazi ) + '</text>' +
+				'</svg>';
+		}
+
+		function baslikHarfleri() {
+			var g = duzelt( gelin.value ) || 'G';
+			var d = duzelt( damat.value ) || 'D';
+			return g.charAt( 0 ) + ' ' + bagla() + ' ' + d.charAt( 0 );
+		}
+
+		function yaziKac( metin ) {
+			return String( metin ).replace( /[&<>"]/g, function ( c ) {
+				return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ c ];
+			} );
+		}
+
+		/* ── Mektup tasarımı önizlemesi ────────────────────────────────── */
+		function mektupCiz() {
+			var kutu = document.getElementById( 'sahra-mektup-onizleme' );
+			if ( ! kutu ) {
+				return;
+			}
+
+			var secili = document.querySelector( 'input[name="sahra[invitationDesign]"]:checked' );
+			kutu.className = 'sahra-mektup-onizleme ' + ( secili ? secili.value : 'ottoman' );
+
+			var metin = document.getElementById( 'f-invitationtext' );
+			var mono = kutu.querySelector( '.mo-monogram' );
+			var ad = kutu.querySelector( '.mo-ad' );
+			var gov = kutu.querySelector( '.mo-metin' );
+
+			if ( mono ) { mono.textContent = baslikHarfleri(); }
+			if ( ad ) { ad.textContent = baslik.textContent; }
+			if ( gov && metin ) {
+				gov.textContent = metin.value || 'Davet metniniz burada görünecek.';
 			}
 		}
 
@@ -153,6 +267,41 @@
 		document.addEventListener( 'change', guncelle );
 		guncelle();
 	}
+
+	/* ------------------------------------------------------------- menü */
+
+	/*
+	 * Menü seçilince içeriği metin alanına düşer; çift oradan istediği
+	 * gibi değiştirir. Seçim değişince ÜSTÜNE YAZILIR — ama yalnızca alan
+	 * boşsa ya da kullanıcı onaylarsa: elle yazılmış bir menüyü sessizce
+	 * silmek, kaybedilen emek demek.
+	 */
+	( function () {
+		var sec = document.querySelector( '.sahra-menu-sec' );
+		var kutu = document.getElementById( 'f-menu-icerik' );
+		if ( ! sec || ! kutu ) {
+			return;
+		}
+
+		function seciliIcerik() {
+			var opt = sec.options[ sec.selectedIndex ];
+			return opt ? ( opt.getAttribute( 'data-icerik' ) || '' ) : '';
+		}
+
+		sec.addEventListener( 'change', function () {
+			var yeni = seciliIcerik();
+			if ( ! kutu.value.trim() || window.confirm( 'Menü içeriği seçtiğiniz menüyle değiştirilsin mi? Yazdıklarınız kaybolur.' ) ) {
+				kutu.value = yeni;
+			}
+		} );
+
+		var sifirla = document.querySelector( '.sahra-menu-sifirla' );
+		if ( sifirla ) {
+			sifirla.addEventListener( 'click', function () {
+				kutu.value = seciliIcerik();
+			} );
+		}
+	}() );
 
 	/* ------------------------------------------------------- hazır metin */
 

@@ -15,11 +15,11 @@ defined( 'ABSPATH' ) || exit;
 
 $yeni        = empty( $d['id'] );
 $yonetici    = Sahra_Roles::is_manager();
-$venue       = Sahra_Settings::venue();
+$venue       = Sahra_Settings::venue_for( $d['venueId'] ?? '' );
 $sahra_sayfa = 'sahra-davetiye-duzenle';
 
 $conj     = $d['conjunction'] ? $d['conjunction'] : '&';
-$onizleme = trim( ( $d['groomName'] ? $d['groomName'] : 'Damat' ) . ' ' . $conj . ' ' . ( $d['brideName'] ? $d['brideName'] : 'Gelin' ) );
+$onizleme = trim( ( $d['brideName'] ? $d['brideName'] : 'Gelin' ) . ' ' . $conj . ' ' . ( $d['groomName'] ? $d['groomName'] : 'Damat' ) );
 
 $adimlar = array(
 	'Çift Bilgileri',
@@ -28,13 +28,20 @@ $adimlar = array(
 	'Mühür & Tuğra',
 	'Mektup Tasarımı',
 	'Fotoğraflar',
+	'Menü',
+	'Ailelerimiz',
 	'Hediye & Dilekler',
 	'Ses Ayarları',
 	'Tema',
 	'Program',
-	'SSS',
 	'Hikayemiz',
+	'Bölümler',
 );
+
+$salonlar = Sahra_Settings::venues();
+$menuler  = Sahra_Settings::menus();
+$marka    = Sahra_Settings::brand();
+$omur     = $yeni ? '' : Sahra_Lifecycle::summary( $d );
 
 $sahra_eylem = $yeni ? '' : sprintf(
 	'<a class="eylem-link" href="%s" target="_blank" rel="noopener">%s</a>',
@@ -85,10 +92,11 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			<div class="sahra-adim" data-adim="0">
 				<div class="ikili">
 					<?php
-					Sahra_Form::alan( array( 'label' => __( 'Damat Adı *', 'sahra-davetiye' ), 'name' => 'sahra[groomName]', 'value' => $d['groomName'], 'ph' => 'Mehmet', 'sinif' => 'sahra-onizle' ) );
-					Sahra_Form::alan( array( 'label' => __( 'Gelin Adı *', 'sahra-davetiye' ), 'name' => 'sahra[brideName]', 'value' => $d['brideName'], 'ph' => 'Ayşe', 'sinif' => 'sahra-onizle' ) );
-					Sahra_Form::alan( array( 'label' => __( 'Damat Soyadı', 'sahra-davetiye' ), 'name' => 'sahra[groomSurname]', 'value' => $d['groomSurname'], 'ph' => 'Demir' ) );
+					/* Gelin solda, damat sağda — davetiyedeki sırayla aynı. */
+					Sahra_Form::alan( array( 'label' => __( 'Gelin Adı *', 'sahra-davetiye' ), 'name' => 'sahra[brideName]', 'value' => $d['brideName'], 'ph' => 'Zehra', 'sinif' => 'sahra-onizle' ) );
+					Sahra_Form::alan( array( 'label' => __( 'Damat Adı *', 'sahra-davetiye' ), 'name' => 'sahra[groomName]', 'value' => $d['groomName'], 'ph' => 'Ahmet', 'sinif' => 'sahra-onizle' ) );
 					Sahra_Form::alan( array( 'label' => __( 'Gelin Soyadı', 'sahra-davetiye' ), 'name' => 'sahra[brideSurname]', 'value' => $d['brideSurname'], 'ph' => 'Yılmaz' ) );
+					Sahra_Form::alan( array( 'label' => __( 'Damat Soyadı', 'sahra-davetiye' ), 'name' => 'sahra[groomSurname]', 'value' => $d['groomSurname'], 'ph' => 'Demir' ) );
 					?>
 				</div>
 
@@ -173,30 +181,66 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			<div class="sahra-adim" data-adim="1" hidden>
 				<?php Sahra_Form::alan( array( 'label' => __( 'Düğün Tarihi *', 'sahra-davetiye' ), 'name' => 'sahra[weddingDate]', 'value' => $d['weddingDate'], 'type' => 'date' ) ); ?>
 
-				<div class="ikili">
-					<?php
-					Sahra_Form::alan( array( 'label' => __( 'Başlangıç Saati *', 'sahra-davetiye' ), 'name' => 'sahra[weddingTime]', 'value' => $d['weddingTime'], 'type' => 'time' ) );
-					Sahra_Form::alan( array( 'label' => __( 'Bitiş Saati', 'sahra-davetiye' ), 'name' => 'sahra[weddingEndTime]', 'value' => $d['weddingEndTime'], 'type' => 'time', 'ipucu' => __( 'Boşsa davetiyede yalnızca başlangıç yazar.', 'sahra-davetiye' ) ) );
-					?>
+				<?php
+				/*
+				 * Saat SERBEST DEĞİL, oturum seçilir.
+				 *
+				 * Salon yalnızca iki oturum çalışıyor. Serbest saat alanı
+				 * çifte gerçekte var olmayan bir seçenek sunuyordu: 11:00
+				 * yazan bir davetiye, salonda karşılığı olmayan bir söz.
+				 */
+				?>
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Düğün Oturumu *', 'sahra-davetiye' ); ?></span>
+					<div class="secenekler">
+						<?php foreach ( Sahra_Fields::sessions() as $deger => $oturum ) : ?>
+							<label class="secenek">
+								<input type="radio" name="sahra[session]" value="<?php echo esc_attr( $deger ); ?>" <?php checked( $deger, $d['session'] ); ?>>
+								<span class="ad"><?php echo esc_html( $oturum['label'] ); ?></span>
+								<span class="t-body numerals" style="display:block;margin-top:0.3rem;color:var(--c-on-dark-faint)">
+									<?php echo esc_html( $oturum['start'] . ' – ' . $oturum['end'] ); ?>
+								</span>
+							</label>
+						<?php endforeach; ?>
+					</div>
 				</div>
 
 				<?php
 				/*
-				 * Mekân burada SORULMUYOR: tüm davetiyelerde aynı salon geçerli
-				 * ve yalnızca yönetici değiştirebiliyor. Yine de hangi adresin
-				 * görüneceğini göstermek gerekiyor.
+				 * Salon, yöneticinin tanımladıkları arasından SEÇİLİR.
+				 * Adresi çifte yazdırmak bir hata kaynağıydı: yanlış yazan
+				 * çiftin misafirleri yanlış yere gidiyor, kimse fark
+				 * etmiyordu.
 				 */
 				?>
 				<div class="alan">
-					<span class="field-label"><?php esc_html_e( 'Mekân', 'sahra-davetiye' ); ?></span>
-					<p class="t-lead"><?php echo esc_html( $venue['venueName'] ? $venue['venueName'] : __( 'Henüz belirlenmedi', 'sahra-davetiye' ) ); ?></p>
-					<p class="t-body muted"><?php echo esc_html( implode( ', ', array_filter( array( $venue['address'], $venue['district'], $venue['city'] ) ) ) ); ?></p>
-					<?php if ( $yonetici ) : ?>
+					<label class="field-label" for="f-venue"><?php esc_html_e( 'Salon *', 'sahra-davetiye' ); ?></label>
+					<?php if ( ! $salonlar ) : ?>
+						<p class="t-body" style="color:var(--c-danger)"><?php esc_html_e( 'Henüz salon tanımlanmadı.', 'sahra-davetiye' ); ?></p>
+						<?php if ( $yonetici ) : ?>
+							<p class="ipucu"><a href="<?php echo esc_url( admin_url( 'admin.php?page=sahra-salonlar' ) ); ?>"><?php esc_html_e( 'Salon ekle', 'sahra-davetiye' ); ?></a></p>
+						<?php endif; ?>
+					<?php else : ?>
+						<select id="f-venue" name="sahra[venueId]">
+							<?php foreach ( $salonlar as $salon ) : ?>
+								<option value="<?php echo esc_attr( $salon['id'] ); ?>" <?php selected( $salon['id'], $venue['id'] ); ?>>
+									<?php echo esc_html( $salon['venueName'] . ' — ' . implode( ', ', array_filter( array( $salon['district'], $salon['city'] ) ) ) ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
 						<p class="ipucu">
-							<a href="<?php echo esc_url( admin_url( 'admin.php?page=sahra-mekan' ) ); ?>"><?php esc_html_e( 'Düzenle', 'sahra-davetiye' ); ?></a>
+							<?php echo esc_html( implode( ', ', array_filter( array( $venue['address'], $venue['district'], $venue['city'] ) ) ) ); ?>
+							<?php if ( $yonetici ) : ?>
+								· <a href="<?php echo esc_url( admin_url( 'admin.php?page=sahra-salonlar' ) ); ?>"><?php esc_html_e( 'Salonları düzenle', 'sahra-davetiye' ); ?></a>
+							<?php endif; ?>
 						</p>
 					<?php endif; ?>
 				</div>
+
+				<?php if ( $omur ) : ?>
+					<?php /* Çift "davetiyem ne zamana kadar açık?" diye sormadan görmeli. */ ?>
+					<p class="ipucu"><?php echo esc_html( $omur ); ?></p>
+				<?php endif; ?>
 
 				<?php
 				Sahra_Form::bolum_basligi( $d, 'details', 'Detaylar', 'Düğün Bilgileri' );
@@ -254,6 +298,21 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				</div>
 
 				<?php
+				/*
+				 * Önizleme: mührün ADI kullanıcıya bir şey anlatmıyor.
+				 * "Bronz Balmumu" ile "Gümüş Balmumu" arasındaki farkı
+				 * kaydedip davetiyeyi açmadan görmenin yolu yoktu.
+				 */
+				?>
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Önizleme', 'sahra-davetiye' ); ?></span>
+					<div class="sahra-onizleme-kutu">
+						<div class="sahra-muhur-onizleme" id="sahra-muhur-onizleme"
+							data-monogram="<?php echo esc_attr( $d['sealMonogram'] ); ?>"></div>
+					</div>
+				</div>
+
+				<?php
 				Sahra_Form::alan(
 					array(
 						'label' => __( 'Monogram', 'sahra-davetiye' ),
@@ -287,6 +346,19 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					</div>
 				</div>
 
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Önizleme', 'sahra-davetiye' ); ?></span>
+					<div class="sahra-onizleme-kutu">
+						<div class="sahra-mektup-onizleme" id="sahra-mektup-onizleme">
+							<p class="mo-monogram"><?php echo esc_html( $onizleme ); ?></p>
+							<p class="mo-metin"><?php echo esc_html( $d['invitationText'] ? $d['invitationText'] : __( 'Davet metniniz burada görünecek.', 'sahra-davetiye' ) ); ?></p>
+							<span class="mo-cizgi" aria-hidden="true"></span>
+							<p class="mo-ad"><?php echo esc_html( $onizleme ); ?></p>
+						</div>
+					</div>
+					<p class="ipucu"><?php esc_html_e( 'Renkler seçtiğiniz temadan gelir; burada yalnızca kâğıt ve çerçeve tasarımı görünür.', 'sahra-davetiye' ); ?></p>
+				</div>
+
 				<?php Sahra_Form::gorsel( __( 'Mektup Fotoğrafı', 'sahra-davetiye' ), 'sahra[letterImage]', $d['letterImage'] ); ?>
 			</div>
 
@@ -315,8 +387,62 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				<?php Sahra_Form::bolum_basligi( $d, 'gallery', 'Anılar', 'Fotoğraf Galerisi' ); ?>
 			</div>
 
-			<?php /* ── 7 Hediye & Dilekler ────────────────────────────── */ ?>
+			<?php /* ── 7 Menü ─────────────────────────────────────────── */ ?>
 			<div class="sahra-adim" data-adim="6" hidden>
+				<?php
+				/*
+				 * Menü seçilir, sonra üstünde oynanır.
+				 *
+				 * Menünün ADI davetiyede görünmüyor: misafir için "Menü-3"
+				 * bir anlam taşımıyor, o işletmeyle çift arasındaki bir
+				 * numara. Davetiyede başlık yalnızca "Menü".
+				 */
+				?>
+				<div class="alan">
+					<label class="field-label" for="f-menu"><?php esc_html_e( 'Hazır Menü', 'sahra-davetiye' ); ?></label>
+					<select id="f-menu" name="sahra[menuId]" class="sahra-menu-sec">
+						<option value=""><?php esc_html_e( '— Menü gösterme —', 'sahra-davetiye' ); ?></option>
+						<?php foreach ( $menuler as $menu ) : ?>
+							<option value="<?php echo esc_attr( $menu['id'] ); ?>"
+								data-icerik="<?php echo esc_attr( Sahra_Fields::menu_to_text( $menu['groups'] ) ); ?>"
+								<?php selected( $menu['id'], $d['menuId'] ); ?>>
+								<?php echo esc_html( $menu['name'] ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+					<p class="ipucu"><?php esc_html_e( 'Menü seçince içeriği aşağıya gelir; oradan istediğiniz gibi değiştirebilirsiniz. Menünün adı davetiyede görünmez.', 'sahra-davetiye' ); ?></p>
+				</div>
+
+				<div class="alan">
+					<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+						<span class="field-label" style="margin:0"><?php esc_html_e( 'Menü İçeriği', 'sahra-davetiye' ); ?></span>
+						<button type="button" class="eylem-link sahra-menu-sifirla"><?php esc_html_e( 'Seçili menüye geri dön', 'sahra-davetiye' ); ?></button>
+					</div>
+					<textarea id="f-menu-icerik" name="sahra[menuText]" rows="9"
+						placeholder="ORDÖVR TABAĞI | Amerikan salatası | Kısır | Haydari"><?php echo esc_textarea( $metinler['menu'] ); ?></textarea>
+					<p class="ipucu"><?php esc_html_e( 'Her satır bir grup: başlık | öğe | öğe | öğe', 'sahra-davetiye' ); ?></p>
+				</div>
+
+				<?php Sahra_Form::bolum_basligi( $d, 'menu', 'İkram', 'Menü' ); ?>
+			</div>
+
+			<?php /* ── 8 Ailelerimiz ──────────────────────────────────── */ ?>
+			<div class="sahra-adim" data-adim="7" hidden>
+				<?php Sahra_Form::bolum_basligi( $d, 'family', 'Bizi Yetiştirenler', 'Ailelerimiz' ); ?>
+
+				<div class="ikili">
+					<?php
+					/* Gelin solda, damat sağda — sayfadaki sırayla aynı. */
+					Sahra_Form::alan( array( 'label' => __( 'Sol Başlık', 'sahra-davetiye' ), 'name' => 'sahra[brideFamilyLabel]', 'value' => $d['brideFamilyLabel'], 'ph' => 'Gelin Ailesi' ) );
+					Sahra_Form::alan( array( 'label' => __( 'Sağ Başlık', 'sahra-davetiye' ), 'name' => 'sahra[groomFamilyLabel]', 'value' => $d['groomFamilyLabel'], 'ph' => 'Damat Ailesi' ) );
+					Sahra_Form::alan( array( 'label' => __( 'Sol Metin', 'sahra-davetiye' ), 'name' => 'sahra[brideFamilyText]', 'value' => $d['brideFamilyText'], 'type' => 'textarea', 'rows' => 3, 'ph' => "Yılmaz Ailesi\nMehmet & Fatma Yılmaz" ) );
+					Sahra_Form::alan( array( 'label' => __( 'Sağ Metin', 'sahra-davetiye' ), 'name' => 'sahra[groomFamilyText]', 'value' => $d['groomFamilyText'], 'type' => 'textarea', 'rows' => 3, 'ph' => "Demir Ailesi\nAli & Ayşe Demir" ) );
+					?>
+				</div>
+			</div>
+
+			<?php /* ── 9 Hediye & Dilekler ────────────────────────────── */ ?>
+			<div class="sahra-adim" data-adim="8" hidden>
 				<label class="anahtar">
 					<input type="checkbox" name="sahra[giftEnabled]" value="1" <?php checked( $d['giftEnabled'] ); ?>>
 					<span><?php esc_html_e( 'Hediye Bölümünü Göster', 'sahra-davetiye' ); ?></span>
@@ -349,8 +475,8 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				</div>
 			</div>
 
-			<?php /* ── 8 Ses Ayarları ─────────────────────────────────── */ ?>
-			<div class="sahra-adim" data-adim="7" hidden>
+			<?php /* ── 10 Ses Ayarları ─────────────────────────────────── */ ?>
+			<div class="sahra-adim" data-adim="9" hidden>
 				<label class="anahtar">
 					<input type="checkbox" name="sahra[soundEnabled]" value="1" <?php checked( $d['soundEnabled'] ); ?>>
 					<span><?php esc_html_e( 'Arka Plan Müziği Açık', 'sahra-davetiye' ); ?></span>
@@ -359,13 +485,38 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				<?php
 				Sahra_Form::ses( __( 'Arka Plan Müziği', 'sahra-davetiye' ), 'sahra[backgroundMusicUrl]', $d['backgroundMusicUrl'], Sahra_Fields::music_tracks() );
 				Sahra_Form::alan( array( 'label' => __( 'Ses Düzeyi (%)', 'sahra-davetiye' ), 'name' => 'sahra[soundVolume]', 'value' => (int) $d['soundVolume'], 'type' => 'number' ) );
-				Sahra_Form::ses( __( 'Mühür Kırılma Sesi', 'sahra-davetiye' ), 'sahra[sealBreakSound]', $d['sealBreakSound'], Sahra_Fields::seal_sounds() );
-				Sahra_Form::ses( __( 'Zarf Açılma Sesi', 'sahra-davetiye' ), 'sahra[envelopeOpenSound]', $d['envelopeOpenSound'], Sahra_Fields::envelope_sounds() );
 				?>
+
+				<?php
+				/*
+				 * Mühür kırılma ve zarf açılma sesi SABİT.
+				 *
+				 * Bunlar açılış sahnesinin parçası, çiftin zevk meselesi
+				 * değil: yanlış uzunlukta ya da yüksek sesli bir dosya
+				 * perdenin zamanlamasını bozuyor ve ürünün ilk üç saniyesi
+				 * bozuk görünüyordu. Arka plan müziği seçilebilir kalıyor.
+				 */
+				?>
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Sahne Sesleri', 'sahra-davetiye' ); ?></span>
+					<div class="secenekler">
+						<?php foreach ( array( 'muhur-kirilma' => __( 'Mühür Kırılma', 'sahra-davetiye' ), 'zarf-acilma' => __( 'Zarf Açılma', 'sahra-davetiye' ) ) as $dosya => $ad ) : ?>
+							<div class="secenek">
+								<span class="ad"><?php echo esc_html( $ad ); ?></span>
+								<span style="display:flex;gap:1rem;margin-top:0.5rem">
+									<button type="button" class="eylem-link sahra-dinle" data-adres="<?php echo esc_url( SAHRA_URL . 'assets/muzik/' . $dosya . '.mp3' ); ?>">
+										<?php esc_html_e( 'Dinle', 'sahra-davetiye' ); ?>
+									</button>
+								</span>
+							</div>
+						<?php endforeach; ?>
+					</div>
+					<p class="ipucu"><?php esc_html_e( 'Bu iki ses açılış sahnesinin parçasıdır ve değiştirilemez.', 'sahra-davetiye' ); ?></p>
+				</div>
 			</div>
 
-			<?php /* ── 9 Tema ─────────────────────────────────────────── */ ?>
-			<div class="sahra-adim" data-adim="8" hidden>
+			<?php /* ── 11 Tema ─────────────────────────────────────────── */ ?>
+			<div class="sahra-adim" data-adim="10" hidden>
 				<div class="alan">
 					<span class="field-label"><?php esc_html_e( 'Tema', 'sahra-davetiye' ); ?></span>
 					<div class="secenekler">
@@ -381,8 +532,8 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				</div>
 			</div>
 
-			<?php /* ── 10 Program ─────────────────────────────────────── */ ?>
-			<div class="sahra-adim" data-adim="9" hidden>
+			<?php /* ── 12 Program ─────────────────────────────────────── */ ?>
+			<div class="sahra-adim" data-adim="11" hidden>
 				<?php Sahra_Form::bolum_basligi( $d, 'program', 'Akış', 'Günün Programı' ); ?>
 
 				<div class="alan">
@@ -398,25 +549,8 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				</div>
 			</div>
 
-			<?php /* ── 11 SSS ─────────────────────────────────────────── */ ?>
-			<div class="sahra-adim" data-adim="10" hidden>
-				<?php Sahra_Form::bolum_basligi( $d, 'faq', 'Merak Edilenler', 'Sık Sorulan Sorular' ); ?>
-
-				<div class="alan">
-					<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
-						<span class="field-label" style="margin:0"><?php esc_html_e( 'Sorular', 'sahra-davetiye' ); ?></span>
-						<button type="button" class="eylem-link sahra-varsayilan" data-hedef="f-faq"
-							data-metin="<?php echo esc_attr( Sahra_Form::satirlar( Sahra_Fields::default_faq(), array( 'q', 'a' ) ) ); ?>">
-							<?php esc_html_e( 'Varsayılanları Yükle', 'sahra-davetiye' ); ?>
-						</button>
-					</div>
-					<textarea id="f-faq" name="sahra[faqText]" rows="7" placeholder="Çocuklar davetli mi? | Düğünümüz yetişkinlere özel planlanmıştır."><?php echo esc_textarea( $metinler['faq'] ); ?></textarea>
-					<p class="ipucu"><?php esc_html_e( 'Her satır bir madde: soru | cevap', 'sahra-davetiye' ); ?></p>
-				</div>
-			</div>
-
-			<?php /* ── 12 Hikayemiz ───────────────────────────────────── */ ?>
-			<div class="sahra-adim" data-adim="11" hidden>
+			<?php /* ── 13 Hikayemiz ───────────────────────────────────── */ ?>
+			<div class="sahra-adim" data-adim="12" hidden>
 				<?php Sahra_Form::bolum_basligi( $d, 'story', 'Bizim', 'Hikayemiz' ); ?>
 
 				<div class="alan">
@@ -431,13 +565,99 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					<p class="ipucu"><?php esc_html_e( 'Her satır bir madde: yıl | başlık | açıklama', 'sahra-davetiye' ); ?></p>
 				</div>
 
+				<?php
+				Sahra_Form::alan(
+					array(
+						'label' => __( 'Etiketleme Bölümü Başlığı', 'sahra-davetiye' ),
+						'name'  => 'sahra[socialSectionTitle]',
+						'value' => $d['socialSectionTitle'],
+						'ph'    => 'Etiketlemeyi Unutmayın',
+					)
+				);
+				Sahra_Form::alan( array( 'label' => __( 'Etiket (Hashtag)', 'sahra-davetiye' ), 'name' => 'sahra[hashtag]', 'value' => $d['hashtag'], 'ph' => '#ZehraveAhmet2026' ) );
+				?>
+
 				<div class="alan">
-					<label class="field-label" for="f-social"><?php esc_html_e( 'Sosyal Hesaplar', 'sahra-davetiye' ); ?></label>
+					<label class="field-label" for="f-social"><?php esc_html_e( 'Sosyal Hesaplarınız', 'sahra-davetiye' ); ?></label>
 					<textarea id="f-social" name="sahra[socialText]" rows="3" placeholder="Instagram | https://instagram.com/..."><?php echo esc_textarea( $metinler['social'] ); ?></textarea>
 					<p class="ipucu"><?php esc_html_e( 'Her satır bir madde: ad | adres', 'sahra-davetiye' ); ?></p>
 				</div>
 
-				<?php Sahra_Form::alan( array( 'label' => __( 'Etiket (Hashtag)', 'sahra-davetiye' ), 'name' => 'sahra[hashtag]', 'value' => $d['hashtag'], 'ph' => '#MehmetveAyşe' ) ); ?>
+				<?php if ( $marka['instagram'] ) : ?>
+					<?php
+					/*
+					 * İşletmenin kendi hesabı davetiyeye BURADAN değil
+					 * ayarlardan gelir — her çifte ayrı yazdırmak, birinin
+					 * yanlış yazması ve kimsenin fark etmemesi demekti.
+					 */
+					?>
+					<div class="alan">
+						<span class="field-label"><?php esc_html_e( 'Bizim Hesabımız', 'sahra-davetiye' ); ?></span>
+						<p class="t-body"><?php echo esc_html( $marka['instagramLabel'] ? $marka['instagramLabel'] : $marka['instagram'] ); ?></p>
+						<p class="ipucu"><?php esc_html_e( 'Etiketleme bölümünde otomatik görünür.', 'sahra-davetiye' ); ?></p>
+					</div>
+				<?php endif; ?>
+			</div>
+
+			<?php /* ── 14 Bölümler ────────────────────────────────────── */ ?>
+			<div class="sahra-adim" data-adim="13" hidden>
+				<?php
+				/*
+				 * Her bölümün "sayfada görünsün" anahtarı.
+				 *
+				 * Bir bölümü gizlemenin tek yolu içeriğini boşaltmaktı —
+				 * yani çift, sonra geri açmak isterse yazdıklarını
+				 * kaybediyordu. Anahtar içeriği koruyor.
+				 */
+				$sahra_bolumler = array(
+					'showLetter'    => __( 'Davet Mektubu', 'sahra-davetiye' ),
+					'showStory'     => __( 'Hikayemiz', 'sahra-davetiye' ),
+					'showDetails'   => __( 'Düğün Bilgileri', 'sahra-davetiye' ),
+					'showProgram'   => __( 'Günün Programı', 'sahra-davetiye' ),
+					'showMenu'      => __( 'Menü', 'sahra-davetiye' ),
+					'showGallery'   => __( 'Fotoğraf Galerisi', 'sahra-davetiye' ),
+					'showLocation'  => __( 'Konum & Harita', 'sahra-davetiye' ),
+					'showFamily'    => __( 'Ailelerimiz', 'sahra-davetiye' ),
+					'showRsvp'      => __( 'Katılım Formu', 'sahra-davetiye' ),
+					'giftEnabled'   => __( 'Hediye', 'sahra-davetiye' ),
+					'wishesEnabled' => __( 'Dilek Defteri', 'sahra-davetiye' ),
+					'showChildren'  => __( 'Çocuk Notu', 'sahra-davetiye' ),
+					'showSocial'    => __( 'Etiketleme', 'sahra-davetiye' ),
+					'showContact'   => __( 'Kapanış', 'sahra-davetiye' ),
+				);
+				?>
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Davetiyede Görünecek Bölümler', 'sahra-davetiye' ); ?></span>
+					<div class="sahra-bolum-listesi">
+						<?php foreach ( $sahra_bolumler as $anahtar => $etiket ) : ?>
+							<label class="anahtar">
+								<input type="checkbox" name="sahra[<?php echo esc_attr( $anahtar ); ?>]" value="1" <?php checked( ! empty( $d[ $anahtar ] ) ); ?>>
+								<span><?php echo esc_html( $etiket ); ?></span>
+							</label>
+						<?php endforeach; ?>
+					</div>
+					<p class="ipucu"><?php esc_html_e( 'Kapattığınız bölümün içeriği silinmez, yalnızca davetiyede görünmez.', 'sahra-davetiye' ); ?></p>
+				</div>
+
+				<?php
+				/*
+				 * Çocuk durumu tek bir tik.
+				 *
+				 * Eskiden bu bilgi SSS'te "Çocuklar davetli mi?" diye bir
+				 * soru-cevaptı; çift metni elle yazıyordu ve çoğu zaman
+				 * kırıcı çıkıyordu. Tek tik, iki hazır cümle.
+				 */
+				?>
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Çocuk Durumu', 'sahra-davetiye' ); ?></span>
+					<label class="anahtar">
+						<input type="checkbox" name="sahra[childrenWelcome]" value="1" <?php checked( $d['childrenWelcome'] ); ?>>
+						<span><?php esc_html_e( 'Çocuklar da davetli', 'sahra-davetiye' ); ?></span>
+					</label>
+					<p class="ipucu">
+						<?php esc_html_e( 'İşaretlenmezse davetiyede "Düğünümüz yalnızca yetişkinlere yöneliktir — minik misafirlerimize iyi uykular" yazar. İşaretlerseniz "Çocuklar da davetlidir" yazar.', 'sahra-davetiye' ); ?>
+					</p>
+				</div>
 			</div>
 
 			<div class="sahra-adim-alt">

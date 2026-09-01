@@ -47,6 +47,9 @@ class Sahra_Plugin {
 		add_filter( 'logout_redirect', array( 'Sahra_Login', 'filter_logout_redirect' ), 10, 3 );
 		add_action( 'login_init', array( 'Sahra_Login', 'redirect_wp_login' ) );
 
+		// Düğünden sonra davetiyeyi yayından kaldıran günlük bakım.
+		add_action( Sahra_Lifecycle::HOOK, array( 'Sahra_Lifecycle', 'run' ) );
+
 		// Davetiye silinince katılım/dilek/fotoğrafları da gitsin.
 		add_action( 'before_delete_post', array( $this, 'on_delete_post' ) );
 		add_action( 'deleted_user', array( $this, 'on_delete_user' ) );
@@ -57,6 +60,7 @@ class Sahra_Plugin {
 		Sahra_Render::add_rewrite_rules();
 		Sahra_Render::maybe_flush();
 		Sahra_Tables::maybe_upgrade();
+		Sahra_Lifecycle::schedule();
 	}
 
 	public function login_redirect( $redirect_to, $requested, $user ) {

@@ -15,7 +15,21 @@ defined( 'ABSPATH' ) || exit;
 
 $d       = $davetiye;
 $conj    = $d['conjunction'] ? $d['conjunction'] : '&';
-$isimler = trim( $d['groomName'] . ' ' . $conj . ' ' . $d['brideName'] );
+
+/*
+ * Bölüm numarası sabit yazılamaz: bölümler kapatılabiliyor ve kapalı
+ * olanın numarası boşluk bırakıyordu — "01, 03, 06" diye giden bir
+ * davetiye. Numara çizim sırasında veriliyor.
+ */
+$sahra_sayac = 0;
+$sahra_no    = static function () use ( &$sahra_sayac ) {
+	$sahra_sayac++;
+	return str_pad( (string) $sahra_sayac, 2, '0', STR_PAD_LEFT );
+};
+
+$marka = Sahra_Settings::brand();
+// Gelin solda, damat sağda — panelden bağlantı adresine kadar aynı sıra.
+$isimler = trim( $d['brideName'] . ' ' . $conj . ' ' . $d['groomName'] );
 $tarih   = Sahra_Render::format_date( $d['weddingDate'] );
 $gun     = Sahra_Render::format_weekday( $d['weddingDate'] );
 $saat    = Sahra_Render::format_time_range( $d['weddingTime'], $d['weddingEndTime'] );
@@ -23,13 +37,13 @@ $muhur   = Sahra_Theme::seal_palette( $d['sealType'] );
 
 $monogram = trim( $d['sealMonogram'] );
 if ( '' === $monogram ) {
-	$monogram = mb_substr( $d['groomName'], 0, 1 ) . ' ' . $conj . ' ' . mb_substr( $d['brideName'], 0, 1 );
+	$monogram = mb_substr( $d['brideName'], 0, 1 ) . ' ' . $conj . ' ' . mb_substr( $d['groomName'], 0, 1 );
 }
 
 $tam_adlar = array_filter(
 	array(
-		trim( $d['groomName'] . ' ' . $d['groomSurname'] ),
 		trim( $d['brideName'] . ' ' . $d['brideSurname'] ),
+		trim( $d['groomName'] . ' ' . $d['groomSurname'] ),
 	)
 );
 
@@ -183,9 +197,9 @@ $geri_sayim = $d['weddingDate']
 				<p class="t-label reveal" style="color:var(--c-gold)">Düğünümüze Davetlisiniz</p>
 
 				<h1 class="t-hero hero-names reveal" style="margin-top:var(--sp-sm)">
-					<?php echo esc_html( $d['groomName'] ); ?>
-					<span class="hero-amp"><?php echo esc_html( $conj ); ?></span>
 					<?php echo esc_html( $d['brideName'] ); ?>
+					<span class="hero-amp"><?php echo esc_html( $conj ); ?></span>
+					<?php echo esc_html( $d['groomName'] ); ?>
 				</h1>
 
 				<div class="hero-meta t-body numerals reveal">
@@ -211,6 +225,7 @@ $geri_sayim = $d['weddingDate']
 		</section>
 
 		<?php /* ───────────────────────────────────────────────── mektup */ ?>
+		<?php if ( $d['showLetter'] ) : ?>
 		<section id="letter" class="section-gap">
 			<div class="letter-wrap">
 				<span class="letter-shadow" aria-hidden="true"></span>
@@ -246,6 +261,7 @@ $geri_sayim = $d['weddingDate']
 				</article>
 			</div>
 		</section>
+		<?php endif; ?>
 	</div>
 
 	<div class="bridge bridge-to-light" aria-hidden="true"><span></span></div>
@@ -253,11 +269,11 @@ $geri_sayim = $d['weddingDate']
 	<div class="phase-light">
 
 		<?php /* ───────────────────────────────────────────────── hikaye */ ?>
-		<?php if ( ! empty( $d['storyItems'] ) ) : ?>
+		<?php if ( $d['showStory'] && ! empty( $d['storyItems'] ) ) : ?>
 			<section id="story" class="section-gap">
 				<div class="wrap">
 					<div class="section-head reveal">
-						<span class="num numerals">01</span>
+						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 						<span class="t-label"><?php echo esc_html( $d['storySectionSubtitle'] ? $d['storySectionSubtitle'] : 'Bizim' ); ?></span>
 					</div>
 					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['storySectionTitle'] ? $d['storySectionTitle'] : 'Hikayemiz' ); ?></h2>
@@ -276,10 +292,11 @@ $geri_sayim = $d['weddingDate']
 		<?php endif; ?>
 
 		<?php /* ───────────────────────────────────────────────── detaylar */ ?>
+		<?php if ( $d['showDetails'] ) : ?>
 		<section id="details" class="section-gap">
 			<div class="wrap">
 				<div class="section-head reveal">
-					<span class="num numerals">02</span>
+					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 					<span class="t-label"><?php echo esc_html( $d['detailsSectionSubtitle'] ? $d['detailsSectionSubtitle'] : 'Detaylar' ); ?></span>
 				</div>
 				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['detailsSectionTitle'] ? $d['detailsSectionTitle'] : 'Düğün Bilgileri' ); ?></h2>
@@ -327,13 +344,14 @@ $geri_sayim = $d['weddingDate']
 				<?php endif; ?>
 			</div>
 		</section>
+		<?php endif; ?>
 
 		<?php /* ───────────────────────────────────────────────── program */ ?>
-		<?php if ( ! empty( $d['programItems'] ) ) : ?>
+		<?php if ( $d['showProgram'] && ! empty( $d['programItems'] ) ) : ?>
 			<section id="program" class="section-gap">
 				<div class="wrap">
 					<div class="section-head reveal">
-						<span class="num numerals">03</span>
+						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 						<span class="t-label"><?php echo esc_html( $d['programSectionSubtitle'] ? $d['programSectionSubtitle'] : 'Akış' ); ?></span>
 					</div>
 					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['programSectionTitle'] ? $d['programSectionTitle'] : 'Günün Programı' ); ?></h2>
@@ -352,10 +370,11 @@ $geri_sayim = $d['weddingDate']
 		<?php endif; ?>
 
 		<?php /* ────────────────────────────────────────────────── galeri */ ?>
+		<?php if ( $d['showGallery'] ) : ?>
 		<section id="gallery" class="section-gap">
 			<div class="wrap">
 				<div class="section-head reveal">
-					<span class="num numerals">04</span>
+					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 					<span class="t-label"><?php echo esc_html( $d['gallerySectionSubtitle'] ? $d['gallerySectionSubtitle'] : 'Anılar' ); ?></span>
 				</div>
 				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['gallerySectionTitle'] ? $d['gallerySectionTitle'] : 'Fotoğraf Galerisi' ); ?></h2>
@@ -373,12 +392,14 @@ $geri_sayim = $d['weddingDate']
 				<?php endif; ?>
 			</div>
 		</section>
+		<?php endif; ?>
 
 		<?php /* ─────────────────────────────────────────────────── konum */ ?>
+		<?php if ( $d['showLocation'] ) : ?>
 		<section id="location" class="section-gap">
 			<div class="wrap">
 				<div class="section-head reveal">
-					<span class="num numerals">05</span>
+					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 					<span class="t-label"><?php echo esc_html( $d['locationSectionSubtitle'] ? $d['locationSectionSubtitle'] : 'Konum' ); ?></span>
 				</div>
 				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['locationSectionTitle'] ? $d['locationSectionTitle'] : 'Nasıl Gelirsiniz?' ); ?></h2>
@@ -409,32 +430,118 @@ $geri_sayim = $d['weddingDate']
 							href="<?php echo esc_url( 'https://www.google.com/maps/dir/?api=1&destination=' . $konum_sorgu ); ?>">Yol Tarifi</a>
 					</p>
 				<?php endif; ?>
+
+				<?php
+				/*
+				 * Salonun özellikleri misafirin O AKŞAM vereceği kararları
+				 * etkiliyor: arabayla mı geleyim, çocuğumu getirebilir
+				 * miyim, tekerlekli sandalye geçer mi. Bu yüzden haritanın
+				 * hemen altında; ayrı bir bölüme koymak, sorunun sorulduğu
+				 * yerden uzaklaştırmak olurdu.
+				 */
+				?>
+				<?php if ( ! empty( $d['venueFeatures'] ) ) : ?>
+					<ul class="salon-ozellik reveal">
+						<?php foreach ( $d['venueFeatures'] as $sahra_ozellik ) : ?>
+							<li><span aria-hidden="true">✓</span><?php echo esc_html( $sahra_ozellik ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
 			</div>
 		</section>
+		<?php endif; ?>
 
-		<?php /* ───────────────────────────────────────────────────── SSS */ ?>
-		<?php if ( ! empty( $d['faqItems'] ) ) : ?>
-			<section id="faq" class="section-gap">
+		<?php /* ──────────────────────────────────────────────────── menü */ ?>
+		<?php
+		/*
+		 * Menünün ADI davetiyede GÖRÜNMÜYOR.
+		 *
+		 * Misafir için "Menü-3" bir anlam taşımıyor; o, işletmeyle çift
+		 * arasındaki bir numara. Başlık yalnızca "Menü", içerik ise çiftin
+		 * üstünde oynayabildiği kopyası.
+		 */
+		?>
+		<?php if ( $d['showMenu'] && ! empty( $d['menuGroups'] ) ) : ?>
+			<section id="menu" class="section-gap">
 				<div class="wrap">
 					<div class="section-head reveal">
-						<span class="num numerals">06</span>
-						<span class="t-label"><?php echo esc_html( $d['faqSectionSubtitle'] ? $d['faqSectionSubtitle'] : 'Merak Edilenler' ); ?></span>
+						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
+						<span class="t-label"><?php echo esc_html( $d['menuSectionSubtitle'] ? $d['menuSectionSubtitle'] : 'İkram' ); ?></span>
 					</div>
-					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['faqSectionTitle'] ? $d['faqSectionTitle'] : 'Sık Sorulan Sorular' ); ?></h2>
+					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['menuSectionTitle'] ? $d['menuSectionTitle'] : 'Menü' ); ?></h2>
 
-					<div class="faq-list">
-						<?php foreach ( $d['faqItems'] as $i => $oge ) : ?>
-							<div class="faq-item reveal">
-								<button type="button" class="faq-q" aria-expanded="false">
-									<span><?php echo esc_html( isset( $oge['q'] ) ? $oge['q'] : '' ); ?></span>
-									<span aria-hidden="true">+</span>
-								</button>
-								<div class="faq-a">
-									<p class="t-body"><?php echo esc_html( isset( $oge['a'] ) ? $oge['a'] : '' ); ?></p>
-								</div>
+					<div class="menu-grid">
+						<?php foreach ( $d['menuGroups'] as $sahra_grup ) : ?>
+							<div class="menu-grup reveal">
+								<?php if ( ! empty( $sahra_grup['title'] ) ) : ?>
+									<h3 class="menu-grup-baslik"><?php echo esc_html( $sahra_grup['title'] ); ?></h3>
+								<?php endif; ?>
+								<?php if ( ! empty( $sahra_grup['items'] ) ) : ?>
+									<ul class="menu-liste">
+										<?php foreach ( $sahra_grup['items'] as $sahra_oge ) : ?>
+											<li><?php echo esc_html( $sahra_oge ); ?></li>
+										<?php endforeach; ?>
+									</ul>
+								<?php endif; ?>
 							</div>
 						<?php endforeach; ?>
 					</div>
+				</div>
+			</section>
+		<?php endif; ?>
+
+		<?php /* ────────────────────────────────────────────── ailelerimiz */ ?>
+		<?php
+		$sahra_aile = array_filter( array( $d['brideFamilyText'], $d['groomFamilyText'] ) );
+		?>
+		<?php if ( $d['showFamily'] && $sahra_aile ) : ?>
+			<section id="family" class="section-gap">
+				<div class="wrap">
+					<div class="section-head reveal">
+						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
+						<span class="t-label"><?php echo esc_html( $d['familySectionSubtitle'] ? $d['familySectionSubtitle'] : 'Bizi Yetiştirenler' ); ?></span>
+					</div>
+					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['familySectionTitle'] ? $d['familySectionTitle'] : 'Ailelerimiz' ); ?></h2>
+
+					<?php /* Gelin solda, damat sağda — sayfanın geri kalanıyla aynı sıra. */ ?>
+					<div class="aile-grid">
+						<?php if ( $d['brideFamilyText'] ) : ?>
+							<div class="aile-taraf reveal">
+								<p class="t-label aile-etiket"><?php echo esc_html( $d['brideFamilyLabel'] ? $d['brideFamilyLabel'] : 'Gelin Ailesi' ); ?></p>
+								<p class="aile-metin"><?php echo nl2br( esc_html( $d['brideFamilyText'] ) ); ?></p>
+							</div>
+						<?php endif; ?>
+						<?php if ( $d['groomFamilyText'] ) : ?>
+							<div class="aile-taraf reveal">
+								<p class="t-label aile-etiket"><?php echo esc_html( $d['groomFamilyLabel'] ? $d['groomFamilyLabel'] : 'Damat Ailesi' ); ?></p>
+								<p class="aile-metin"><?php echo nl2br( esc_html( $d['groomFamilyText'] ) ); ?></p>
+							</div>
+						<?php endif; ?>
+					</div>
+				</div>
+			</section>
+		<?php endif; ?>
+
+		<?php /* ───────────────────────────────────────────────── çocuklar */ ?>
+		<?php
+		/*
+		 * Eskiden bu bilgi SSS'te "Çocuklar davetli mi?" diye bir soru-cevaptı
+		 * ve metni çift elle yazıyordu; çoğu zaman kırıcı çıkıyordu. Tek tik,
+		 * iki hazır cümle. Kabul edilen söyleyiş: yetişkinlere yönelik bir
+		 * düğünde çocuklara "iyi uykular" denir.
+		 */
+		?>
+		<?php if ( $d['showChildren'] ) : ?>
+			<section id="children" class="section-gap-kisa">
+				<div class="wrap-narrow">
+					<p class="cocuk-not reveal">
+						<span class="cocuk-tik" aria-hidden="true">✓</span>
+						<?php if ( $d['childrenWelcome'] ) : ?>
+							<?php esc_html_e( 'Çocuklar da davetlidir — minik misafirlerimizi de bekliyoruz.', 'sahra-davetiye' ); ?>
+						<?php else : ?>
+							<?php esc_html_e( 'Düğünümüz yalnızca yetişkinlere yöneliktir — minik misafirlerimize iyi uykular.', 'sahra-davetiye' ); ?>
+						<?php endif; ?>
+					</p>
 				</div>
 			</section>
 		<?php endif; ?>
@@ -445,10 +552,11 @@ $geri_sayim = $d['weddingDate']
 	<div class="phase-dark">
 
 		<?php /* ────────────────────────────────────────────────── katılım */ ?>
+		<?php if ( $d['showRsvp'] ) : ?>
 		<section id="rsvp" class="section-gap">
 			<div class="wrap-narrow">
 				<div class="section-head reveal" style="color:var(--c-gold)">
-					<span class="num numerals">07</span>
+					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 					<span class="t-label"><?php echo esc_html( $d['rsvpSectionSubtitle'] ? $d['rsvpSectionSubtitle'] : 'Katılım' ); ?></span>
 				</div>
 				<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['rsvpSectionTitle'] ? $d['rsvpSectionTitle'] : 'Sizi Aramızda Görmek İsteriz' ); ?></h2>
@@ -506,13 +614,14 @@ $geri_sayim = $d['weddingDate']
 				</form>
 			</div>
 		</section>
+		<?php endif; ?>
 
 		<?php /* ─────────────────────────────────────────────────── hediye */ ?>
 		<?php if ( $d['giftEnabled'] && ( $d['giftIban'] || $d['giftRegistryUrl'] ) ) : ?>
 			<section id="gift" class="section-gap">
 				<div class="wrap-narrow center">
 					<div class="section-head reveal" style="color:var(--c-gold);justify-content:center">
-						<span class="num numerals">08</span>
+						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 						<span class="t-label">Hediye</span>
 					</div>
 					<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['giftTitle'] ? $d['giftTitle'] : 'Hediye' ); ?></h2>
@@ -548,7 +657,7 @@ $geri_sayim = $d['weddingDate']
 			<section id="wishes" class="section-gap">
 				<div class="wrap">
 					<div class="section-head reveal" style="color:var(--c-gold)">
-						<span class="num numerals">09</span>
+						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 						<span class="t-label"><?php echo esc_html( $d['wishesSubtitle'] ? $d['wishesSubtitle'] : 'Bize Bir Not Bırakın' ); ?></span>
 					</div>
 					<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['wishesTitle'] ? $d['wishesTitle'] : 'Dilek Defteri' ); ?></h2>
@@ -586,25 +695,54 @@ $geri_sayim = $d['weddingDate']
 		<?php endif; ?>
 
 		<?php /* ──────────────────────────────────────────────── iletişim */ ?>
+		<?php if ( $d['showContact'] ) : ?>
 		<section id="contact" class="section-gap">
 			<div class="wrap center">
 				<h2 class="t-display reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['contactSectionTitle'] ? $d['contactSectionTitle'] : 'Görüşmek Üzere' ); ?></h2>
 				<p class="t-lead reveal" style="color:var(--c-gold);margin-top:var(--sp-sm)"><?php echo esc_html( $isimler ); ?></p>
 
-				<?php if ( $d['hashtag'] ) : ?>
-					<p class="t-label reveal" style="color:var(--c-on-dark-faint);margin-top:var(--sp-sm)"><?php echo esc_html( $d['hashtag'] ); ?></p>
-				<?php endif; ?>
+				<?php
+				/*
+				 * Etiketleme bloğu: çiftin hesapları + İŞLETMENİN hesabı.
+				 *
+				 * İşletmenin hesabı davetiyeden değil ayardan geliyor — her
+				 * çifte ayrı yazdırmak, birinin yanlış yazması ve kimsenin
+				 * fark etmemesi demekti.
+				 */
+				$sahra_etiketler = array();
+				foreach ( (array) $d['socialLinks'] as $bag ) {
+					if ( ! empty( $bag['href'] ) ) {
+						$sahra_etiketler[] = array(
+							'name' => ! empty( $bag['name'] ) ? $bag['name'] : $bag['href'],
+							'href' => $bag['href'],
+						);
+					}
+				}
+				if ( $marka['instagram'] ) {
+					$sahra_etiketler[] = array(
+						'name' => $marka['instagramLabel'] ? $marka['instagramLabel'] : 'Sahra Davet',
+						'href' => $marka['instagram'],
+					);
+				}
+				?>
+				<?php if ( $d['showSocial'] && ( $d['hashtag'] || $sahra_etiketler ) ) : ?>
+					<div class="etiket-blok reveal">
+						<p class="t-label" style="color:var(--c-gold)"><?php echo esc_html( $d['socialSectionTitle'] ? $d['socialSectionTitle'] : 'Etiketlemeyi Unutmayın' ); ?></p>
 
-				<?php if ( ! empty( $d['socialLinks'] ) ) : ?>
-					<p class="reveal" style="margin-top:var(--sp-sm);display:flex;gap:var(--sp-sm);justify-content:center;flex-wrap:wrap">
-						<?php foreach ( $d['socialLinks'] as $bag ) : ?>
-							<?php if ( ! empty( $bag['href'] ) ) : ?>
-								<a class="link-underline" style="color:var(--c-on-dark-soft)" href="<?php echo esc_url( $bag['href'] ); ?>" target="_blank" rel="noopener">
-									<?php echo esc_html( isset( $bag['name'] ) ? $bag['name'] : $bag['href'] ); ?>
-								</a>
-							<?php endif; ?>
-						<?php endforeach; ?>
-					</p>
+						<?php if ( $d['hashtag'] ) : ?>
+							<p class="etiket-hashtag"><?php echo esc_html( $d['hashtag'] ); ?></p>
+						<?php endif; ?>
+
+						<?php if ( $sahra_etiketler ) : ?>
+							<p class="etiket-hesaplar">
+								<?php foreach ( $sahra_etiketler as $sahra_bag ) : ?>
+									<a class="link-underline" href="<?php echo esc_url( $sahra_bag['href'] ); ?>" target="_blank" rel="noopener">
+										<?php echo esc_html( $sahra_bag['name'] ); ?>
+									</a>
+								<?php endforeach; ?>
+							</p>
+						<?php endif; ?>
+					</div>
 				<?php endif; ?>
 
 				<p class="reveal" style="margin-top:var(--sp-md);display:flex;gap:var(--sp-sm);justify-content:center;flex-wrap:wrap">
@@ -615,6 +753,7 @@ $geri_sayim = $d['weddingDate']
 				<p class="t-label reveal" style="color:var(--c-on-dark-faint);margin-top:var(--sp-lg)">Sevgiyle Hazırlandı</p>
 			</div>
 		</section>
+		<?php endif; ?>
 	</div>
 </main>
 

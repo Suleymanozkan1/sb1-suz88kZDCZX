@@ -36,6 +36,7 @@ require_once SAHRA_DIR . 'includes/class-sahra-invitation.php';
 require_once SAHRA_DIR . 'includes/class-sahra-theme.php';
 require_once SAHRA_DIR . 'includes/class-sahra-rest.php';
 require_once SAHRA_DIR . 'includes/class-sahra-og-image.php';
+require_once SAHRA_DIR . 'includes/class-sahra-lifecycle.php';
 require_once SAHRA_DIR . 'includes/class-sahra-login.php';
 require_once SAHRA_DIR . 'includes/class-sahra-render.php';
 require_once SAHRA_DIR . 'includes/class-sahra-form.php';

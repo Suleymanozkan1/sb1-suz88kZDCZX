@@ -55,7 +55,19 @@ class Sahra_Invitation {
 		$ham = get_post_meta( $post->ID, self::META_KEY, true );
 		$ham = is_array( $ham ) ? $ham : array();
 
-		$data = array_merge( Sahra_Fields::defaults(), $ham, Sahra_Settings::venue() );
+		$data  = array_merge( Sahra_Fields::defaults(), $ham );
+
+		/*
+		 * Mekân, çiftin SEÇTİĞİ salondan gelir; alanları davetiyede
+		 * saklanmaz. Böylece salonun adresi değişince yayındaki bütün
+		 * davetiyeler aynı anda düzelir.
+		 */
+		$salon = Sahra_Settings::venue_for( $data['venueId'] );
+		foreach ( Sahra_Fields::VENUE_KEYS as $anahtar ) {
+			$data[ $anahtar ] = $salon[ $anahtar ];
+		}
+		$data['venueFeatures'] = $salon['features'];
+		$data['venueId']       = $salon['id'] ? $salon['id'] : $data['venueId'];
 
 		$data['id']       = (int) $post->ID;
 		$data['slug']     = $post->post_name;
@@ -120,6 +132,21 @@ class Sahra_Invitation {
 	 */
 	const RESERVED_SLUGS = array( 'giris', 'cikis', 'panel', 'admin' );
 
+	/**
+	 * Slug verilmediğinde üretilen adres: 31-eylul-2026-zehra-ahmet
+	 *
+	 * Tarih önde: işletme yılda yüzlerce davetiye açıyor, adrese bakınca
+	 * hangi güne ait olduğu görünmeli.
+	 */
+	private static function auto_slug( $data ) {
+		$slug = Sahra_Fields::build_slug(
+			$data['brideName'] ?? '',
+			$data['groomName'] ?? '',
+			$data['weddingDate'] ?? ''
+		);
+		return self::safe_slug( $slug ? $slug : __( 'davetiye', 'sahra-davetiye' ) );
+	}
+
 	/** Ayrılmış bir slug istendiyse ürünle çakışmayan bir sürümü. */
 	private static function safe_slug( $slug ) {
 		$slug = sanitize_title( $slug );
@@ -133,7 +160,8 @@ class Sahra_Invitation {
 	public static function create( $input, $owner_id ) {
 		$data = Sahra_Fields::sanitize( $input );
 
-		$baslik = trim( ( $data['groomName'] ?? '' ) . ' & ' . ( $data['brideName'] ?? '' ) );
+		// Gelin solda, damat sağda — başlıktan bağlantı adresine kadar.
+		$baslik = trim( ( $data['brideName'] ?? '' ) . ' & ' . ( $data['groomName'] ?? '' ) );
 		if ( '' === trim( $baslik, ' &' ) ) {
 			$baslik = __( 'Davetiye', 'sahra-davetiye' );
 		}
@@ -144,7 +172,7 @@ class Sahra_Invitation {
 			array(
 				'post_type'   => self::POST_TYPE,
 				'post_title'  => $baslik,
-				'post_name'   => $istenen ? $istenen : self::safe_slug( $baslik ),
+				'post_name'   => $istenen ? $istenen : self::auto_slug( $data ),
 				'post_status' => 'publish',
 				'post_author' => (int) $owner_id,
 			),
@@ -179,7 +207,7 @@ class Sahra_Invitation {
 
 		$guncelle = array( 'ID' => $post_id );
 
-		$baslik = trim( ( $data['groomName'] ?? '' ) . ' & ' . ( $data['brideName'] ?? '' ) );
+		$baslik = trim( ( $data['brideName'] ?? '' ) . ' & ' . ( $data['groomName'] ?? '' ) );
 		if ( '' !== trim( $baslik, ' &' ) ) {
 			$guncelle['post_title'] = $baslik;
 		}

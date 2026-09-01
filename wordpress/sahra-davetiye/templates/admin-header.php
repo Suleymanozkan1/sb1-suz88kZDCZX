@@ -22,8 +22,10 @@ $sahra_yollar = array(
 );
 
 if ( $sahra_yonetici ) {
-	$sahra_yollar['sahra-mekan']    = __( 'Mekân', 'sahra-davetiye' );
+	$sahra_yollar['sahra-salonlar'] = __( 'Salonlar', 'sahra-davetiye' );
+	$sahra_yollar['sahra-menuler']  = __( 'Menüler', 'sahra-davetiye' );
 	$sahra_yollar['sahra-hesaplar'] = __( 'Çift Hesapları', 'sahra-davetiye' );
+	$sahra_yollar['sahra-isletme']  = __( 'İşletme', 'sahra-davetiye' );
 	$sahra_yollar['sahra-depolama'] = __( 'Depolama', 'sahra-davetiye' );
 }
 

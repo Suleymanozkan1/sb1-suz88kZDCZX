@@ -30,7 +30,7 @@ class Sahra_Admin {
 	const COUPLE_PAGES = array( 'sahra-panel', 'sahra-davetiye-duzenle', 'sahra-hesap', 'sahra-ayarlar' );
 
 	/** Yalnızca yöneticinin girebildiği ekranlar. */
-	const MANAGER_PAGES = array( 'sahra-mekan', 'sahra-hesaplar', 'sahra-depolama' );
+	const MANAGER_PAGES = array( 'sahra-salonlar', 'sahra-menuler', 'sahra-hesaplar', 'sahra-depolama', 'sahra-isletme' );
 
 	public static function menu() {
 		add_menu_page(
@@ -49,8 +49,10 @@ class Sahra_Admin {
 		add_submenu_page( 'sahra-panel', __( 'Hesap Ayarları', 'sahra-davetiye' ), __( 'Hesap Ayarları', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-ayarlar', array( __CLASS__, 'page_account' ) );
 
 		if ( Sahra_Roles::is_manager() ) {
-			add_submenu_page( 'sahra-panel', __( 'Mekân', 'sahra-davetiye' ), __( 'Mekân', 'sahra-davetiye' ), 'manage_options', 'sahra-mekan', array( __CLASS__, 'page_venue' ) );
+			add_submenu_page( 'sahra-panel', __( 'Salonlar', 'sahra-davetiye' ), __( 'Salonlar', 'sahra-davetiye' ), 'manage_options', 'sahra-salonlar', array( __CLASS__, 'page_venues' ) );
+			add_submenu_page( 'sahra-panel', __( 'Menüler', 'sahra-davetiye' ), __( 'Menüler', 'sahra-davetiye' ), 'manage_options', 'sahra-menuler', array( __CLASS__, 'page_menus' ) );
 			add_submenu_page( 'sahra-panel', __( 'Çift Hesapları', 'sahra-davetiye' ), __( 'Çift Hesapları', 'sahra-davetiye' ), 'manage_options', 'sahra-hesaplar', array( __CLASS__, 'page_users' ) );
+			add_submenu_page( 'sahra-panel', __( 'İşletme', 'sahra-davetiye' ), __( 'İşletme', 'sahra-davetiye' ), 'manage_options', 'sahra-isletme', array( __CLASS__, 'page_business' ) );
 			add_submenu_page( 'sahra-panel', __( 'Depolama', 'sahra-davetiye' ), __( 'Depolama', 'sahra-davetiye' ), 'manage_options', 'sahra-depolama', array( __CLASS__, 'page_storage' ) );
 		}
 	}
@@ -117,8 +119,8 @@ class Sahra_Admin {
 		if ( '' === Sahra_Settings::venue()['venueName'] ) {
 			printf(
 				'<div class="notice notice-info"><p>%s <a href="%s">%s</a></p></div>',
-				esc_html__( 'Sahra Davetiye: mekân bilgisi henüz girilmedi, davetiyelerde adres görünmeyecek.', 'sahra-davetiye' ),
-				esc_url( admin_url( 'admin.php?page=sahra-mekan' ) ),
+				esc_html__( 'Sahra Davetiye: henüz salon tanımlanmadı, davetiyelerde adres görünmeyecek.', 'sahra-davetiye' ),
+				esc_url( admin_url( 'admin.php?page=sahra-salonlar' ) ),
 				esc_html__( 'Şimdi girin', 'sahra-davetiye' )
 			);
 		}
@@ -140,6 +142,18 @@ class Sahra_Admin {
 				break;
 			case 'save_venue':
 				self::save_venue();
+				break;
+			case 'delete_venue':
+				self::delete_venue();
+				break;
+			case 'save_menu':
+				self::save_menu();
+				break;
+			case 'delete_menu':
+				self::delete_menu();
+				break;
+			case 'save_business':
+				self::save_business();
 				break;
 			case 'save_storage':
 				self::save_storage();
@@ -189,9 +203,22 @@ class Sahra_Admin {
 
 		$ham['storyItems']   = self::parse_rows( isset( $ham['storyText'] ) ? $ham['storyText'] : '', array( 'year', 'title', 'desc' ) );
 		$ham['programItems'] = self::parse_rows( isset( $ham['programText'] ) ? $ham['programText'] : '', array( 'time', 'title', 'desc' ) );
-		$ham['faqItems']     = self::parse_rows( isset( $ham['faqText'] ) ? $ham['faqText'] : '', array( 'q', 'a' ) );
 		$ham['socialLinks']  = self::parse_rows( isset( $ham['socialText'] ) ? $ham['socialText'] : '', array( 'name', 'href' ) );
-		unset( $ham['storyText'], $ham['programText'], $ham['faqText'], $ham['socialText'] );
+		$ham['menuGroups']   = Sahra_Fields::parse_menu( isset( $ham['menuText'] ) ? $ham['menuText'] : '' );
+		unset( $ham['storyText'], $ham['programText'], $ham['socialText'], $ham['menuText'] );
+
+		/*
+		 * Görünürlük anahtarları da onay kutusu: gönderilmediğinde
+		 * "kapalı" demektir. Aksi hâlde bir bölümü kapatmak mümkün
+		 * olmuyordu — eksik alan "dokunulmadı" sayılıyor.
+		 */
+		foreach ( array(
+			'showLetter', 'showStory', 'showDetails', 'showProgram', 'showGallery',
+			'showLocation', 'showMenu', 'showFamily', 'showChildren', 'showRsvp',
+			'showContact', 'showSocial', 'childrenWelcome',
+		) as $anahtar ) {
+			$ham[ $anahtar ] = ! empty( $ham[ $anahtar ] );
+		}
 
 		/*
 		 * Sahip yalnızca YÖNETİCİDEN kabul edilir. Çift hesabı formu
@@ -223,8 +250,47 @@ class Sahra_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
-		Sahra_Settings::save_venue( wp_unslash( $_POST['venue'] ?? array() ) ); // phpcs:ignore
-		self::redirect( array( 'page' => 'sahra-mekan', 'kaydedildi' => 1 ) );
+		$sonuc = Sahra_Settings::save_venue( wp_unslash( $_POST['venue'] ?? array() ) ); // phpcs:ignore
+		if ( is_wp_error( $sonuc ) ) {
+			self::redirect( array( 'page' => 'sahra-salonlar', 'hata' => rawurlencode( $sonuc->get_error_message() ) ) );
+		}
+		self::redirect( array( 'page' => 'sahra-salonlar', 'kaydedildi' => 1 ) );
+	}
+
+	private static function delete_venue() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+		Sahra_Settings::delete_venue( sanitize_key( wp_unslash( $_POST['venue_id'] ?? '' ) ) ); // phpcs:ignore
+		self::redirect( array( 'page' => 'sahra-salonlar', 'silindi' => 1 ) );
+	}
+
+	private static function save_menu() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+		$sonuc = Sahra_Settings::save_menu( wp_unslash( $_POST['menu'] ?? array() ) ); // phpcs:ignore
+		if ( is_wp_error( $sonuc ) ) {
+			self::redirect( array( 'page' => 'sahra-menuler', 'hata' => rawurlencode( $sonuc->get_error_message() ) ) );
+		}
+		self::redirect( array( 'page' => 'sahra-menuler', 'kaydedildi' => 1 ) );
+	}
+
+	private static function delete_menu() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+		Sahra_Settings::delete_menu( sanitize_key( wp_unslash( $_POST['menu_id'] ?? '' ) ) ); // phpcs:ignore
+		self::redirect( array( 'page' => 'sahra-menuler', 'silindi' => 1 ) );
+	}
+
+	private static function save_business() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+		Sahra_Settings::save_brand( wp_unslash( $_POST['brand'] ?? array() ) );         // phpcs:ignore
+		Sahra_Settings::save_lifecycle( wp_unslash( $_POST['lifecycle'] ?? array() ) ); // phpcs:ignore
+		self::redirect( array( 'page' => 'sahra-isletme', 'kaydedildi' => 1 ) );
 	}
 
 	private static function save_storage() {
@@ -451,23 +517,38 @@ class Sahra_Admin {
 		$d = $id ? Sahra_Invitation::get( $id ) : array_merge(
 			Sahra_Fields::defaults(),
 			Sahra_Settings::venue(),
-			array( 'id' => 0, 'slug' => '', 'isActive' => true )
+			array( 'id' => 0, 'slug' => '', 'isActive' => true, 'venueFeatures' => array() )
 		);
 
 		$metinler = array(
 			'gallery' => implode( "\n", (array) $d['galleryImages'] ),
 			'story'   => self::rows_to_text( $d['storyItems'], array( 'year', 'title', 'desc' ) ),
 			'program' => self::rows_to_text( $d['programItems'], array( 'time', 'title', 'desc' ) ),
-			'faq'     => self::rows_to_text( $d['faqItems'], array( 'q', 'a' ) ),
+			'menu'    => Sahra_Fields::menu_to_text( $d['menuGroups'] ),
 			'social'  => self::rows_to_text( $d['socialLinks'], array( 'name', 'href' ) ),
 		);
 
 		include SAHRA_DIR . 'templates/admin-edit.php';
 	}
 
-	public static function page_venue() {
-		$venue = Sahra_Settings::venue();
-		include SAHRA_DIR . 'templates/admin-venue.php';
+	public static function page_venues() {
+		$salonlar = Sahra_Settings::venues();
+		$duzenle  = isset( $_GET['salon'] ) ? Sahra_Settings::venue_by_id( sanitize_key( wp_unslash( $_GET['salon'] ) ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification
+		$venue    = $duzenle ? $duzenle : Sahra_Settings::empty_venue();
+		include SAHRA_DIR . 'templates/admin-venues.php';
+	}
+
+	public static function page_menus() {
+		$menuler = Sahra_Settings::menus();
+		$duzenle = isset( $_GET['menu'] ) ? Sahra_Settings::menu_by_id( sanitize_key( wp_unslash( $_GET['menu'] ) ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification
+		$menu    = $duzenle ? $duzenle : Sahra_Settings::empty_menu();
+		include SAHRA_DIR . 'templates/admin-menus.php';
+	}
+
+	public static function page_business() {
+		$brand     = Sahra_Settings::brand();
+		$lifecycle = Sahra_Settings::lifecycle();
+		include SAHRA_DIR . 'templates/admin-business.php';
 	}
 
 	public static function page_storage() {

@@ -1203,6 +1203,135 @@ html.sahra-html {
   color: var(--c-gold-light);
 }
 
+/* ═══════════════════════════════════════════════════ MENÜ ════════ */
+
+.menu-grid {
+  margin-top: var(--sp-md);
+  display: grid;
+  gap: var(--sp-md) var(--sp-lg);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.menu-grup-baslik {
+  font-family: var(--f-body);
+  font-size: var(--t-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--c-gold-deep);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--c-rule);
+}
+
+.menu-liste {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.menu-liste li {
+  font-family: var(--f-display);
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  color: var(--c-on-light-soft);
+}
+
+/* ═════════════════════════════════════════════ AİLELERİMİZ ════════ */
+
+.aile-grid {
+  margin-top: var(--sp-md);
+  display: grid;
+  gap: var(--sp-md);
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  text-align: center;
+}
+
+.aile-etiket {
+  color: var(--c-gold-deep);
+}
+
+.aile-metin {
+  margin-top: 0.75rem;
+  font-family: var(--f-display);
+  font-size: var(--t-lead);
+  line-height: 1.7;
+  color: var(--c-on-light);
+}
+
+/* ═══════════════════════════════════════ SALON ÖZELLİKLERİ ════════ */
+
+.salon-ozellik {
+  list-style: none;
+  margin: var(--sp-md) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.salon-ozellik li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: var(--t-body);
+  color: var(--c-on-light-soft);
+}
+
+.salon-ozellik li span {
+  color: var(--c-gold-deep);
+  flex: none;
+}
+
+/* ══════════════════════════════════════════════ ÇOCUK NOTU ════════ */
+
+.section-gap-kisa {
+  padding-block: var(--sp-md);
+}
+
+.cocuk-not {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  font-size: var(--t-lead);
+  font-family: var(--f-display);
+  font-style: italic;
+  color: var(--c-on-light-soft);
+}
+
+.cocuk-tik {
+  flex: none;
+  color: var(--c-gold-deep);
+  font-style: normal;
+}
+
+/* ═══════════════════════════════════════════════ ETİKETLEME ══════ */
+
+.etiket-blok {
+  margin-top: var(--sp-md);
+}
+
+.etiket-hashtag {
+  margin-top: 0.75rem;
+  font-family: var(--f-display);
+  font-size: var(--t-h2);
+  color: var(--c-on-dark);
+}
+
+.etiket-hesaplar {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: var(--sp-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.etiket-hesaplar a {
+  color: var(--c-on-dark-soft);
+}
+
 /* ══════════════════════════════════════════════════ GİRİŞ ════════ */
 
 .giris-page {
