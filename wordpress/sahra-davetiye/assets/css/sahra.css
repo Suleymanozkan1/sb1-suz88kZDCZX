@@ -1107,6 +1107,14 @@ html.sahra-html {
   }
 }
 
+/* Yol tarifi: adresten sonra gelen, okunacak bir paragraf. */
+.konum-tarif {
+  margin-top: var(--sp-sm);
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--c-on-light-soft);
+}
+
 .konum-baglantilar {
   margin-top: var(--sp-md);
   display: flex;

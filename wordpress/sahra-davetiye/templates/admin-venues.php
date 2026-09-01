@@ -82,6 +82,22 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 			 * "1200 kişilik kapasite" etkilemiyor.
 			 */
 			?>
+			<?php
+			/*
+			 * Yol tarifi burada, çiftin formunda değil.
+			 *
+			 * Aynı salona gelen herkes aynı yoldan geliyor: tarifi her
+			 * çifte ayrı yazdırmak hem gereksiz bir soru, hem de birinin
+			 * yanlış yazıp kimsenin fark etmemesi demekti. Yönetici bir
+			 * kez yazıyor, o salonu seçen bütün davetiyelerde çıkıyor.
+			 */
+			?>
+			<div class="alan">
+				<label class="field-label" for="v-directions"><?php esc_html_e( 'Nasıl Gelirsiniz?', 'sahra-davetiye' ); ?></label>
+				<textarea id="v-directions" name="venue[venueDirections]" rows="4" placeholder="E-5'ten Kadıköy çıkışına dönüp sahil yolunu takip edin. Marmaray Ayrılıkçeşme durağından 10 dakika yürüme mesafesinde."><?php echo esc_textarea( $venue['venueDirections'] ); ?></textarea>
+				<p class="ipucu"><?php esc_html_e( 'Davetiyenin konum bölümünde, adresin altında görünür. Boş bırakılırsa hiç çıkmaz.', 'sahra-davetiye' ); ?></p>
+			</div>
+
 			<div class="alan">
 				<label class="field-label" for="v-features"><?php esc_html_e( 'Misafirin İşine Yarayacak Bilgiler', 'sahra-davetiye' ); ?></label>
 				<textarea id="v-features" name="venue[features]" rows="6" placeholder="Kapalı otopark (ücretsiz)&#10;Vale hizmeti&#10;Metro Kadıköy'e 5 dk yürüme&#10;Engelli erişimi&#10;Çocuk oyun alanı ve palyaço"><?php echo esc_textarea( implode( "\n", (array) $venue['features'] ) ); ?></textarea>

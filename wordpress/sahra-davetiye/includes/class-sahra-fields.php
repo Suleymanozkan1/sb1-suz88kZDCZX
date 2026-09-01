@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 class Sahra_Fields {
 
 	/** Mekân alanları — davetiyede DEĞİL, ortak ayarda durur. */
-	const VENUE_KEYS = array( 'venueName', 'address', 'district', 'city', 'mapUrl' );
+	const VENUE_KEYS = array( 'venueName', 'address', 'district', 'city', 'mapUrl', 'venueDirections' );
 
 	/**
 	 * Alanlar: anahtar => array( tip, varsayılan ).

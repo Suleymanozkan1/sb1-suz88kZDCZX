@@ -26,6 +26,13 @@ class Sahra_Settings {
 			'district'  => '',
 			'city'      => '',
 			'mapUrl'    => '',
+			/*
+			 * Yol tarifi salonun kendi bilgisi, çiftin değil: aynı salona
+			 * gelen herkes aynı yoldan geliyor. Yöneticinin bir kez
+			 * yazdığı metin, o salonu seçen bütün davetiyelerde çıkıyor —
+			 * ve salon değişince hepsi birden düzeliyor.
+			 */
+			'venueDirections' => '',
 			'features'  => array(),
 		);
 	}
@@ -105,6 +112,10 @@ class Sahra_Settings {
 		foreach ( array( 'venueName', 'address', 'district', 'city' ) as $anahtar ) {
 			$temiz[ $anahtar ] = isset( $input[ $anahtar ] ) ? sanitize_text_field( (string) $input[ $anahtar ] ) : '';
 		}
+		// Çok satırlı olabilir; satır sonları korunsun diye textarea temizliği.
+		$temiz['venueDirections'] = isset( $input['venueDirections'] )
+			? sanitize_textarea_field( (string) $input['venueDirections'] )
+			: '';
 		$temiz['mapUrl']   = isset( $input['mapUrl'] ) ? Sahra_Fields::safe_url( $input['mapUrl'] ) : '';
 		$temiz['features'] = self::satirlar( isset( $input['features'] ) ? $input['features'] : '' );
 

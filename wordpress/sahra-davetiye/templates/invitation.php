@@ -488,6 +488,10 @@ $geri_sayim = $d['weddingDate']
 						<p class="t-h2" style="color:var(--c-on-light)"><?php echo esc_html( $d['venueName'] ); ?></p>
 						<p class="t-body" style="color:var(--c-on-light-soft);margin-top:0.75rem"><?php echo esc_html( $adres_satiri ); ?></p>
 
+						<?php if ( $d['venueDirections'] ) : ?>
+							<p class="konum-tarif"><?php echo nl2br( esc_html( $d['venueDirections'] ) ); ?></p>
+						<?php endif; ?>
+
 						<?php
 						/*
 						 * Salonun özellikleri misafirin O AKŞAM vereceği kararları
