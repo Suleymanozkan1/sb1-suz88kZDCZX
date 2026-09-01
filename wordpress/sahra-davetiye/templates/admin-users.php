@@ -8,7 +8,8 @@
  */
 defined( 'ABSPATH' ) || exit;
 $sahra_sayfa = 'sahra-hesaplar';
-$giris       = wp_login_url();
+// Çifte verilecek adres: filtre kalktığı için doğrudan yazılıyor.
+$giris       = Sahra_Login::url();
 include SAHRA_DIR . 'templates/admin-header.php';
 ?>
 	<?php if ( ! empty( $_GET['hata'] ) ) : // phpcs:ignore ?>

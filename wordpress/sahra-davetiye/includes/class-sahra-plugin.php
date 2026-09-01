@@ -39,13 +39,12 @@ class Sahra_Plugin {
 		add_filter( 'login_redirect', array( $this, 'login_redirect' ), 10, 3 );
 
 		/*
-		 * Giriş ekranı: WordPress'in mavi formu yerine Sahra'nın kendi
-		 * sayfası. Filtre, panelin "Çıkış" bağlantısından hesap kartındaki
-		 * "Giriş linki"ne kadar her yeri tek noktadan düzeltiyor.
+		 * wp-login.php'ye DOKUNULMUYOR. Bir dönem oradan /davet/giris'e
+		 * yönlendiriliyordu; bu, site sahibinin kendi WordPress girişini de
+		 * ele geçiriyordu. /davet/giris çiftler için ayrı bir kapı, genel
+		 * girişin yerine geçen bir şey değil.
 		 */
-		add_filter( 'login_url', array( 'Sahra_Login', 'filter_login_url' ), 10, 3 );
 		add_filter( 'logout_redirect', array( 'Sahra_Login', 'filter_logout_redirect' ), 10, 3 );
-		add_action( 'login_init', array( 'Sahra_Login', 'redirect_wp_login' ) );
 
 		// Düğünden sonra davetiyeyi yayından kaldıran günlük bakım.
 		add_action( Sahra_Lifecycle::HOOK, array( 'Sahra_Lifecycle', 'run' ) );

@@ -1,16 +1,18 @@
 <?php
 /**
- * Giriş — /davet/giris
+ * Çiftin giriş ekranı — /davet/giris
  *
- * Çift, WordPress'in kendi giriş ekranını GÖRMEMELİ. wp-login.php mavi
- * WordPress logosu, "Beni hatırla", "Parolanızı mı unuttunuz?" ve site
- * adına dönüş bağlantısıyla geliyor; müşteriye "size bir davetiye ürünü
- * sattık" değil "size bir WordPress kurulumu verdik" diyor. Next
- * sürümünün `/giris` ekranının karşılığı burada.
+ * Çifte wp-login.php'yi göstermek istemiyoruz: mavi WordPress logosu,
+ * "Beni hatırla", "Parolanızı mı unuttunuz?" ve site adına dönüş
+ * bağlantısıyla müşteriye "size bir davetiye ürünü sattık" değil "size
+ * bir WordPress kurulumu verdik" diyor. Bu yüzden çifte verdiğimiz adres
+ * burası.
  *
- * Yönetici için kaçış yolu kapatılmıyor: wp-login.php?sahra=wp adresi
- * her zaman WordPress'in kendi ekranını açar. Bu sayfa bozulursa site
- * sahibi kendi sitesinden kilitlenmez.
+ * Ama bu ekran GENEL GİRİŞİN YERİNE GEÇMİYOR. wp-login.php olduğu gibi
+ * duruyor ve WordPress'in ürettiği giriş bağlantılarına dokunulmuyor:
+ * site sahibi kendi sitesine her zamanki gibi giriyor, eklenti onun
+ * yönetim girişini devralmıyor. Bir dönem wp-login.php buraya
+ * yönlendiriliyordu; bu, çifte ait bir ekranı herkese dayatmaktı.
  *
  * @package SahraDavetiye
  */
@@ -20,9 +22,6 @@ defined( 'ABSPATH' ) || exit;
 class Sahra_Login {
 
 	const SLUG = 'davet/giris';
-
-	/** WordPress ekranına kasıtlı geçiş anahtarı. */
-	const BYPASS = 'sahra';
 
 	/** Giriş sayfasının adresi. */
 	public static function url( $redirect_to = '' ) {
@@ -34,66 +33,20 @@ class Sahra_Login {
 	}
 
 	/**
-	 * WordPress'in ürettiği tüm giriş bağlantıları buraya baksın.
+	 * Çıkıştan sonra çift kendi kapısına döner.
 	 *
-	 * Panelde "Çıkış", hesap kartındaki "Giriş linki" ve oturumu bitmiş
-	 * bir çiftin /wp-admin'e girmesinde çalışan `auth_redirect()` — hepsi
-	 * `wp_login_url()` üzerinden geçiyor, tek filtre üçünü de düzeltiyor.
-	 *
-	 * wp-login.php'nin KENDİSİ de bu filtreyi çağırıyor; orada
-	 * dokunulmazsa sayfa kendi kendini yönlendirip döngüye giriyor.
+	 * Yalnızca ÇİFT için: yöneticinin çıkışı WordPress'in kendi akışında
+	 * kalıyor, yoksa site sahibi kendi panelinden çıkınca müşteri ekranına
+	 * düşerdi.
 	 */
-	public static function filter_login_url( $login_url, $redirect = '', $force_reauth = false ) {
-		if ( self::on_wp_login() ) {
-			return $login_url;
-		}
-		return self::url( $redirect );
-	}
-
-	/** Çıkıştan sonra WordPress'in "çıkış yaptınız" ekranı yerine giriş sayfası. */
 	public static function filter_logout_redirect( $redirect_to, $requested, $user ) {
 		if ( $requested ) {
 			return $requested;
 		}
-		return self::url();
-	}
-
-	private static function on_wp_login() {
-		return isset( $GLOBALS['pagenow'] ) && 'wp-login.php' === $GLOBALS['pagenow'];
-	}
-
-	/**
-	 * wp-login.php'yi kendi ekranımıza taşır.
-	 *
-	 * Yalnızca DÜZ GİRİŞ taşınıyor. Çıkış, parola sıfırlama ve kayıt
-	 * eylemleri WordPress'te kalıyor: onların kendi jeton akışları var ve
-	 * yeniden yazmak, çalışan bir güvenlik akışını taklit etmek olurdu.
-	 */
-	public static function redirect_wp_login() {
-		if ( ! self::on_wp_login() ) {
-			return;
-		}
-
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET[ self::BYPASS ] ) ) {
-			return; // Yöneticinin kaçış yolu.
-		}
-
-		$eylem = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : 'login';
-		if ( 'login' !== $eylem ) {
-			return;
-		}
-
-		// Formun kendi gönderimi wp-login.php'de tamamlansın.
-		if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : '' ) ) {
-			return;
-		}
-
-		$hedef = isset( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : '';
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-		wp_safe_redirect( self::url( $hedef ) );
-		exit;
+		$uid = $user instanceof WP_User ? $user->ID : 0;
+		return ( $uid && Sahra_Roles::is_couple( $uid ) && ! Sahra_Roles::is_manager( $uid ) )
+			? self::url()
+			: $redirect_to;
 	}
 
 	/**

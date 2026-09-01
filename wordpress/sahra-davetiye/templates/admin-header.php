@@ -46,7 +46,17 @@ $sahra_yollar['sahra-ayarlar'] = __( 'Hesap Ayarları', 'sahra-davetiye' );
 			<?php if ( $sahra_yonetici ) : ?>
 				<a class="eylem-link" href="<?php echo esc_url( admin_url() ); ?>"><?php esc_html_e( 'WordPress Paneli', 'sahra-davetiye' ); ?></a>
 			<?php endif; ?>
-			<a class="eylem-link" href="<?php echo esc_url( wp_logout_url( wp_login_url() ) ); ?>"><?php esc_html_e( 'Çıkış', 'sahra-davetiye' ); ?></a>
+			<?php
+			/*
+			 * Çıkınca nereye: çift kendi giriş kapısına, yönetici
+			 * WordPress'in kendi girişine. Aynı panelin başlığını ikisi de
+			 * kullanıyor ama ikisinin kapısı aynı değil.
+			 */
+			$sahra_cikis_hedefi = ( Sahra_Roles::is_couple() && ! Sahra_Roles::is_manager() )
+				? Sahra_Login::url()
+				: wp_login_url();
+			?>
+			<a class="eylem-link" href="<?php echo esc_url( wp_logout_url( $sahra_cikis_hedefi ) ); ?>"><?php esc_html_e( 'Çıkış', 'sahra-davetiye' ); ?></a>
 			<?php if ( ! empty( $sahra_eylem ) ) : ?>
 				<?php echo wp_kses_post( $sahra_eylem ); ?>
 			<?php endif; ?>
