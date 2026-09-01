@@ -320,7 +320,26 @@
 
 		alan.value = dugme.getAttribute( 'data-metin' ) || dugme.getAttribute( 'data-adres' ) || '';
 		alan.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+		sesAdiniYaz( alan, dugme.getAttribute( 'data-ad' ) );
 	} );
+
+	/*
+	 * Seçilen sesin ADI. Adres gizli alanda duruyor; ekranda dosya yolu
+	 * değil, çiftin anlayacağı bir ad görünmeli.
+	 */
+	function sesAdiniYaz( alan, ad ) {
+		var etiket = document.querySelector( '.sahra-secili-ses[data-alan="' + alan.id + '"]' );
+		if ( ! etiket ) {
+			return;
+		}
+		if ( ! alan.value ) {
+			etiket.textContent = etiket.getAttribute( 'data-bos' );
+			return;
+		}
+		// Kendi dosyasında uzantı gösterilmiyor: "dugun-sarkimiz.mp3" değil
+		// "dugun-sarkimiz". Uzantı çifte bir şey anlatmıyor.
+		etiket.textContent = ad ? String( ad ).replace( /\.[a-z0-9]{2,4}$/i, '' ) : etiket.getAttribute( 'data-kendi' );
+	}
 
 	/* ------------------------------------------------------- ses dinleme */
 
@@ -392,6 +411,7 @@
 			var secim = secici.state().get( 'selection' ).first().toJSON();
 			alan.value = secim.url;
 			alan.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+			sesAdiniYaz( alan, secim.title || '' );
 		} );
 
 		secici.open();
@@ -463,6 +483,10 @@
 								alan.value = j.url;
 							}
 							alan.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+							// Ses alanında ekranda dosya yolu değil, dosyanın adı görünüyor.
+							if ( 'audio' === tur ) {
+								sesAdiniYaz( alan, dosya.name );
+							}
 							kalan--;
 							durum.textContent = kalan ? kalan + ' dosya kaldı…' : 'Yüklendi ✓';
 						} )

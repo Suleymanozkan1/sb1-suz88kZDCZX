@@ -135,12 +135,19 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			<h2 class="t-display" style="margin-top:0.4rem"><?php esc_html_e( 'Misafir Fotoğrafları', 'sahra-davetiye' ); ?></h2>
 			<p class="lead">
 				<?php
+				/*
+				 * Depolama sürücüsü burada YAZMIYOR.
+				 *
+				 * Çifte hiçbir şey ifade etmiyor ve "wp-content/uploads"
+				 * gibi bir dosya yolunu müşteri ekranında açıkta bırakmanın
+				 * anlamı yok. Yöneticiye lazım olduğu yer zaten Depolama
+				 * sayfası; orada ayarı da yanında duruyor.
+				 */
 				printf(
-					/* translators: 1: fotoğraf sayısı, 2: toplam boyut, 3: depolama sürücüsü. */
-					esc_html__( '%1$d fotoğraf · %2$s · masadaki QR koddan yüklenir · yeni yüklemeler: %3$s', 'sahra-davetiye' ),
+					/* translators: 1: fotoğraf sayısı, 2: toplam boyut. */
+					esc_html__( '%1$d fotoğraf · %2$s · masadaki QR koddan yüklenir', 'sahra-davetiye' ),
 					count( $fotograflar ),
-					esc_html( size_format( $boyut ) ),
-					esc_html( Sahra_Storage::driver()->label() )
+					esc_html( size_format( $boyut ) )
 				);
 				?>
 			</p>

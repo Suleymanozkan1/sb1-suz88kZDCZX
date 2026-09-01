@@ -748,6 +748,14 @@ body.sahra-ekran #wpwrap::before {
 
 /* ── Boş durum ───────────────────────────────────────────────────────── */
 
+/* Seçilen sesin adı — adresin yerini alan tek satır. */
+.sahra-secili-ses {
+  margin: 0.35rem 0 0;
+  color: var(--c-gold-light);
+  font-family: var(--f-display);
+  font-size: var(--t-lead);
+}
+
 /* Silme uyarısı: göz kaçırmasın diye altın çerçeveli ve dolgulu, ama
    kırmızı değil — bir hata değil, planlanmış bir son tarih. */
 .sahra-uyari {
