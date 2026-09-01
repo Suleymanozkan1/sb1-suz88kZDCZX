@@ -1,19 +1,5 @@
 {
-  "venues": [
-    {
-      "id": "salon-1",
-      "venueName": "Sahra Bahçe",
-      "address": "Bağdat Cad. 120",
-      "district": "Kadıköy",
-      "city": "İstanbul",
-      "mapUrl": "",
-      "features": [
-        "Kapalı otopark",
-        "Vale hizmeti",
-        "Metroya 5 dk"
-      ]
-    }
-  ],
+  "venues": [],
   "menus": [
     {
       "id": "menu-1",
@@ -426,8 +412,8 @@
     }
   ],
   "brand": {
-    "instagram": "https://instagram.com/sahradavet",
-    "instagramLabel": "@sahradavet"
+    "instagram": "",
+    "instagramLabel": ""
   },
   "lifecycle": {
     "unpublishDays": 1,

@@ -16,3 +16,6 @@ data/users.json
 data/photos.json
 data/wishes.json
 data/uploads/
+
+# Eklenti paketi kaynaktan üretiliyor; depoda ikinci bir kopyası durmasın.
+wordpress/*.zip
