@@ -5,7 +5,7 @@ import { ENVELOPE_SOUNDS, MUSIC_TRACKS, SEAL_SOUNDS } from '@/lib/music';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ImageUploader from './ImageUploader';
 import VenueNotice from './VenueNotice';
 import { Divider, IconArrow, IconCheck, IconTrash } from '@/components/invitation/Ornaments';
@@ -28,6 +28,7 @@ import type {
   Invitation,
   InvitationDesign,
   ProgramItem,
+  SafeUser,
   SealType,
   SocialLink,
   StoryItem,
@@ -157,9 +158,11 @@ function RowActions({ onRemove }: { onRemove: () => void }) {
 export default function InvitationForm({
   existing,
   backHref = '/admin',
+  isAdmin = false,
 }: {
   existing?: Invitation;
   backHref?: string;
+  isAdmin?: boolean;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -172,6 +175,26 @@ export default function InvitationForm({
     const { id, ownerId, createdAt, updatedAt, ...rest } = existing;
     return rest;
   });
+
+  /*
+   * Davetiyenin SAHİBİ.
+   *
+   * Burası yokken davetiye her zaman onu OLUŞTURANA yazılıyordu; admin bir
+   * çift için davetiye hazırladığında sahibi admin oluyordu. İki sonucu
+   * vardı: çift kendi davetiyesini açamıyordu ve hesabı silindiğinde
+   * davetiyesi ortada kalıyordu — oysa hesap silme "davetiyeleri de
+   * silinir" diyor. Sahiplik artık burada açıkça seçiliyor.
+   */
+  const [accounts, setAccounts] = useState<SafeUser[]>([]);
+  const [ownerId, setOwnerId] = useState(existing?.ownerId ?? '');
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    api
+      .listUsers()
+      .then((rows) => setAccounts(rows.filter((u) => u.role !== 'admin')))
+      .catch(() => setAccounts([]));
+  }, [isAdmin]);
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
@@ -193,12 +216,15 @@ export default function InvitationForm({
     setSaving(true);
     setError('');
     try {
+      // ownerId yalnızca admin gönderir; sunucu da yalnızca ondan kabul eder.
+      const gonderi = isAdmin && ownerId ? { ...draft, ownerId } : draft;
+
       if (existing) {
-        await api.updateInvitation(existing.id, draft);
+        await api.updateInvitation(existing.id, gonderi);
         router.push(backHref);
         router.refresh();
       } else {
-        const created = await api.createInvitation(draft);
+        const created = await api.createInvitation(gonderi);
         setCreatedSlug(created.slug);
       }
     } catch (err) {
@@ -279,6 +305,31 @@ export default function InvitationForm({
         placeholder={previewSlug}
         onChange={(v) => set('slug', v)}
       />
+
+      {isAdmin && (
+        <label className="block">
+          <span className="field-label">Davetiye Sahibi</span>
+          <select value={ownerId} onChange={(e) => setOwnerId(e.target.value)} className="field">
+            <option value="">— Çift hesabına bağlama (bende kalsın) —</option>
+            {accounts.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.displayName} (@{u.username})
+              </option>
+            ))}
+          </select>
+          <span className="mt-2 block text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+            Davetiyeyi yalnızca sahibi düzenleyebilir. Hesap silinirse davetiyesi de silinir.
+            {accounts.length === 0 && (
+              <>
+                {' '}
+                <Link href="/admin" style={{ color: 'var(--c-gold-light)' }}>
+                  Önce bir çift hesabı açın
+                </Link>
+              </>
+            )}
+          </span>
+        </label>
+      )}
     </div>,
 
     /* 1 — Düğün Bilgileri */

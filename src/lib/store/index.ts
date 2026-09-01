@@ -51,6 +51,8 @@ export const updateInvitation = (id: string, input: InvitationInput) =>
   venueli(driver.updateInvitation(id, stripVenue(input)));
 
 export const deleteInvitation = driver.deleteInvitation;
+export const transferInvitation = (id: string, ownerId: string) =>
+  venueli(driver.transferInvitation(id, ownerId));
 
 export const listRsvps = driver.listRsvps;
 export const createRsvp = driver.createRsvp;

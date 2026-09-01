@@ -48,10 +48,6 @@ export default function VenueNotice() {
       ) : (
         <p className="mt-2 text-sm opacity-70">Henüz belirlenmedi.</p>
       )}
-
-      <p className="mt-3 text-xs opacity-70">
-        Mekân tüm davetiyelerde ortaktır ve yalnızca yönetici tarafından değiştirilir.
-      </p>
     </div>
   );
 }

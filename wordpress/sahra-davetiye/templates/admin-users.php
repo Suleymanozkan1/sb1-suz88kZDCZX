@@ -65,11 +65,11 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			<div class="ikili">
 				<div class="alan">
 					<label class="field-label" for="u-login"><?php esc_html_e( 'Kullanıcı Adı *', 'sahra-davetiye' ); ?></label>
-					<input id="u-login" name="username" required placeholder="ahmet-zeynep">
+					<input id="u-login" type="text" name="username" required placeholder="ahmet-zeynep">
 				</div>
 				<div class="alan">
 					<label class="field-label" for="u-name"><?php esc_html_e( 'Görünen Ad', 'sahra-davetiye' ); ?></label>
-					<input id="u-name" name="display_name" placeholder="Ahmet &amp; Zeynep">
+					<input id="u-name" type="text" name="display_name" placeholder="Ahmet &amp; Zeynep">
 				</div>
 			</div>
 

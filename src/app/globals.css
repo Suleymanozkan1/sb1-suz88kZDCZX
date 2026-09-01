@@ -449,6 +449,13 @@ select.field {
   padding-right: 1rem;
 }
 
+/* Açılır listenin kendisi işletim sisteminden gelir: rengi verilmezse
+   koyu panelde beyaz zemin/beyaz yazı olarak açılıyor. */
+select.field option {
+  background: var(--c-ink);
+  color: var(--c-on-dark);
+}
+
 .field-label {
   @apply mb-2 block;
   font-family: var(--f-body);

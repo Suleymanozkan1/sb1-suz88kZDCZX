@@ -9,5 +9,5 @@ export default function NewInvitationPage() {
   if (!session) redirect('/giris?next=/admin/new');
   if (session.role !== 'admin') redirect('/panel/new');
 
-  return <InvitationForm backHref="/admin" />;
+  return <InvitationForm backHref="/admin" isAdmin />;
 }

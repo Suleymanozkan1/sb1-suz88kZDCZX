@@ -48,13 +48,28 @@ panoya alır:
 ```
 Sahra Davetiye — giriş bilgileriniz
 
-Giriş linki: https://siteniz.com/wp-login.php
+Giriş linki: https://siteniz.com/davet/giris
 Kullanıcı adı: ahmet-zeynep
 Şifre: ....
 ```
 
 Bunu doğrudan çifte iletebilirsiniz. Çift giriş yaptığında WordPress
 panelinin geri kalanını görmez; doğrudan kendi davetiye ekranına düşer.
+
+### Giriş ekranı hakkında
+
+Giriş **`/davet/giris`** adresinden yapılır — WordPress'in mavi giriş
+formu değil, davetiyeyle aynı tasarımda bir sayfa. `wp-login.php` adresine
+gidilirse de buraya yönlendirilir, yani çift o ekranı hiç görmez.
+
+Yönetici için bir kaçış yolu bırakıldı: **`wp-login.php?sahra=wp`** her
+zaman WordPress'in kendi giriş ekranını açar. Bir eklenti çakışması bu
+sayfayı bozarsa kendi sitenizden kilitlenmezsiniz — bu adresi bir yere
+not edin.
+
+Parola sıfırlama bağlantısı bilerek yok: çift hesaplarında çoğu zaman
+e-posta bulunmuyor. Parolayı **Çift Hesapları → Şifre Sıfırla** ile siz
+üretip iletiyorsunuz.
 
 ## 5. Davetiyeyi oluşturun
 

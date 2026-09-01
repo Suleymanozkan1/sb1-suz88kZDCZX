@@ -61,8 +61,16 @@ include SAHRA_DIR . 'templates/admin-header.php';
 						</div>
 
 						<div class="meta">
-							<?php if ( $yonetici && $sahip ) : ?>
-								<span><?php echo esc_html( $sahip->display_name ? $sahip->display_name : $sahip->user_login ); ?></span>
+							<?php if ( $yonetici ) : ?>
+								<?php if ( $sahip && Sahra_Roles::is_couple( $sahip->ID ) ) : ?>
+									<span><?php echo esc_html( $sahip->display_name ? $sahip->display_name : $sahip->user_login ); ?></span>
+								<?php else : ?>
+									<?php
+									/* Sahipsiz davetiye sessiz bir tuzak: çift düzenleyemez,
+									   hesabı silinince de silinmez. Listede görünsün. */
+									?>
+									<span class="uyari"><?php esc_html_e( 'çift hesabına bağlı değil', 'sahra-davetiye' ); ?></span>
+								<?php endif; ?>
 							<?php endif; ?>
 							<span class="numerals"><?php echo esc_html( Sahra_Render::format_date( $d['weddingDate'] ) ); ?></span>
 							<span class="numerals"><?php echo esc_html( Sahra_Render::format_time_range( $d['weddingTime'], $d['weddingEndTime'] ) ); ?></span>

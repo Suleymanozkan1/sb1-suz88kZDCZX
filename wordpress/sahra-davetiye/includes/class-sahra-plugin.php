@@ -38,6 +38,15 @@ class Sahra_Plugin {
 		// Çift hesabı giriş sonrası kendi paneline gitsin.
 		add_filter( 'login_redirect', array( $this, 'login_redirect' ), 10, 3 );
 
+		/*
+		 * Giriş ekranı: WordPress'in mavi formu yerine Sahra'nın kendi
+		 * sayfası. Filtre, panelin "Çıkış" bağlantısından hesap kartındaki
+		 * "Giriş linki"ne kadar her yeri tek noktadan düzeltiyor.
+		 */
+		add_filter( 'login_url', array( 'Sahra_Login', 'filter_login_url' ), 10, 3 );
+		add_filter( 'logout_redirect', array( 'Sahra_Login', 'filter_logout_redirect' ), 10, 3 );
+		add_action( 'login_init', array( 'Sahra_Login', 'redirect_wp_login' ) );
+
 		// Davetiye silinince katılım/dilek/fotoğrafları da gitsin.
 		add_action( 'before_delete_post', array( $this, 'on_delete_post' ) );
 		add_action( 'deleted_user', array( $this, 'on_delete_user' ) );

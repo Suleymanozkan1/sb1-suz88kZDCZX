@@ -111,6 +111,24 @@ class Sahra_Invitation {
 		return $post && (int) $post->post_author === $user_id && user_can( $user_id, 'sahra_edit_invitations' );
 	}
 
+	/**
+	 * Ürüne ait adreslerle çakışan slug'lar.
+	 *
+	 * `/davet/giris` giriş ekranı; bir davetiye "giris" slug'ını alsaydı
+	 * kendi sayfası hiç açılmaz, çift de giriş yapamazdı. Sessiz bir
+	 * çakışma yerine slug'a bir sonek ekleniyor.
+	 */
+	const RESERVED_SLUGS = array( 'giris', 'cikis', 'panel', 'admin' );
+
+	/** Ayrılmış bir slug istendiyse ürünle çakışmayan bir sürümü. */
+	private static function safe_slug( $slug ) {
+		$slug = sanitize_title( $slug );
+		if ( in_array( $slug, self::RESERVED_SLUGS, true ) ) {
+			$slug .= '-davetiye';
+		}
+		return $slug;
+	}
+
 	/** Yeni davetiye. Slug çakışmasını WordPress kendi çözer. */
 	public static function create( $input, $owner_id ) {
 		$data = Sahra_Fields::sanitize( $input );
@@ -120,13 +138,13 @@ class Sahra_Invitation {
 			$baslik = __( 'Davetiye', 'sahra-davetiye' );
 		}
 
-		$istenen = isset( $input['slug'] ) ? sanitize_title( $input['slug'] ) : '';
+		$istenen = isset( $input['slug'] ) ? self::safe_slug( $input['slug'] ) : '';
 
 		$post_id = wp_insert_post(
 			array(
 				'post_type'   => self::POST_TYPE,
 				'post_title'  => $baslik,
-				'post_name'   => $istenen ? $istenen : sanitize_title( $baslik ),
+				'post_name'   => $istenen ? $istenen : self::safe_slug( $baslik ),
 				'post_status' => 'publish',
 				'post_author' => (int) $owner_id,
 			),
@@ -166,8 +184,22 @@ class Sahra_Invitation {
 			$guncelle['post_title'] = $baslik;
 		}
 
-		if ( isset( $input['slug'] ) && '' !== sanitize_title( $input['slug'] ) ) {
-			$guncelle['post_name'] = sanitize_title( $input['slug'] );
+		if ( isset( $input['slug'] ) && '' !== self::safe_slug( $input['slug'] ) ) {
+			$guncelle['post_name'] = self::safe_slug( $input['slug'] );
+		}
+
+		/*
+		 * Sahip devri. Çağıran taraf yetkiyi zaten denetliyor
+		 * (Sahra_Admin::valid_owner); burada yalnızca gerçekten var olan
+		 * bir kullanıcıya yazıldığından emin olunuyor — post_author'ı
+		 * olmayan bir kimliğe kaydırmak davetiyeyi kimsenin göremediği
+		 * bir yere düşürürdü.
+		 */
+		if ( isset( $input['ownerId'] ) ) {
+			$sahip = (int) $input['ownerId'];
+			if ( $sahip > 0 && get_userdata( $sahip ) ) {
+				$guncelle['post_author'] = $sahip;
+			}
 		}
 
 		if ( array_key_exists( 'isActive', $input ) ) {

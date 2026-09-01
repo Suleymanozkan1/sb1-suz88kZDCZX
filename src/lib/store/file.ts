@@ -211,6 +211,33 @@ export async function updateInvitation(
 }
 
 /**
+ * Davetiyeyi başka bir hesaba devreder.
+ *
+ * Sahiplik gövdeden değişmiyor (updateInvitation onu bilerek yok sayıyor),
+ * ama değişebilmesi ŞART: yönetici bir çift için davetiye hazırladığında
+ * davetiye yöneticinin üstünde kalıyordu. İki sonucu vardı — çift kendi
+ * davetiyesini açamıyordu ve hesabı silindiğinde davetiyesi ortada
+ * kalıyordu, oysa panel "hesap silinince davetiyeleri de silinir" diyor.
+ */
+export async function transferInvitation(
+  id: string,
+  ownerId: string,
+): Promise<Invitation | null> {
+  const rows = await loadInvitations();
+  const index = rows.findIndex((r) => r.id === id);
+  if (index === -1) return null;
+
+  const owner = (await loadUsers()).find((u) => u.id === ownerId);
+  if (!owner) return null;
+
+  const updated: Invitation = { ...rows[index], ownerId, updatedAt: new Date().toISOString() };
+  const next = [...rows];
+  next[index] = updated;
+  await saveInvitations(next);
+  return updated;
+}
+
+/**
  * Davetiyeyi ve ona bağlı her şeyi siler — katılımlar, misafir fotoğrafları
  * ve dilekler dâhil. Fotoğraf dosyalarının adları çağırana döner.
  */

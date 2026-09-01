@@ -124,6 +124,43 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				);
 				?>
 
+				<?php
+				/*
+				 * Davetiyenin SAHİBİ.
+				 *
+				 * Burası yokken davetiye her zaman onu OLUŞTURANA
+				 * yazılıyordu; yönetici bir çift için davetiye hazırladığında
+				 * sahibi yönetici oluyordu. İki sonucu vardı: çift kendi
+				 * davetiyesini düzenleyemiyordu ve hesabı silindiğinde
+				 * davetiyesi ortada kalıyordu ("hesap silinince davetiyeleri
+				 * de silinir" sözü tutulmuyordu). Sahiplik artık burada
+				 * açıkça seçiliyor.
+				 */
+				?>
+				<?php if ( $yonetici ) : ?>
+					<div class="alan">
+						<label class="field-label" for="f-owner"><?php esc_html_e( 'Davetiye Sahibi', 'sahra-davetiye' ); ?></label>
+						<select id="f-owner" name="sahra_owner">
+							<?php
+							$sahra_secili = $yeni ? 0 : (int) $d['ownerId'];
+							$sahra_cift   = get_users( array( 'role' => Sahra_Roles::COUPLE, 'orderby' => 'display_name' ) );
+							?>
+							<option value="0" <?php selected( 0, $sahra_secili ); ?>><?php esc_html_e( '— Çift hesabına bağlama (bende kalsın) —', 'sahra-davetiye' ); ?></option>
+							<?php foreach ( $sahra_cift as $sahra_kul ) : ?>
+								<option value="<?php echo (int) $sahra_kul->ID; ?>" <?php selected( (int) $sahra_kul->ID, $sahra_secili ); ?>>
+									<?php echo esc_html( ( $sahra_kul->display_name ? $sahra_kul->display_name : $sahra_kul->user_login ) . ' (' . $sahra_kul->user_login . ')' ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+						<p class="ipucu">
+							<?php esc_html_e( 'Davetiyeyi yalnızca sahibi düzenleyebilir. Hesap silinirse davetiyesi de silinir.', 'sahra-davetiye' ); ?>
+							<?php if ( ! $sahra_cift ) : ?>
+								<a href="<?php echo esc_url( admin_url( 'admin.php?page=sahra-hesaplar' ) ); ?>"><?php esc_html_e( 'Önce bir çift hesabı açın', 'sahra-davetiye' ); ?></a>
+							<?php endif; ?>
+						</p>
+					</div>
+				<?php endif; ?>
+
 				<?php if ( $yonetici && ! $yeni ) : ?>
 					<label class="anahtar">
 						<input type="checkbox" name="sahra[isActive]" value="1" <?php checked( $d['isActive'] ); ?>>
@@ -154,12 +191,11 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					<span class="field-label"><?php esc_html_e( 'Mekân', 'sahra-davetiye' ); ?></span>
 					<p class="t-lead"><?php echo esc_html( $venue['venueName'] ? $venue['venueName'] : __( 'Henüz belirlenmedi', 'sahra-davetiye' ) ); ?></p>
 					<p class="t-body muted"><?php echo esc_html( implode( ', ', array_filter( array( $venue['address'], $venue['district'], $venue['city'] ) ) ) ); ?></p>
-					<p class="ipucu">
-						<?php esc_html_e( 'Mekân tüm davetiyelerde ortaktır ve yalnızca yönetici değiştirir.', 'sahra-davetiye' ); ?>
-						<?php if ( $yonetici ) : ?>
+					<?php if ( $yonetici ) : ?>
+						<p class="ipucu">
 							<a href="<?php echo esc_url( admin_url( 'admin.php?page=sahra-mekan' ) ); ?>"><?php esc_html_e( 'Düzenle', 'sahra-davetiye' ); ?></a>
-						<?php endif; ?>
-					</p>
+						</p>
+					<?php endif; ?>
 				</div>
 
 				<?php

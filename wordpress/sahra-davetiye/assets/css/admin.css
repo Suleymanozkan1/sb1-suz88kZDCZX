@@ -411,6 +411,10 @@ body.sahra-ekran #wpwrap::before {
   color: var(--c-danger);
 }
 
+.sahra-panel .uyari {
+  color: var(--c-danger);
+}
+
 /* ── Alanlar ─────────────────────────────────────────────────────────── */
 
 .sahra-panel .alan {
@@ -427,12 +431,16 @@ body.sahra-ekran #wpwrap::before {
   color: var(--c-gold-light);
 }
 
-.sahra-panel input[type='text'],
-.sahra-panel input[type='email'],
-.sahra-panel input[type='url'],
-.sahra-panel input[type='date'],
-.sahra-panel input[type='time'],
-.sahra-panel input[type='number'],
+/* Alanların biçimi `type` özniteliğine BAĞLI OLMAMALI.
+
+   Burada önce türlerin listesi vardı: text, email, url, date, time,
+   number. Listede olmayan her alan koyu panelin ortasında beyaz bir
+   kutu olarak kalıyordu — `type` yazılmamış alanlar (mekân, çift
+   hesabı, Google Drive) ve parola alanları böyle kaçmıştı. Liste
+   yaklaşımı ilk unutulan türde kırılıyor; dışlama yaklaşımı
+   kırılmıyor: kendi görünümü olan türler (kutucuk, radyo, düğme,
+   dosya) dışarıda, geri kalan HER alan bu biçimi alır. */
+.sahra-panel input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']):not([type='reset']):not([type='file']):not([type='image']):not([type='range']):not([type='color']),
 .sahra-panel select,
 .sahra-panel textarea {
   width: 100%;
@@ -504,6 +512,9 @@ body.sahra-ekran #wpwrap::before {
   gap: 0.75rem;
   cursor: pointer;
   padding: 0.5rem 0;
+  /* Kendisi bir `.alan` değil; boşluğu olmayınca bir sonraki alanın
+     etiketi anahtarın dibine yapışıyordu. */
+  margin-bottom: var(--sp-sm);
 }
 
 .sahra-panel .anahtar input {
@@ -923,6 +934,28 @@ body.sahra-ekran .sahra-panel .secenek input[type='radio'] {
   width: 0;
   height: 0;
   margin: 0;
+}
+
+/*
+   Sade `<button>` tarayıcının kendi görünümüyle geliyor: açık gri zemin,
+   siyah metin, sistem yazı tipi. Koyu panelde bu, "hazır metinler"
+   kartlarını okunmaz bir beyaz blok haline getiriyordu — kart bir
+   <label> değil <button> olduğu için `.secenek` kuralı yalnızca çerçeveyi
+   veriyor, zemini vermiyordu.
+
+   Seçici bilerek `:where()` içinde: özgüllüğü sıfırlıyor (0,0,1), yani
+   yalnızca tarayıcının kendi varsayılanını yeniyor. Sarmalayıcıyı düz
+   yazınca (.sahra-panel button = 0,1,1) sıfırlama .sahra-cip'in (0,1,0)
+   çerçevesini de silmişti; çip'ler kutusuz düz yazıya dönüyordu.        */
+:where(.sahra-panel) button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: inherit;
+  cursor: pointer;
 }
 
 /* WordPress .button sınıfları paneldeki düğmelere bulaşmasın. */

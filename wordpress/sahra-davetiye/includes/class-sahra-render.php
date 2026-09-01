@@ -19,6 +19,7 @@ class Sahra_Render {
 	/**
 	 * Yeniden yazma kuralları.
 	 *
+	 * `/davet/giris`       çift ve yönetici girişi
 	 * `/davet/{slug}`      davetiye
 	 * `/yukle/{slug}`      masadaki QR — misafir fotoğraf yükleme
 	 * `/sahra-kart/{slug}` paylaşım kartı (og:image)
@@ -26,6 +27,13 @@ class Sahra_Render {
 	 * `/sahra-foto/{id}`   misafir fotoğrafı (yetki ister)
 	 */
 	public static function add_rewrite_rules() {
+		/*
+		 * Giriş kuralı davetiye kuralından ÖNCE eklenmeli: `extra_rules_top`
+		 * ekleme sırasını koruyor ve `^davet/([^/]+)` "giris"i de bir slug
+		 * gibi yakalardı. Aynı sebeple "giris" ayrılmış bir slug
+		 * (Sahra_Invitation::RESERVED_SLUGS).
+		 */
+		add_rewrite_rule( '^davet/giris/?$', 'index.php?sahra_view=login', 'top' );
 		add_rewrite_rule( '^davet/([^/]+)/?$', 'index.php?sahra_view=invitation&sahra_slug=$matches[1]', 'top' );
 		add_rewrite_rule( '^yukle/([^/]+)/?$', 'index.php?sahra_view=upload&sahra_slug=$matches[1]', 'top' );
 		add_rewrite_rule( '^sahra-kart/([^/]+)\.png$', 'index.php?sahra_view=card&sahra_slug=$matches[1]', 'top' );
@@ -77,6 +85,9 @@ class Sahra_Render {
 		}
 
 		switch ( $view ) {
+			case 'login':
+				Sahra_Login::render();
+				break;
 			case 'invitation':
 				self::render_invitation();
 				break;

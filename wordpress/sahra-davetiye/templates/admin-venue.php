@@ -32,28 +32,28 @@ include SAHRA_DIR . 'templates/admin-header.php';
 
 			<div class="alan">
 				<label class="field-label" for="v-name"><?php esc_html_e( 'Salon / Mekân Adı *', 'sahra-davetiye' ); ?></label>
-				<input id="v-name" name="venue[venueName]" value="<?php echo esc_attr( $venue['venueName'] ); ?>" placeholder="Sahra Bahçe Düğün Salonu">
+				<input id="v-name" type="text" name="venue[venueName]" value="<?php echo esc_attr( $venue['venueName'] ); ?>" placeholder="Sahra Bahçe Düğün Salonu">
 			</div>
 
 			<div class="alan">
 				<label class="field-label" for="v-address"><?php esc_html_e( 'Adres', 'sahra-davetiye' ); ?></label>
-				<input id="v-address" name="venue[address]" value="<?php echo esc_attr( $venue['address'] ); ?>" placeholder="Bağdat Caddesi No 120">
+				<input id="v-address" type="text" name="venue[address]" value="<?php echo esc_attr( $venue['address'] ); ?>" placeholder="Bağdat Caddesi No 120">
 			</div>
 
 			<div class="ikili">
 				<div class="alan">
 					<label class="field-label" for="v-district"><?php esc_html_e( 'İlçe', 'sahra-davetiye' ); ?></label>
-					<input id="v-district" name="venue[district]" value="<?php echo esc_attr( $venue['district'] ); ?>" placeholder="Kadıköy">
+					<input id="v-district" type="text" name="venue[district]" value="<?php echo esc_attr( $venue['district'] ); ?>" placeholder="Kadıköy">
 				</div>
 				<div class="alan">
 					<label class="field-label" for="v-city"><?php esc_html_e( 'İl', 'sahra-davetiye' ); ?></label>
-					<input id="v-city" name="venue[city]" value="<?php echo esc_attr( $venue['city'] ); ?>" placeholder="İstanbul">
+					<input id="v-city" type="text" name="venue[city]" value="<?php echo esc_attr( $venue['city'] ); ?>" placeholder="İstanbul">
 				</div>
 			</div>
 
 			<div class="alan">
 				<label class="field-label" for="v-map"><?php esc_html_e( 'Google Maps Linki', 'sahra-davetiye' ); ?></label>
-				<input id="v-map" name="venue[mapUrl]" value="<?php echo esc_attr( $venue['mapUrl'] ); ?>" placeholder="https://maps.google.com/...">
+				<input id="v-map" type="url" name="venue[mapUrl]" value="<?php echo esc_attr( $venue['mapUrl'] ); ?>" placeholder="https://maps.google.com/...">
 			</div>
 
 			<div class="sahra-adim-alt">

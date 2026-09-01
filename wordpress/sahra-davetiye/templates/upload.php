@@ -44,12 +44,12 @@ $isimler = trim( $d['groomName'] . ' ' . $conj . ' ' . $d['brideName'] );
 	<form id="upload-form" class="dropzone">
 		<div class="field-row">
 			<label class="field-label" for="up-name">Adınız (İsteğe Bağlı)</label>
-			<input class="field" id="up-name" placeholder="Adınız">
+			<input class="field" id="up-name" type="text" placeholder="Adınız">
 		</div>
 
 		<div class="field-row">
 			<label class="field-label" for="up-note">Notunuz (İsteğe Bağlı)</label>
-			<input class="field" id="up-note" placeholder="Bir not bırakın">
+			<input class="field" id="up-note" type="text" placeholder="Bir not bırakın">
 		</div>
 
 		<div class="field-row">

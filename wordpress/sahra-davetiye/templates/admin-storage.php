@@ -60,7 +60,7 @@ include SAHRA_DIR . 'templates/admin-header.php';
 
 			<div class="alan">
 				<label class="field-label" for="d-id"><?php esc_html_e( 'Client ID', 'sahra-davetiye' ); ?></label>
-				<input id="d-id" name="storage[drive][client_id]" value="<?php echo esc_attr( $drive['client_id'] ); ?>">
+				<input id="d-id" type="text" name="storage[drive][client_id]" value="<?php echo esc_attr( $drive['client_id'] ); ?>">
 			</div>
 
 			<div class="alan">
@@ -79,7 +79,7 @@ include SAHRA_DIR . 'templates/admin-header.php';
 
 			<div class="alan">
 				<label class="field-label" for="d-folder"><?php esc_html_e( 'Klasör Kimliği', 'sahra-davetiye' ); ?></label>
-				<input id="d-folder" name="storage[drive][folder_id]" value="<?php echo esc_attr( $drive['folder_id'] ); ?>">
+				<input id="d-folder" type="text" name="storage[drive][folder_id]" value="<?php echo esc_attr( $drive['folder_id'] ); ?>">
 				<p class="ipucu"><?php esc_html_e( 'Drive klasörünü açtığınızda adreste /folders/ sonrası gelen kısım. Boşsa dosyalar sürücünün kökine yazılır.', 'sahra-davetiye' ); ?></p>
 			</div>
 

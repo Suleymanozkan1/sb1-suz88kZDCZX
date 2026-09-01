@@ -13,5 +13,5 @@ export default async function EditInvitationPage({ params }: { params: { id: str
   const invitation = await getInvitation(params.id);
   if (!invitation) notFound();
 
-  return <InvitationForm existing={invitation} backHref="/admin" />;
+  return <InvitationForm existing={invitation} backHref="/admin" isAdmin />;
 }

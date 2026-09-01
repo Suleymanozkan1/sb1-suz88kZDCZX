@@ -193,13 +193,26 @@ class Sahra_Admin {
 		$ham['socialLinks']  = self::parse_rows( isset( $ham['socialText'] ) ? $ham['socialText'] : '', array( 'name', 'href' ) );
 		unset( $ham['storyText'], $ham['programText'], $ham['faqText'], $ham['socialText'] );
 
+		/*
+		 * Sahip yalnızca YÖNETİCİDEN kabul edilir. Çift hesabı formu
+		 * kurcalayıp davetiyesini başkasına devredemesin — ya da kendine
+		 * başkasınınkini alamasın.
+		 */
+		$sahip = null;
+		if ( Sahra_Roles::is_manager() && isset( $_POST['sahra_owner'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$sahip = self::valid_owner( (int) $_POST['sahra_owner'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
+
 		if ( $id ) {
 			if ( ! Sahra_Invitation::can_edit( $id ) ) {
 				wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 			}
+			if ( null !== $sahip ) {
+				$ham['ownerId'] = $sahip;
+			}
 			Sahra_Invitation::update( $id, $ham );
 		} else {
-			$yeni = Sahra_Invitation::create( $ham, get_current_user_id() );
+			$yeni = Sahra_Invitation::create( $ham, null !== $sahip ? $sahip : get_current_user_id() );
 			$id   = is_wp_error( $yeni ) ? 0 : $yeni['id'];
 		}
 
@@ -288,6 +301,21 @@ class Sahra_Admin {
 
 		set_transient( 'sahra_cred_' . get_current_user_id(), array( 'user' => $hesap->user_login, 'pass' => $parola ), 5 * MINUTE_IN_SECONDS );
 		self::redirect( array( 'page' => 'sahra-hesaplar', 'yeni' => 1 ) );
+	}
+
+	/**
+	 * Seçilen sahip gerçekten bir çift hesabı mı?
+	 *
+	 * 0 → "bende kalsın": davetiye yöneticinin üstünde durur.
+	 * Bilinmeyen ya da çift olmayan bir kimlik sessizce yöneticiye düşer;
+	 * hazırlanmış bir istekle davetiye rastgele bir kullanıcıya
+	 * yazılamamalı.
+	 */
+	private static function valid_owner( $user_id ) {
+		if ( $user_id <= 0 ) {
+			return get_current_user_id();
+		}
+		return Sahra_Roles::is_couple( $user_id ) ? $user_id : get_current_user_id();
 	}
 
 	private static function delete_user() {

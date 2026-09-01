@@ -465,12 +465,12 @@ $geri_sayim = $d['weddingDate']
 				<form id="rsvp-form" class="reveal" novalidate>
 					<div class="field-row">
 						<label class="field-label" for="rsvp-name">Ad Soyad</label>
-						<input class="field" id="rsvp-name" name="name" required placeholder="Adınız">
+						<input class="field" id="rsvp-name" type="text" name="name" required placeholder="Adınız">
 					</div>
 
 					<div class="field-row">
 						<label class="field-label" for="rsvp-phone">Telefon</label>
-						<input class="field" id="rsvp-phone" name="phone" required placeholder="05xx xxx xx xx">
+						<input class="field" id="rsvp-phone" type="tel" name="phone" required placeholder="05xx xxx xx xx">
 					</div>
 
 					<div class="field-row">
@@ -492,12 +492,12 @@ $geri_sayim = $d['weddingDate']
 
 					<div class="field-row" id="rsvp-song-row">
 						<label class="field-label" for="rsvp-song">Çalmasını İstediğiniz Şarkı (İsteğe Bağlı)</label>
-						<input class="field" id="rsvp-song" placeholder="Şarkı ve sanatçı">
+						<input class="field" id="rsvp-song" type="text" placeholder="Şarkı ve sanatçı">
 					</div>
 
 					<div class="field-row">
 						<label class="field-label" for="rsvp-note">Notunuz (İsteğe Bağlı)</label>
-						<input class="field" id="rsvp-note" placeholder="Bir dilek bırakmak ister misiniz?">
+						<input class="field" id="rsvp-note" type="text" placeholder="Bir dilek bırakmak ister misiniz?">
 					</div>
 
 					<p class="form-note" role="alert"></p>
@@ -569,7 +569,7 @@ $geri_sayim = $d['weddingDate']
 					<form id="wish-form" class="reveal wrap-narrow" style="padding:0">
 						<div class="field-row">
 							<label class="field-label" for="wish-name">Adınız</label>
-							<input class="field" id="wish-name" placeholder="Adınız">
+							<input class="field" id="wish-name" type="text" placeholder="Adınız">
 						</div>
 						<div class="field-row">
 							<label class="field-label" for="wish-message">Dileğiniz</label>

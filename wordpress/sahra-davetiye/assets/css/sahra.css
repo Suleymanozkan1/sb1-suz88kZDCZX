@@ -1203,6 +1203,56 @@ html.sahra-html {
   color: var(--c-gold-light);
 }
 
+/* ══════════════════════════════════════════════════ GİRİŞ ════════ */
+
+.giris-page {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-md);
+  background: linear-gradient(180deg, var(--c-ink) 0%, var(--c-night) 70%);
+  color: var(--c-on-dark);
+}
+
+.giris-card {
+  width: 100%;
+  max-width: 24rem;
+}
+
+.giris-card header {
+  margin-bottom: var(--sp-lg);
+}
+
+/* Next sürümündeki Divider'ın karşılığı — sola dayalı ince altın çizgi. */
+.giris-rule {
+  display: block;
+  margin-top: var(--sp-md);
+  width: 4.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--c-gold) 0%, transparent 100%);
+}
+
+.giris-card .field-row + .field-row {
+  margin-top: var(--sp-md);
+}
+
+.giris-card .cta {
+  margin-top: var(--sp-md);
+}
+
+.giris-hata {
+  margin-top: var(--sp-md);
+  font-size: var(--t-body);
+  color: #e2a3a3;
+}
+
+.giris-not {
+  margin-top: var(--sp-md);
+  font-size: 0.8125rem;
+  color: var(--c-on-dark-faint);
+}
+
 /* ══════════════════════════════════════════════ QR YÜKLEME ════════ */
 
 .upload-page {

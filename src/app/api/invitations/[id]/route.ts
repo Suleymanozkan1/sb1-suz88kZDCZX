@@ -2,7 +2,7 @@ import { removeFiles } from '@/lib/files';
 import { withConfig } from '@/lib/route';
 import { NextResponse } from 'next/server';
 import { requireSession } from '@/lib/guard';
-import { deleteInvitation, getInvitation, updateInvitation } from '@/lib/store';
+import { deleteInvitation, getInvitation, getUser, transferInvitation, updateInvitation } from '@/lib/store';
 import type { Session } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -39,10 +39,30 @@ async function handlePut(request: Request, { params }: Params) {
     return NextResponse.json({ error: 'Bu işlem için yetkiniz yok' }, { status: 403 });
   }
 
-  const updated = await updateInvitation(params.id, await request.json());
+  const body = await request.json();
+
+  const updated = await updateInvitation(params.id, body);
   if (!updated) {
     return NextResponse.json({ error: 'Davetiye bulunamadı' }, { status: 404 });
   }
+
+  /*
+   * Sahip devri — YALNIZCA admin. Gövdedeki ownerId'yi updateInvitation
+   * bilerek yok sayıyor; devir ayrı ve denetimli bir işlem. Kullanıcının
+   * kendi davetiyesini başkasına yazması ya da başkasınınkini üstüne
+   * alması engellenmiş oluyor.
+   */
+  if (result.session.role === 'admin' && typeof body?.ownerId === 'string' && body.ownerId) {
+    if (body.ownerId !== updated.ownerId) {
+      const owner = await getUser(body.ownerId);
+      if (!owner) {
+        return NextResponse.json({ error: 'Seçilen hesap bulunamadı' }, { status: 400 });
+      }
+      const devredilen = await transferInvitation(params.id, body.ownerId);
+      if (devredilen) return NextResponse.json(devredilen);
+    }
+  }
+
   return NextResponse.json(updated);
 }
 
