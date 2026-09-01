@@ -521,6 +521,17 @@ $geri_sayim = $d['weddingDate']
 								<span class="konum-ikincil">
 									<a class="link-underline" target="_blank" rel="noopener"
 										href="<?php echo esc_url( $d['mapUrl'] ? $d['mapUrl'] : 'https://www.google.com/maps/search/?api=1&query=' . $konum_sorgu ); ?>">Google Maps</a>
+									<?php
+									/*
+									 * Apple Haritalar iPhone'da yerleşik uygulamayı açıyor;
+									 * misafirlerin önemli bir kısmı bu telefonu kullanıyor ve
+									 * Google Maps kurulu olmayabiliyor. Diğer cihazlarda
+									 * maps.apple.com bir web haritasına düşüyor, ölü bağlantı
+									 * olmuyor.
+									 */
+									?>
+									<a class="link-underline" target="_blank" rel="noopener"
+										href="<?php echo esc_url( 'https://maps.apple.com/?q=' . $konum_sorgu ); ?>">Apple Haritalar</a>
 									<a class="link-underline" target="_blank" rel="noopener"
 										href="<?php echo esc_url( 'https://yandex.com.tr/harita/?text=' . $konum_sorgu ); ?>">Yandex Harita</a>
 								</span>
