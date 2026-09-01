@@ -168,7 +168,7 @@ export async function createInvitation(
 
   const slugSource =
     input.slug?.trim() ||
-    `${input.groomName ?? ''}-${input.brideName ?? ''}`.trim() ||
+    `${input.brideName ?? ''}-${input.groomName ?? ''}`.trim() ||
     'davetiye';
 
   const invitation: Invitation = {

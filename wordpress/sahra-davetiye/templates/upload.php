@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 $d       = $davetiye;
 $conj    = $d['conjunction'] ? $d['conjunction'] : '&';
-$isimler = trim( $d['groomName'] . ' ' . $conj . ' ' . $d['brideName'] );
+$isimler = trim( $d['brideName'] . ' ' . $conj . ' ' . $d['groomName'] );
 ?>
 <!DOCTYPE html>
 <html lang="tr" class="sahra-html no-js">

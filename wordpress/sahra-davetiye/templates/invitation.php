@@ -243,8 +243,14 @@ $geri_sayim = $d['weddingDate']
 
 				<div class="hero-actions reveal">
 					<a href="#rsvp" class="cta">Katılım Durumunu Belirt</a>
-					<a href="#details" class="link-underline" style="color:var(--c-on-dark-faint)">Detayları Gör</a>
+					<a href="#details" class="link-underline" style="color:var(--c-on-dark-soft)">Detayları Gör</a>
 				</div>
+			</div>
+
+			<?php /* Kaydırma daveti — kompozisyonla aynı sol kenara hizalı. */ ?>
+			<div class="kaydir-daveti">
+				<span class="t-label">Kaydır</span>
+				<span class="kaydir-cizgi" aria-hidden="true"></span>
 			</div>
 		</section>
 
@@ -393,88 +399,6 @@ $geri_sayim = $d['weddingDate']
 			</section>
 		<?php endif; ?>
 
-		<?php /* ────────────────────────────────────────────────── galeri */ ?>
-		<?php if ( $d['showGallery'] ) : ?>
-		<section id="gallery" class="section-gap">
-			<div class="wrap">
-				<div class="section-head reveal">
-					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-					<span class="t-label"><?php echo esc_html( $d['gallerySectionSubtitle'] ? $d['gallerySectionSubtitle'] : 'Anılar' ); ?></span>
-				</div>
-				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['gallerySectionTitle'] ? $d['gallerySectionTitle'] : 'Fotoğraf Galerisi' ); ?></h2>
-
-				<?php if ( ! empty( $d['galleryImages'] ) ) : ?>
-					<div class="gallery">
-						<?php foreach ( $d['galleryImages'] as $i => $src ) : ?>
-							<button type="button" class="reveal" data-full="<?php echo esc_url( $src ); ?>" aria-label="<?php echo esc_attr( 'Anı ' . ( $i + 1 ) . ' — büyüt' ); ?>">
-								<img src="<?php echo esc_url( $src ); ?>" alt="<?php echo esc_attr( 'Anı ' . ( $i + 1 ) ); ?>" loading="lazy">
-							</button>
-						<?php endforeach; ?>
-					</div>
-				<?php else : ?>
-					<p class="t-body" style="color:var(--c-on-light-faint)">Fotoğraflar yakında burada olacak.</p>
-				<?php endif; ?>
-			</div>
-		</section>
-		<?php endif; ?>
-
-		<?php /* ─────────────────────────────────────────────────── konum */ ?>
-		<?php if ( $d['showLocation'] ) : ?>
-		<section id="location" class="section-gap">
-			<div class="wrap">
-				<div class="section-head reveal">
-					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-					<span class="t-label"><?php echo esc_html( $d['locationSectionSubtitle'] ? $d['locationSectionSubtitle'] : 'Konum' ); ?></span>
-				</div>
-				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['locationSectionTitle'] ? $d['locationSectionTitle'] : 'Nasıl Gelirsiniz?' ); ?></h2>
-
-				<div class="map-frame reveal">
-					<?php /* Haritanın ARKASI: Google engelli bir ağda yüklenmezse burası boş bir dikdörtgen kalmasın. */ ?>
-					<div class="map-fallback" aria-hidden="true">
-						<p class="t-label" style="color:var(--c-gold-deep)">Harita</p>
-						<p class="t-h2"><?php echo esc_html( $d['venueName'] ); ?></p>
-						<p class="t-body" style="color:var(--c-on-light-faint)"><?php echo esc_html( $adres_satiri ); ?></p>
-					</div>
-
-					<?php if ( $konum_sorgu ) : ?>
-						<iframe
-							src="<?php echo esc_url( 'https://www.google.com/maps?q=' . $konum_sorgu . '&output=embed' ); ?>"
-							title="Düğün Lokasyonu"
-							loading="lazy"
-							referrerpolicy="no-referrer-when-downgrade"
-							allowfullscreen></iframe>
-					<?php endif; ?>
-				</div>
-
-				<?php if ( $konum_sorgu ) : ?>
-					<p class="reveal" style="margin-top:var(--sp-md);display:flex;gap:var(--sp-sm);flex-wrap:wrap">
-						<a class="cta cta-on-light" target="_blank" rel="noopener"
-							href="<?php echo esc_url( $d['mapUrl'] ? $d['mapUrl'] : 'https://www.google.com/maps/search/?api=1&query=' . $konum_sorgu ); ?>">Google Maps</a>
-						<a class="cta cta-on-light" target="_blank" rel="noopener"
-							href="<?php echo esc_url( 'https://www.google.com/maps/dir/?api=1&destination=' . $konum_sorgu ); ?>">Yol Tarifi</a>
-					</p>
-				<?php endif; ?>
-
-				<?php
-				/*
-				 * Salonun özellikleri misafirin O AKŞAM vereceği kararları
-				 * etkiliyor: arabayla mı geleyim, çocuğumu getirebilir
-				 * miyim, tekerlekli sandalye geçer mi. Bu yüzden haritanın
-				 * hemen altında; ayrı bir bölüme koymak, sorunun sorulduğu
-				 * yerden uzaklaştırmak olurdu.
-				 */
-				?>
-				<?php if ( ! empty( $d['venueFeatures'] ) ) : ?>
-					<ul class="salon-ozellik reveal">
-						<?php foreach ( $d['venueFeatures'] as $sahra_ozellik ) : ?>
-							<li><span aria-hidden="true">✓</span><?php echo esc_html( $sahra_ozellik ); ?></li>
-						<?php endforeach; ?>
-					</ul>
-				<?php endif; ?>
-			</div>
-		</section>
-		<?php endif; ?>
-
 		<?php /* ──────────────────────────────────────────────────── menü */ ?>
 		<?php
 		/*
@@ -512,6 +436,114 @@ $geri_sayim = $d['weddingDate']
 					</div>
 				</div>
 			</section>
+		<?php endif; ?>
+
+		<?php /* ────────────────────────────────────────────────── galeri */ ?>
+		<?php if ( $d['showGallery'] ) : ?>
+		<section id="gallery" class="section-gap">
+			<div class="wrap">
+				<div class="section-head reveal">
+					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
+					<span class="t-label"><?php echo esc_html( $d['gallerySectionSubtitle'] ? $d['gallerySectionSubtitle'] : 'Anılar' ); ?></span>
+				</div>
+				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['gallerySectionTitle'] ? $d['gallerySectionTitle'] : 'Fotoğraf Galerisi' ); ?></h2>
+
+				<?php if ( ! empty( $d['galleryImages'] ) ) : ?>
+					<div class="gallery">
+						<?php foreach ( $d['galleryImages'] as $i => $src ) : ?>
+							<button type="button" class="reveal" data-full="<?php echo esc_url( $src ); ?>" aria-label="<?php echo esc_attr( 'Anı ' . ( $i + 1 ) . ' — büyüt' ); ?>">
+								<img src="<?php echo esc_url( $src ); ?>" alt="<?php echo esc_attr( 'Anı ' . ( $i + 1 ) ); ?>" loading="lazy">
+								<?php /* Üzerine gelince ince bir çerçeve içe doğru çizilir, altta sıra numarası belirir. */ ?>
+								<span class="gal-cerceve" aria-hidden="true"></span>
+								<span class="gal-no numerals" aria-hidden="true"><?php echo esc_html( str_pad( (string) ( $i + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				<?php else : ?>
+					<p class="t-body" style="color:var(--c-on-light-faint)">Fotoğraflar yakında burada olacak.</p>
+				<?php endif; ?>
+			</div>
+		</section>
+		<?php endif; ?>
+
+		<?php /* ─────────────────────────────────────────────────── konum */ ?>
+		<?php if ( $d['showLocation'] ) : ?>
+		<section id="location" class="section-gap">
+			<div class="wrap">
+				<div class="section-head reveal">
+					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
+					<span class="t-label"><?php echo esc_html( $d['locationSectionSubtitle'] ? $d['locationSectionSubtitle'] : 'Konum' ); ?></span>
+				</div>
+				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['locationSectionTitle'] ? $d['locationSectionTitle'] : 'Nasıl Gelirsiniz?' ); ?></h2>
+
+				<?php
+				/*
+				 * Harita sağda, bilgi solda: ortalanmış buton üçlüsü yerine
+				 * asimetrik bir yerleşim — sayfanın ritmini kırıyor. Next
+				 * sürümüyle birebir aynı düzen.
+				 */
+				?>
+				<div class="konum-duzen">
+					<div class="konum-bilgi reveal">
+						<p class="t-h2" style="color:var(--c-on-light)"><?php echo esc_html( $d['venueName'] ); ?></p>
+						<p class="t-body" style="color:var(--c-on-light-soft);margin-top:0.75rem"><?php echo esc_html( $adres_satiri ); ?></p>
+
+						<?php
+						/*
+						 * Salonun özellikleri misafirin O AKŞAM vereceği kararları
+						 * etkiliyor: arabayla mı geleyim, çocuğumu getirebilir
+						 * miyim, tekerlekli sandalye geçer mi. Bu yüzden adresin
+						 * hemen altında; ayrı bir bölüme koymak, sorunun
+						 * sorulduğu yerden uzaklaştırmak olurdu.
+						 */
+						?>
+						<?php if ( ! empty( $d['venueFeatures'] ) ) : ?>
+							<ul class="salon-ozellik">
+								<?php foreach ( $d['venueFeatures'] as $sahra_ozellik ) : ?>
+									<li><span aria-hidden="true">✓</span><?php echo esc_html( $sahra_ozellik ); ?></li>
+								<?php endforeach; ?>
+							</ul>
+						<?php endif; ?>
+
+						<?php if ( $konum_sorgu ) : ?>
+							<div class="konum-baglantilar">
+								<a class="cta cta-on-light nudge" target="_blank" rel="noopener"
+									href="<?php echo esc_url( 'https://www.google.com/maps/dir/?api=1&destination=' . $konum_sorgu ); ?>">
+									Yol Tarifi Al
+									<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+										<path d="M4 12h15"/><path d="M13 6l6 6-6 6"/>
+									</svg>
+								</a>
+								<span class="konum-ikincil">
+									<a class="link-underline" target="_blank" rel="noopener"
+										href="<?php echo esc_url( $d['mapUrl'] ? $d['mapUrl'] : 'https://www.google.com/maps/search/?api=1&query=' . $konum_sorgu ); ?>">Google Maps</a>
+									<a class="link-underline" target="_blank" rel="noopener"
+										href="<?php echo esc_url( 'https://yandex.com.tr/harita/?text=' . $konum_sorgu ); ?>">Yandex Harita</a>
+								</span>
+							</div>
+						<?php endif; ?>
+					</div>
+
+					<div class="map-frame reveal">
+						<?php /* Haritanın ARKASI: Google engelli bir ağda yüklenmezse burası boş bir dikdörtgen kalmasın. */ ?>
+						<div class="map-fallback" aria-hidden="true">
+							<p class="t-label" style="color:var(--c-gold-deep)">Harita</p>
+							<p class="t-h2"><?php echo esc_html( $d['venueName'] ); ?></p>
+							<p class="t-body" style="color:var(--c-on-light-faint)"><?php echo esc_html( $adres_satiri ); ?></p>
+						</div>
+
+						<?php if ( $konum_sorgu ) : ?>
+							<iframe
+								src="<?php echo esc_url( 'https://www.google.com/maps?q=' . $konum_sorgu . '&output=embed' ); ?>"
+								title="Düğün Lokasyonu"
+								loading="lazy"
+								referrerpolicy="no-referrer-when-downgrade"
+								allowfullscreen></iframe>
+						<?php endif; ?>
+					</div>
+				</div>
+			</div>
+		</section>
 		<?php endif; ?>
 
 		<?php /* ────────────────────────────────────────────── ailelerimiz */ ?>
@@ -701,7 +733,7 @@ $geri_sayim = $d['weddingDate']
 
 					<form id="wish-form" class="reveal wrap-narrow" style="padding:0">
 						<div class="field-row">
-							<label class="field-label" for="wish-name">Adınız</label>
+							<label class="field-label" for="wish-name">Adınız (İsteğe Bağlı)</label>
 							<input class="field" id="wish-name" type="text" placeholder="Adınız">
 						</div>
 						<div class="field-row">
@@ -712,7 +744,7 @@ $geri_sayim = $d['weddingDate']
 						<p class="form-note" role="alert"></p>
 						<p class="form-ok" role="status"></p>
 
-						<button type="submit" class="cta" style="margin-top:var(--sp-sm)">Dileğimi Gönder</button>
+						<button type="submit" class="cta" style="margin-top:var(--sp-sm)">Dileğimi Bırak</button>
 					</form>
 				</div>
 			</section>
@@ -720,10 +752,26 @@ $geri_sayim = $d['weddingDate']
 
 		<?php /* ──────────────────────────────────────────────── iletişim */ ?>
 		<?php if ( $d['showContact'] ) : ?>
-		<section id="contact" class="section-gap">
-			<div class="wrap center">
-				<h2 class="t-display reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['contactSectionTitle'] ? $d['contactSectionTitle'] : 'Görüşmek Üzere' ); ?></h2>
-				<p class="t-lead reveal" style="color:var(--c-gold);margin-top:var(--sp-sm)"><?php echo esc_html( $isimler ); ?></p>
+		<section id="contact" class="section-gap kapanis">
+			<?php if ( $d['hashtag'] ) : ?>
+				<?php /* Hayalet hashtag — arka planda, okunaklı olmayacak kadar sönük. */ ?>
+				<span class="hayalet-etiket" aria-hidden="true"><?php echo esc_html( $d['hashtag'] ); ?></span>
+			<?php endif; ?>
+			<div class="wrap center" style="position:relative">
+				<?php
+				/*
+				 * Site haritası değil, bir varış noktası: isimler sayfadaki en
+				 * büyük ikinci tipografiyle geri gelir, başlık ise küçük bir
+				 * etiket olarak üstte durur. Ziyaretçinin akılda tutacağı son
+				 * kare budur — Next sürümüyle birebir aynı hiyerarşi.
+				 */
+				?>
+				<p class="t-label reveal" style="color:var(--c-gold)"><?php echo esc_html( $d['contactSectionTitle'] ? $d['contactSectionTitle'] : 'Görüşmek Üzere' ); ?></p>
+				<h2 class="t-display reveal" style="color:var(--c-on-dark);margin-top:var(--sp-sm)">
+					<?php echo esc_html( $d['brideName'] ); ?>
+					<em style="color:var(--c-gold)"><?php echo esc_html( $conj ); ?></em>
+					<?php echo esc_html( $d['groomName'] ); ?>
+				</h2>
 
 				<?php
 				/*
@@ -753,18 +801,23 @@ $geri_sayim = $d['weddingDate']
 					<div class="etiket-blok reveal">
 						<p class="t-label" style="color:var(--c-gold)"><?php echo esc_html( $d['socialSectionTitle'] ? $d['socialSectionTitle'] : 'Etiketlemeyi Unutmayın' ); ?></p>
 
-						<?php if ( $d['hashtag'] ) : ?>
-							<p class="etiket-hashtag"><?php echo esc_html( $d['hashtag'] ); ?></p>
-						<?php endif; ?>
-
 						<?php if ( $sahra_etiketler ) : ?>
 							<p class="etiket-hesaplar">
 								<?php foreach ( $sahra_etiketler as $sahra_bag ) : ?>
 									<a class="link-underline" href="<?php echo esc_url( $sahra_bag['href'] ); ?>" target="_blank" rel="noopener">
+										<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+											<rect x="3.5" y="3.5" width="17" height="17" rx="5"/>
+											<circle cx="12" cy="12" r="4"/>
+											<circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/>
+										</svg>
 										<?php echo esc_html( $sahra_bag['name'] ); ?>
 									</a>
 								<?php endforeach; ?>
 							</p>
+						<?php endif; ?>
+
+						<?php if ( $d['hashtag'] ) : ?>
+							<p class="etiket-hashtag"><?php echo esc_html( $d['hashtag'] ); ?></p>
 						<?php endif; ?>
 					</div>
 				<?php endif; ?>
@@ -774,7 +827,7 @@ $geri_sayim = $d['weddingDate']
 					<button type="button" class="cta" data-copy="<?php echo esc_attr( $adres ); ?>">Bağlantıyı Kopyala</button>
 				</p>
 
-				<p class="t-label reveal" style="color:var(--c-on-dark-faint);margin-top:var(--sp-lg)">Sevgiyle Hazırlandı</p>
+				<p class="t-label reveal" style="color:var(--c-on-dark-faint);margin-top:var(--sp-lg)">Sevgiyle hazırlandı</p>
 			</div>
 		</section>
 		<?php endif; ?>

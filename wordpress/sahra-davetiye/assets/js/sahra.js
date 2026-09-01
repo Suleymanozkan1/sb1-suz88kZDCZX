@@ -323,18 +323,6 @@
 		} );
 	}
 
-	/* ---------------------------------------------------------------- SSS */
-
-	function sss() {
-		Array.prototype.forEach.call( kok.querySelectorAll( '.faq-q' ), function ( dugme ) {
-			dugme.addEventListener( 'click', function () {
-				var oge = dugme.closest( '.faq-item' );
-				var acik = oge.classList.toggle( 'is-open' );
-				dugme.setAttribute( 'aria-expanded', acik ? 'true' : 'false' );
-			} );
-		} );
-	}
-
 	/* ------------------------------------------------------------ katılım */
 
 	function istek( yol, govde ) {
@@ -490,7 +478,6 @@
 	geriSayim();
 	perde();
 	galeri();
-	sss();
 	katilimFormu();
 	dilekFormu();
 	paylas();

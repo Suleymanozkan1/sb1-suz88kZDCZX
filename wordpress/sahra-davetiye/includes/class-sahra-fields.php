@@ -586,7 +586,7 @@ class Sahra_Fields {
 	}
 
 	/**
-	 * Dizi alanları (program, SSS, hikaye, galeri, sosyal).
+	 * Dizi alanları (program, hikaye, galeri, sosyal).
 	 *
 	 * Derinlik bir kademe: her öğe ya düz metin ya da düz metinlerden oluşan
 	 * bir nesne. İç içe yapıya izin verilmiyor ki meta sınırsız büyümesin.

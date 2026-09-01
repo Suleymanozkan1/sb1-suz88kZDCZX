@@ -245,7 +245,7 @@ export async function createInvitation(
   const merged = { ...base, ...input } as Invitation;
 
   const slugSource =
-    input.slug?.trim() || `${input.groomName ?? ''}-${input.brideName ?? ''}`.trim() || 'davetiye';
+    input.slug?.trim() || `${input.brideName ?? ''}-${input.groomName ?? ''}`.trim() || 'davetiye';
   const slug = await uniqueSlug(slugify(slugSource));
 
   const rows = await query<InvitationRow>(

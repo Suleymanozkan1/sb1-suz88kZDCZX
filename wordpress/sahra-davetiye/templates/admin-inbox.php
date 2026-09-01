@@ -160,7 +160,7 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				<?php $dv = Sahra_Invitation::get( $davetiye_id ); ?>
 				<div style="margin-bottom:var(--sp-md)">
 					<div style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:0.75rem">
-						<span class="t-lead"><?php echo esc_html( $dv ? trim( $dv['groomName'] . ' & ' . $dv['brideName'] ) : __( 'Davetiye', 'sahra-davetiye' ) ); ?></span>
+						<span class="t-lead"><?php echo esc_html( $dv ? trim( $dv['brideName'] . ' & ' . $dv['groomName'] ) : __( 'Davetiye', 'sahra-davetiye' ) ); ?></span>
 						<a class="eylem-link" href="<?php echo esc_url( Sahra_Render::zip_url( $davetiye_id ) ); ?>">
 							<?php
 							/* translators: %d: fotoğraf sayısı. */

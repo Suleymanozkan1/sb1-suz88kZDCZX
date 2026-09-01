@@ -360,7 +360,7 @@ export default function InvitationForm({
         <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
         <span className="field-label">Önizleme</span>
         <p className="t-h2" style={{ color: 'var(--c-gold-light)' }}>
-          {draft.groomName || 'Damat'} {draft.conjunction} {draft.brideName || 'Gelin'}
+          {draft.brideName || 'Gelin'} {draft.conjunction} {draft.groomName || 'Damat'}
         </p>
         <p className="t-body mt-2" style={{ color: 'var(--c-on-dark-faint)' }}>
           /davet/{previewSlug}

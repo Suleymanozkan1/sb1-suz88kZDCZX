@@ -56,8 +56,8 @@ class Sahra_Og_Image {
 		$imza = md5(
 			wp_json_encode(
 				array(
-					$davetiye['groomName'],
 					$davetiye['brideName'],
+					$davetiye['groomName'],
 					$davetiye['conjunction'],
 					$davetiye['weddingDate'],
 					$davetiye['city'],
@@ -107,11 +107,11 @@ class Sahra_Og_Image {
 		$vurgu = self::color( $im, $altin );
 
 		$conjunction = $davetiye['conjunction'] ? $davetiye['conjunction'] : '&';
-		$isimler     = trim( $davetiye['groomName'] . ' ' . $conjunction . ' ' . $davetiye['brideName'] );
+		$isimler     = trim( $davetiye['brideName'] . ' ' . $conjunction . ' ' . $davetiye['groomName'] );
 
 		$monogram = trim( (string) $davetiye['sealMonogram'] );
 		if ( '' === $monogram ) {
-			$monogram = mb_substr( (string) $davetiye['groomName'], 0, 1 ) . mb_substr( (string) $davetiye['brideName'], 0, 1 );
+			$monogram = mb_substr( (string) $davetiye['brideName'], 0, 1 ) . mb_substr( (string) $davetiye['groomName'], 0, 1 );
 		}
 
 		$alt = array_filter( array( Sahra_Render::format_date( $davetiye['weddingDate'] ), $davetiye['city'] ) );

@@ -71,11 +71,11 @@ export default function ContactSection({
           viewport={{ once: true }}
           transition={{ duration: 1.59, ease: [0.22, 1, 0.36, 1] }}
         >
-          {invitation.groomName}{' '}
+          {invitation.brideName}{' '}
           <span className="italic" style={{ color: 'var(--c-gold)' }}>
             {conjunction}
           </span>{' '}
-          {invitation.brideName}
+          {invitation.groomName}
         </motion.p>
 
         {invitation.showSocial && (links.length > 0 || invitation.hashtag) && (

@@ -463,7 +463,7 @@ class Sahra_Admin {
 	/**
 	 * "a | b | c" biçimindeki satırları nesne dizisine çevirir.
 	 *
-	 * Program/SSS/hikaye için ayrı ayrı tekrarlayıcı arayüz yazmak yerine
+	 * Program/hikaye için ayrı ayrı tekrarlayıcı arayüz yazmak yerine
 	 * tek bir metin alanı: panelde çok daha az JavaScript, çiftin
 	 * gözünde çok daha az tıklama.
 	 */

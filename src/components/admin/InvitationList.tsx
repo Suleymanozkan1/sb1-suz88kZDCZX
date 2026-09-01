@@ -94,11 +94,11 @@ export default function InvitationList({
                 <Row key={row.id} index={i} last={i === rows.length - 1}>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                     <h3 className="t-lead" style={{ color: 'var(--c-on-dark)' }}>
-                      {row.groomName}{' '}
+                      {row.brideName}{' '}
                       <span className="italic" style={{ color: 'var(--c-gold)' }}>
                         {row.conjunction}
                       </span>{' '}
-                      {row.brideName}
+                      {row.groomName}
                     </h3>
                     <Badge tone={row.isActive ? 'ok' : 'off'}>
                       {row.isActive ? 'Aktif' : 'Pasif'}

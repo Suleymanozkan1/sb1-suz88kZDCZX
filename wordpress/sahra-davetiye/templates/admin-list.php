@@ -47,7 +47,7 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				<?php foreach ( $davetiyeler as $d ) : ?>
 					<?php
 					$conj    = $d['conjunction'] ? $d['conjunction'] : '&';
-					$isimler = trim( $d['groomName'] . ' ' . $conj . ' ' . $d['brideName'] );
+					$isimler = trim( $d['brideName'] . ' ' . $conj . ' ' . $d['groomName'] );
 					$adres   = Sahra_Invitation::url( $d['slug'] );
 					$qr      = Sahra_Invitation::upload_url( $d['slug'] );
 					$sahip   = get_userdata( $d['ownerId'] );

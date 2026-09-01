@@ -174,7 +174,6 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
         </motion.div>
       </motion.div>
 
-      {/* kaydırma daveti — sola hizalı, ince ve sessiz */}
       {/* kaydırma daveti — kompozisyonla aynı sol kenara hizalı */}
       <motion.div
         className="absolute bottom-[var(--sp-sm)] left-1/2 z-20 flex w-full max-w-6xl -translate-x-1/2 items-center gap-3 px-[var(--sp-md)]"
