@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import ContactSection from './ContactSection';
 import DetailsSection from './DetailsSection';
-import FaqSection from './FaqSection';
+import ChildrenNote from './ChildrenNote';
+import FamilySection from './FamilySection';
+import MenuSection from './MenuSection';
 import GallerySection from './GallerySection';
 import Hero from './Hero';
 import LetterSection from './LetterSection';
@@ -35,13 +37,29 @@ export default function InvitationView({
   invitation,
   skipIntro = false,
   wishes = [],
+  brand,
 }: {
   invitation: Invitation;
   skipIntro?: boolean;
   /** Onaylanmış dilekler; sunucuda okunup buraya verilir. */
   wishes?: Wish[];
+  /** İşletmenin kendi hesabı — ayardan gelir, davetiyeden değil. */
+  brand?: { instagram: string; instagramLabel: string };
 }) {
   const [opened, setOpened] = useState(skipIntro);
+
+  /*
+   * Bölüm numarası sabit yazılamaz: bölümler kapatılabiliyor ve kapalı
+   * olanın numarası boşluk bırakıyordu — "01, 03, 06" diye giden bir
+   * davetiye. Numara çizim sırasında veriliyor.
+   *
+   * Bölüm kendi içinde de gizlenebilir (içeriği boşsa), bu yüzden sayaç
+   * yalnızca GÖRÜNECEK bölümler için ilerletiliyor.
+   */
+  const no = (() => {
+    let i = 0;
+    return () => (i += 1);
+  })();
 
   return (
     // Tema simgeleri en dışta veriliyor: mühür perdesi ve müzik düğmesi de
@@ -66,27 +84,45 @@ export default function InvitationView({
       <main className="journey">
         <div className="phase-dark">
           <Hero invitation={invitation} />
-          <LetterSection invitation={invitation} />
+          {invitation.showLetter && <LetterSection invitation={invitation} />}
         </div>
 
         <Bridge direction="toLight" />
 
         <div className="phase-light">
-          <StorySection invitation={invitation} />
-          <DetailsSection invitation={invitation} />
-          <ProgramSection invitation={invitation} />
-          <GallerySection invitation={invitation} />
-          <LocationSection invitation={invitation} />
-          <FaqSection invitation={invitation} />
+          {invitation.showStory && invitation.storyItems.length > 0 && (
+            <StorySection invitation={invitation} n={no()} />
+          )}
+          {invitation.showDetails && <DetailsSection invitation={invitation} n={no()} />}
+          {invitation.showProgram && invitation.programItems.length > 0 && (
+            <ProgramSection invitation={invitation} n={no()} />
+          )}
+          {invitation.showMenu && invitation.menuGroups.length > 0 && (
+            <MenuSection invitation={invitation} n={no()} />
+          )}
+          {invitation.showGallery && invitation.galleryImages.length > 0 && (
+            <GallerySection invitation={invitation} n={no()} />
+          )}
+          {invitation.showLocation && (invitation.venueName || invitation.address) && (
+            <LocationSection invitation={invitation} n={no()} />
+          )}
+          {invitation.showFamily && (invitation.brideFamilyText || invitation.groomFamilyText) && (
+            <FamilySection invitation={invitation} n={no()} />
+          )}
+          <ChildrenNote invitation={invitation} />
         </div>
 
         <Bridge direction="toDark" />
 
         <div className="phase-dark">
-          <RsvpSection invitation={invitation} />
-          <GiftSection invitation={invitation} />
-          <WishesSection invitation={invitation} wishes={wishes} />
-          <ContactSection invitation={invitation} />
+          {invitation.showRsvp && <RsvpSection invitation={invitation} n={no()} />}
+          {invitation.giftEnabled && (invitation.giftIban || invitation.giftRegistryUrl) && (
+            <GiftSection invitation={invitation} n={no()} />
+          )}
+          {invitation.wishesEnabled && (
+            <WishesSection invitation={invitation} wishes={wishes} n={no()} />
+          )}
+          {invitation.showContact && <ContactSection invitation={invitation} brand={brand} />}
         </div>
       </main>
 

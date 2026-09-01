@@ -13,7 +13,7 @@ import type { Invitation } from '@/lib/types';
  * bağlantıları solda bir sütunda toplanır. Ortalanmış buton üçlüsü yerine
  * asimetrik bir yerleşim — sayfanın ritmini kırar.
  */
-export default function LocationSection({ invitation }: { invitation: Invitation }) {
+export default function LocationSection({ invitation, n }: { invitation: Invitation; n: number }) {
   const query = [invitation.venueName, invitation.address, invitation.district, invitation.city]
     .filter(Boolean)
     .join(' ');
@@ -32,7 +32,7 @@ export default function LocationSection({ invitation }: { invitation: Invitation
     <section id="location" className="section-gap relative">
       <div className="mx-auto max-w-6xl px-[var(--sp-md)]">
         <SectionHead
-          n={5}
+          n={n}
           label={invitation.locationSectionSubtitle || 'Konum'}
           title={invitation.locationSectionTitle || 'Nasıl Gelirsiniz?'}
         />
@@ -53,6 +53,26 @@ export default function LocationSection({ invitation }: { invitation: Invitation
                 .filter(Boolean)
                 .join(', ')}
             </p>
+
+            {/*
+              Salonun özellikleri misafirin O AKŞAM vereceği kararları
+              etkiliyor: arabayla mı geleyim, çocuğumu getirebilir miyim,
+              tekerlekli sandalye geçer mi. Bu yüzden adresin hemen altında;
+              ayrı bir bölüme koymak, sorunun sorulduğu yerden
+              uzaklaştırmak olurdu.
+            */}
+            {invitation.venueFeatures?.length > 0 && (
+              <ul className="mt-[var(--sp-sm)] space-y-2">
+                {invitation.venueFeatures.map((f) => (
+                  <li key={f} className="t-body flex items-baseline gap-2.5" style={{ color: 'var(--c-on-light-soft)' }}>
+                    <span aria-hidden className="shrink-0" style={{ color: 'var(--c-gold-deep)' }}>
+                      ✓
+                    </span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <div className="mt-[var(--sp-md)] flex flex-col items-start gap-5">
               <a

@@ -18,7 +18,7 @@ import type { Invitation } from '@/lib/types';
  * Dört cam kart yerine bir "künye" — her satır ince bir kuralla ayrılmış,
  * etiket solda, değer sağda. Basılı bir davetiyenin arka yüzü gibi okunur.
  */
-export default function DetailsSection({ invitation }: { invitation: Invitation }) {
+export default function DetailsSection({ invitation, n }: { invitation: Invitation; n: number }) {
   const conjunction = invitation.conjunction || '&';
   const location = [invitation.venueName, invitation.district, invitation.city]
     .filter(Boolean)
@@ -57,7 +57,7 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
     invitation.weddingTime,
     invitation.weddingEndTime,
   );
-  const title = `${invitation.groomName} ${conjunction} ${invitation.brideName} Düğünü`;
+  const title = `${invitation.brideName} ${conjunction} ${invitation.groomName} Düğünü`;
 
   const googleUrl =
     'https://calendar.google.com/calendar/render?action=TEMPLATE' +
@@ -71,7 +71,7 @@ export default function DetailsSection({ invitation }: { invitation: Invitation 
     <section id="details" className="section-gap relative">
       <div className="mx-auto max-w-5xl px-[var(--sp-md)]">
         <SectionHead
-          n={2}
+          n={n}
           label={invitation.detailsSectionSubtitle || 'Detaylar'}
           title={invitation.detailsSectionTitle || 'Düğün Bilgileri'}
         />

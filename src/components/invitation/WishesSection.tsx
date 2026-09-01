@@ -15,13 +15,7 @@ import type { Invitation, Wish } from '@/lib/types';
  * Bu yüzden gönderen kişiye "onaylandıktan sonra görünecek" denir; yoksa
  * mesajının kaybolduğunu sanır.
  */
-export default function WishesSection({
-  invitation,
-  wishes,
-}: {
-  invitation: Invitation;
-  wishes: Wish[];
-}) {
+export default function WishesSection({ invitation, wishes, n }: { invitation: Invitation; wishes: Wish[]; n: number }) {
   const [form, setForm] = useState({ name: '', message: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -57,7 +51,7 @@ export default function WishesSection({
     <section id="wishes" className="section-gap relative">
       <div className="mx-auto max-w-3xl px-[var(--sp-md)]">
         <SectionHead
-          n={9}
+          n={n}
           label={invitation.wishesSubtitle || 'Dilekler'}
           title={invitation.wishesTitle || 'Dilek Defteri'}
           align="center"

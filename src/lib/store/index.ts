@@ -8,6 +8,9 @@
  */
 import { databaseUrl } from '../database-url';
 import { applyVenue, stripVenue } from '../venue';
+import { applySession } from '../session';
+import { buildSlug, trTitle } from '../slug';
+import type { Settings } from '../settings';
 import type { Invitation, InvitationInput } from '../types';
 import * as file from './file';
 import * as sql from './sql';
@@ -16,8 +19,8 @@ export const usingDatabase = Boolean(databaseUrl());
 
 const driver = usingDatabase ? sql : file;
 
-export const getVenue = driver.getVenue;
-export const saveVenue = driver.saveVenue;
+export const getSettings = driver.getSettings;
+export const saveSettings = driver.saveSettings;
 
 /*
    Mekân her davetiyeye BURADA ekleniyor.
@@ -32,23 +35,51 @@ export const saveVenue = driver.saveVenue;
    yani hazırlanmış bir istekle bile değiştirilemez.
 */
 async function venueli<T extends Invitation | null>(gelen: Promise<T>): Promise<T> {
-  const [invitation, venue] = await Promise.all([gelen, driver.getVenue()]);
-  return (invitation ? applyVenue(invitation, venue) : invitation) as T;
+  const [invitation, settings] = await Promise.all([gelen, driver.getSettings()]);
+  return (invitation ? applyVenue(invitation, settings) : invitation) as T;
 }
 
 export async function listInvitations(): Promise<Invitation[]> {
-  const [rows, venue] = await Promise.all([driver.listInvitations(), driver.getVenue()]);
-  return rows.map((row) => applyVenue(row, venue));
+  const [rows, settings] = await Promise.all([driver.listInvitations(), driver.getSettings()]);
+  return rows.map((row) => applyVenue(row, settings));
 }
 
 export const getInvitation = (id: string) => venueli(driver.getInvitation(id));
 export const getInvitationBySlug = (slug: string) => venueli(driver.getInvitationBySlug(slug));
 
-export const createInvitation = (input: InvitationInput, ownerId: string) =>
-  venueli(driver.createInvitation(stripVenue(input), ownerId));
+/**
+ * Gövdeyi yazmadan önce düzeltir.
+ *
+ * Üç şey BURADA yapılıyor, formda değil: REST ucundan ya da elle gönderilen
+ * bir istekte de aynı kural işlesin.
+ *
+ *  • Adların yazımı ("mehmeT" → "Mehmet"): çift adını her türlü yazıyor ve
+ *    davetiyede CAPS LOCK ile duran bir ad ürünü ucuzlatıyor.
+ *  • Saat oturumdan türer; ayrıca sorulmuyor.
+ *  • Mekân alanları düşürülür; salon seçimden gelir.
+ */
+function normalize(input: InvitationInput): InvitationInput {
+  const out = stripVenue(applySession(input)) as InvitationInput;
+
+  for (const key of ['brideName', 'groomName', 'brideSurname', 'groomSurname'] as const) {
+    if (typeof out[key] === 'string') out[key] = trTitle(out[key] as string);
+  }
+
+  return out;
+}
+
+export const createInvitation = (input: InvitationInput, ownerId: string) => {
+  const temiz = normalize(input);
+  // Slug verilmediyse 19-eylul-2026-zehra-ahmet biçiminde üretilir.
+  const slug =
+    temiz.slug?.trim() ||
+    buildSlug(temiz.brideName ?? '', temiz.groomName ?? '', temiz.weddingDate ?? '');
+
+  return venueli(driver.createInvitation({ ...temiz, slug }, ownerId));
+};
 
 export const updateInvitation = (id: string, input: InvitationInput) =>
-  venueli(driver.updateInvitation(id, stripVenue(input)));
+  venueli(driver.updateInvitation(id, normalize(input)));
 
 export const deleteInvitation = driver.deleteInvitation;
 export const transferInvitation = (id: string, ownerId: string) =>

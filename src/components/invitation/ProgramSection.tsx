@@ -12,7 +12,7 @@ import type { Invitation } from '@/lib/types';
  * ayrılır. Kart, gölge ve cam efekti yok — akış listesi bir tarife gibi
  * okunmalı, bir kontrol paneli gibi değil.
  */
-export default function ProgramSection({ invitation }: { invitation: Invitation }) {
+export default function ProgramSection({ invitation, n }: { invitation: Invitation; n: number }) {
   const items = invitation.programItems ?? [];
   if (items.length === 0) return null;
 
@@ -20,7 +20,7 @@ export default function ProgramSection({ invitation }: { invitation: Invitation 
     <section id="program" className="section-gap relative">
       <div className="mx-auto max-w-4xl px-[var(--sp-md)]">
         <SectionHead
-          n={3}
+          n={n}
           label={invitation.programSectionSubtitle || 'Akış'}
           title={invitation.programSectionTitle || 'Günün Programı'}
         />

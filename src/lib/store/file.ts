@@ -5,8 +5,7 @@ import { emptyInvitation } from '../defaults';
 import { ConfigError } from '../errors';
 import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
-import { EMPTY_VENUE } from '../venue';
-import type { Venue } from '../venue';
+import { defaultSettings, type Settings } from '../settings';
 import type {
   GuestPhoto,
   Invitation,
@@ -67,20 +66,26 @@ async function readFile<T>(file: string): Promise<T[]> {
   }
 }
 
-/** Ortak mekân ayarı — SQL sürücüsündeki `settings` tablosunun karşılığı. */
-export async function getVenue(): Promise<Venue> {
+/** Genel ayarlar — SQL sürücüsündeki `settings` tablosunun karşılığı. */
+export async function getSettings(): Promise<Settings> {
+  const bos = defaultSettings();
   try {
     const raw = await fs.readFile(SETTINGS_FILE, 'utf8');
     const parsed = JSON.parse(raw);
-    return { ...EMPTY_VENUE, ...(parsed?.venue ?? {}) };
+    return {
+      venues: Array.isArray(parsed?.venues) ? parsed.venues : bos.venues,
+      menus: Array.isArray(parsed?.menus) ? parsed.menus : bos.menus,
+      brand: { ...bos.brand, ...(parsed?.brand ?? {}) },
+      lifecycle: { ...bos.lifecycle, ...(parsed?.lifecycle ?? {}) },
+    };
   } catch {
-    return { ...EMPTY_VENUE };
+    return bos;
   }
 }
 
-export async function saveVenue(input: Partial<Venue>): Promise<Venue> {
-  const merged = { ...(await getVenue()), ...input };
-  await writeJson(SETTINGS_FILE, { venue: merged });
+export async function saveSettings(input: Partial<Settings>): Promise<Settings> {
+  const merged = { ...(await getSettings()), ...input };
+  await writeJson(SETTINGS_FILE, merged);
   return merged;
 }
 

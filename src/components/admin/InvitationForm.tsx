@@ -7,12 +7,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import ImageUploader from './ImageUploader';
-import VenueNotice from './VenueNotice';
+import VenuePicker from './VenuePicker';
 import { Divider, IconArrow, IconCheck, IconTrash } from '@/components/invitation/Ornaments';
 import * as api from '@/lib/api';
 import {
   CONJUNCTION_OPTIONS,
-  DEFAULT_FAQ_ITEMS,
+  DEFAULT_ENVELOPE_SOUND,
+  DEFAULT_SEAL_SOUND,
   DEFAULT_PROGRAM_ITEMS,
   DEFAULT_STORY_ITEMS,
   DESIGN_OPTIONS,
@@ -22,9 +23,10 @@ import {
   emptyInvitation,
   type InvitationDraft,
 } from '@/lib/defaults';
-import { slugify } from '@/lib/slug';
+import { buildSlug, slugify, trTitle } from '@/lib/slug';
+import { SESSION_OPTIONS } from '@/lib/session';
+import { menuToText, parseMenu, type Menu } from '@/lib/settings';
 import type {
-  FaqItem,
   Invitation,
   InvitationDesign,
   ProgramItem,
@@ -42,15 +44,35 @@ const STEPS = [
   'Mühür & Tuğra',
   'Mektup Tasarımı',
   'Fotoğraflar',
+  'Menü',
+  'Ailelerimiz',
   'Hediye & Dilekler',
   'Ses Ayarları',
   'Tema',
   'Program',
-  'SSS',
   'Hikayemiz',
+  'Bölümler',
 ] as const;
 
 type Draft = InvitationDraft;
+
+/** Bölüm anahtarları — davetiyedeki çizim sırasıyla aynı. */
+const SECTION_TOGGLES: Array<[keyof Draft, string]> = [
+  ['showLetter', 'Davet Mektubu'],
+  ['showStory', 'Hikayemiz'],
+  ['showDetails', 'Düğün Bilgileri'],
+  ['showProgram', 'Günün Programı'],
+  ['showMenu', 'Menü'],
+  ['showGallery', 'Fotoğraf Galerisi'],
+  ['showLocation', 'Konum & Harita'],
+  ['showFamily', 'Ailelerimiz'],
+  ['showRsvp', 'Katılım Formu'],
+  ['giftEnabled', 'Hediye'],
+  ['wishesEnabled', 'Dilek Defteri'],
+  ['showChildren', 'Çocuk Notu'],
+  ['showSocial', 'Etiketleme'],
+  ['showContact', 'Kapanış'],
+];
 
 function Field({
   label,
@@ -188,6 +210,41 @@ export default function InvitationForm({
   const [accounts, setAccounts] = useState<SafeUser[]>([]);
   const [ownerId, setOwnerId] = useState(existing?.ownerId ?? '');
 
+  /* Menüler ve işletme bilgisi ayardan gelir; çift ikisini de değiştiremez. */
+  const [menus, setMenus] = useState<Menu[]>([]);
+  const [brand, setBrand] = useState({ instagram: '', instagramLabel: '' });
+  const [menuText, setMenuText] = useState(() => menuToText(existing?.menuGroups));
+
+  useEffect(() => {
+    api
+      .getSettings()
+      .then((s) => {
+        setMenus(s.menus);
+        setBrand(s.brand);
+      })
+      .catch(() => setMenus([]));
+  }, []);
+
+  /**
+   * Menü seçimi.
+   *
+   * Seçim değişince içerik ÜSTÜNE YAZILIR — ama yalnızca alan boşsa ya da
+   * kullanıcı onaylarsa: elle yazılmış bir menüyü sessizce silmek,
+   * kaybedilen emek demek.
+   */
+  function secMenu(id: string, zorla = false) {
+    const secili = menus.find((m) => m.id === id);
+    const yeni = menuToText(secili?.groups);
+
+    if (!zorla) setDraft((d) => ({ ...d, menuId: id }));
+
+    if (zorla || !menuText.trim() ||
+        window.confirm('Menü içeriği seçtiğiniz menüyle değiştirilsin mi? Yazdıklarınız kaybolur.')) {
+      setMenuText(yeni);
+      setDraft((d) => ({ ...d, menuId: id, menuGroups: parseMenu(yeni) }));
+    }
+  }
+
   useEffect(() => {
     if (!isAdmin) return;
     api
@@ -199,9 +256,19 @@ export default function InvitationForm({
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
+  /*
+   * Adların yazımı ANINDA düzeltilmiyor: kullanıcı "meh" yazarken her
+   * harfte alanı yeniden yazmak imleci zıplatıyor. Önizleme düzeltilmiş
+   * hâli gösteriyor, alanın kendisi kaydederken (sunucuda) düzeliyor.
+   */
+  const adlar = useMemo(
+    () => ({ gelin: trTitle(draft.brideName), damat: trTitle(draft.groomName) }),
+    [draft.brideName, draft.groomName],
+  );
+
   const previewSlug = useMemo(
-    () => draft.slug || slugify(`${draft.groomName}-${draft.brideName}`) || 'davetiye',
-    [draft.slug, draft.groomName, draft.brideName],
+    () => draft.slug || buildSlug(adlar.gelin, adlar.damat, draft.weddingDate) || 'davetiye',
+    [draft.slug, adlar.gelin, adlar.damat, draft.weddingDate],
   );
 
   const canSave = draft.brideName.trim() !== '' && draft.groomName.trim() !== '';
@@ -259,10 +326,11 @@ export default function InvitationForm({
     /* 0 — Çift Bilgileri */
     <div key="couple" className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Gelin Adı *" value={draft.brideName} placeholder="Ayşe" onChange={(v) => set('brideName', v)} />
-        <Field label="Damat Adı *" value={draft.groomName} placeholder="Mehmet" onChange={(v) => set('groomName', v)} />
+        {/* Gelin solda, damat sağda — davetiyedeki sırayla aynı. */}
+        <Field label="Gelin Adı *" value={draft.brideName} placeholder="Zehra" onChange={(v) => set('brideName', v)} />
+        <Field label="Damat Adı *" value={draft.groomName} placeholder="Ahmet" onChange={(v) => set('groomName', v)} />
         <Field label="Gelin Soyadı" value={draft.brideSurname} placeholder="Yılmaz" onChange={(v) => set('brideSurname', v)} />
-        <Field label="Damat Soyadı" value={draft.groomSurname} placeholder="Kaya" onChange={(v) => set('groomSurname', v)} />
+        <Field label="Damat Soyadı" value={draft.groomSurname} placeholder="Demir" onChange={(v) => set('groomSurname', v)} />
       </div>
 
       <div>
@@ -335,17 +403,45 @@ export default function InvitationForm({
     /* 1 — Düğün Bilgileri */
     <div key="wedding" className="space-y-4">
       <Field label="Düğün Tarihi *" type="date" value={draft.weddingDate} onChange={(v) => set('weddingDate', v)} />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Başlangıç Saati *" type="time" value={draft.weddingTime} onChange={(v) => set('weddingTime', v)} />
-        <Field label="Bitiş Saati" type="time" value={draft.weddingEndTime} onChange={(v) => set('weddingEndTime', v)} />
-      </div>
 
       {/*
-        Mekân bilgisi burada sorulmuyor: tüm davetiyelerde aynı salon geçerli
-        ve yalnızca yönetici hesabı değiştirebiliyor. Değer davetiyeye
-        sunucuda ekleniyor, bu yüzden çiftin düzenleyecek bir alanı yok.
+        Saat SERBEST DEĞİL, oturum seçilir. Salon iki oturum çalışıyor;
+        serbest saat alanı çifte gerçekte var olmayan bir seçenek
+        sunuyordu: 11:00 yazan bir davetiye, salonda karşılığı olmayan bir
+        söz.
       */}
-      <VenueNotice />
+      <div>
+        <span className="field-label">Düğün Oturumu *</span>
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          {SESSION_OPTIONS.map((o) => (
+            <label
+              key={o.id}
+              className="block cursor-pointer border p-4 transition-colors"
+              style={{
+                borderColor:
+                  draft.session === o.id ? 'var(--c-gold)' : 'var(--c-rule-dark, rgba(226,205,151,0.15))',
+              }}
+            >
+              <input
+                type="radio"
+                name="session"
+                value={o.id}
+                checked={draft.session === o.id}
+                onChange={() => set('session', o.id)}
+                className="sr-only"
+              />
+              <span className="t-lead block" style={{ color: 'var(--c-on-dark)' }}>
+                {o.label}
+              </span>
+              <span className="numerals mt-1 block text-sm" style={{ color: 'var(--c-on-dark-faint)' }}>
+                {o.start} – {o.end}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <VenuePicker value={draft.venueId} onChange={(v) => set('venueId', v)} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Bölüm Alt Başlık" value={draft.detailsSectionSubtitle} placeholder="Detaylar" onChange={(v) => set('detailsSectionSubtitle', v)} />
@@ -443,7 +539,7 @@ export default function InvitationForm({
       />
     </div>,
 
-    /* 5 — Mektup Tasarımı */
+    /* 4 — Mektup Tasarımı */
     <div key="design" className="space-y-4">
       <div>
         <span className="field-label">Mektup Tasarımı</span>
@@ -472,7 +568,7 @@ export default function InvitationForm({
       />
     </div>,
 
-    /* 6 — Fotoğraflar */
+    /* 5 — Fotoğraflar */
     <div key="photos" className="space-y-6">
       <ImageUploader
         label="Kapak Fotoğrafı (Giriş manzarası olarak kullanılır)"
@@ -491,7 +587,83 @@ export default function InvitationForm({
       </div>
     </div>,
 
-    /* 7 — Hediye & Dilekler */
+    /* 6 — Menü */
+    <div key="menu" className="space-y-4">
+      {/*
+        Menü seçilir, sonra üstünde oynanır. Menünün ADI davetiyede
+        görünmüyor: misafir için "Menü-3" bir anlam taşımıyor, o işletmeyle
+        çift arasındaki bir numara. Davetiyede başlık yalnızca "Menü".
+      */}
+      <label className="block">
+        <span className="field-label">Hazır Menü</span>
+        <select
+          value={draft.menuId}
+          onChange={(e) => secMenu(e.target.value)}
+          className="field"
+        >
+          <option value="">— Menü gösterme —</option>
+          {menus.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
+        <span className="mt-2 block text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+          Menü seçince içeriği aşağıya gelir; oradan istediğiniz gibi
+          değiştirebilirsiniz. Menünün adı davetiyede görünmez.
+        </span>
+      </label>
+
+      <div>
+        <div className="flex items-center justify-between">
+          <span className="field-label mb-0">Menü İçeriği</span>
+          <button
+            type="button"
+            onClick={() => secMenu(draft.menuId, true)}
+            className="link-underline"
+            style={{ color: 'var(--c-on-dark-faint)' }}
+          >
+            Seçili menüye geri dön
+          </button>
+        </div>
+        <textarea
+          rows={9}
+          value={menuText}
+          onChange={(e) => {
+            setMenuText(e.target.value);
+            set('menuGroups', parseMenu(e.target.value));
+          }}
+          placeholder="ORDÖVR TABAĞI | Amerikan salatası | Kısır | Haydari"
+          className="field resize-none"
+        />
+        <span className="mt-2 block text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+          Her satır bir grup: başlık | öğe | öğe | öğe
+        </span>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Bölüm Alt Başlık" value={draft.menuSectionSubtitle} placeholder="İkram" onChange={(v) => set('menuSectionSubtitle', v)} />
+        <Field label="Bölüm Başlık" value={draft.menuSectionTitle} placeholder="Menü" onChange={(v) => set('menuSectionTitle', v)} />
+      </div>
+    </div>,
+
+    /* 7 — Ailelerimiz */
+    <div key="family" className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Bölüm Alt Başlık" value={draft.familySectionSubtitle} placeholder="Bizi Yetiştirenler" onChange={(v) => set('familySectionSubtitle', v)} />
+        <Field label="Bölüm Başlık" value={draft.familySectionTitle} placeholder="Ailelerimiz" onChange={(v) => set('familySectionTitle', v)} />
+      </div>
+
+      {/* Gelin solda, damat sağda — sayfadaki sırayla aynı. */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Sol Başlık" value={draft.brideFamilyLabel} placeholder="Gelin Ailesi" onChange={(v) => set('brideFamilyLabel', v)} />
+        <Field label="Sağ Başlık" value={draft.groomFamilyLabel} placeholder="Damat Ailesi" onChange={(v) => set('groomFamilyLabel', v)} />
+        <Area label="Sol Metin" rows={3} value={draft.brideFamilyText} placeholder={'Yılmaz Ailesi\nMehmet & Fatma Yılmaz'} onChange={(v) => set('brideFamilyText', v)} />
+        <Area label="Sağ Metin" rows={3} value={draft.groomFamilyText} placeholder={'Demir Ailesi\nAli & Ayşe Demir'} onChange={(v) => set('groomFamilyText', v)} />
+      </div>
+    </div>,
+
+    /* 8 — Hediye & Dilekler */
     <div key="gift" className="space-y-4">
       <Toggle
         label="Hediye Bölümü"
@@ -526,7 +698,7 @@ export default function InvitationForm({
       </div>
     </div>,
 
-    /* 8 — Ses Ayarları */
+    /* 9 — Ses Ayarları */
     <div key="sound" className="space-y-4">
       <Toggle label="Ses Aktif" checked={draft.soundEnabled} onChange={(v) => set('soundEnabled', v)} />
       <SoundPicker
@@ -537,21 +709,38 @@ export default function InvitationForm({
         onChange={(v) => set('backgroundMusicUrl', v)}
         allowNone
       />
-      <SoundPicker
-        label="Mühür Kırılma Sesi"
-        hint="Mühür kırılırken bir kez çalar."
-        presets={SEAL_SOUNDS}
-        value={draft.sealBreakSound}
-        onChange={(v) => set('sealBreakSound', v)}
-        allowNone
-      />
-      <SoundPicker
-        label="Zarf Açılma Sesi"
-        presets={ENVELOPE_SOUNDS}
-        value={draft.envelopeOpenSound}
-        onChange={(v) => set('envelopeOpenSound', v)}
-        allowNone
-      />
+      {/*
+        Mühür kırılma ve zarf açılma sesi SABİT, çiftin seçimi değil:
+        açılış sahnesinin parçası. Yanlış uzunlukta ya da yüksek sesli bir
+        dosya perdenin zamanlamasını bozuyor ve ürünün ilk üç saniyesi
+        bozuk görünüyordu.
+      */}
+      <div>
+        <span className="field-label">Sahne Sesleri</span>
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          {[
+            { label: 'Mühür Kırılma', src: DEFAULT_SEAL_SOUND },
+            { label: 'Zarf Açılma', src: DEFAULT_ENVELOPE_SOUND },
+          ].map((s) => (
+            <div key={s.src} className="border p-4" style={{ borderColor: 'rgba(226,205,151,0.15)' }}>
+              <span className="t-lead block" style={{ color: 'var(--c-on-dark)' }}>
+                {s.label}
+              </span>
+              <button
+                type="button"
+                onClick={() => void new Audio(s.src).play().catch(() => {})}
+                className="link-underline mt-2 text-sm"
+                style={{ color: 'var(--c-gold-light)' }}
+              >
+                Dinle
+              </button>
+            </div>
+          ))}
+        </div>
+        <span className="mt-2 block text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+          Bu iki ses açılış sahnesinin parçasıdır ve değiştirilemez.
+        </span>
+      </div>
       <label className="block">
         <span className="field-label">Ses Seviyesi — %{draft.soundVolume}</span>
         <input
@@ -565,7 +754,7 @@ export default function InvitationForm({
       </label>
     </div>,
 
-    /* 9 — Tema */
+    /* 10 — Tema */
     <div key="theme">
       <span className="field-label">Tema Seçin</span>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -591,7 +780,7 @@ export default function InvitationForm({
       </div>
     </div>,
 
-    /* 10 — Program */
+    /* 11 — Program */
     <div key="program" className="space-y-3">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Bölüm Alt Başlık" value={draft.programSectionSubtitle} placeholder="Akış" onChange={(v) => set('programSectionSubtitle', v)} />
@@ -660,59 +849,6 @@ export default function InvitationForm({
       ))}
     </div>,
 
-    /* 11 — SSS */
-    <div key="faq" className="space-y-3">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Bölüm Alt Başlık" value={draft.faqSectionSubtitle} placeholder="Merak Edilenler" onChange={(v) => set('faqSectionSubtitle', v)} />
-        <Field label="Bölüm Başlık" value={draft.faqSectionTitle} placeholder="Sık Sorulan Sorular" onChange={(v) => set('faqSectionTitle', v)} />
-      </div>
-
-      <div className="flex items-center justify-between">
-        <span className="field-label mb-0">Sorular</span>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => set('faqItems', DEFAULT_FAQ_ITEMS)}
-            className="link-underline"
-            style={{ color: 'var(--c-on-dark-faint)' }}
-          >
-            Varsayılana Dön
-          </button>
-          <button
-            type="button"
-            onClick={() => appendToList<FaqItem>('faqItems', { q: '', a: '' })}
-            className="link-underline"
-            style={{ color: 'var(--c-gold-light)' }}
-          >
-            + Ekle
-          </button>
-        </div>
-      </div>
-
-      {draft.faqItems.map((item, i) => (
-        <div key={i} className="relative space-y-3 py-[var(--sp-sm)]">
-          <span className="rule-dark absolute inset-x-0 top-0" aria-hidden />
-          <div className="flex gap-3">
-            <input
-              value={item.q}
-              placeholder="Çocuklar davetli mi?"
-              onChange={(e) => updateList<FaqItem>('faqItems', i, { q: e.target.value })}
-              className="field flex-1"
-              aria-label="Soru"
-            />
-            <RowActions onRemove={() => removeFromList('faqItems', i)} />
-          </div>
-          <textarea
-            rows={3}
-            value={item.a}
-            placeholder="Cevabınızı yazın..."
-            onChange={(e) => updateList<FaqItem>('faqItems', i, { a: e.target.value })}
-            className="field resize-none"
-            aria-label="Cevap"
-          />
-        </div>
-      ))}
-    </div>,
 
     /* 12 — Hikayemiz */
     <div key="story" className="space-y-3">
@@ -814,14 +950,31 @@ export default function InvitationForm({
         ama sihirbazda hiçbir yerde sorulmuyordu: alanlar yalnızca veriye
         elle dokunarak doldurulabiliyordu.
       */}
-      <div className="pt-[var(--sp-sm)]">
+      <div className="space-y-4 pt-[var(--sp-sm)]">
         <span className="rule-dark mb-[var(--sp-sm)] block" aria-hidden />
+        <Field
+          label="Etiketleme Bölümü Başlığı"
+          value={draft.socialSectionTitle}
+          placeholder="Etiketlemeyi Unutmayın"
+          onChange={(v) => set('socialSectionTitle', v)}
+        />
         <Field
           label="Etiket (Hashtag)"
           value={draft.hashtag}
-          placeholder="#MehmetveAyşe"
+          placeholder="#ZehraveAhmet2026"
           onChange={(v) => set('hashtag', v)}
         />
+        {brand.instagram && (
+          <div>
+            <span className="field-label">Bizim Hesabımız</span>
+            <p className="t-body" style={{ color: 'var(--c-on-dark)' }}>
+              {brand.instagramLabel || brand.instagram}
+            </p>
+            <span className="mt-1 block text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+              Etiketleme bölümünde otomatik görünür.
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between pt-2">
@@ -858,6 +1011,52 @@ export default function InvitationForm({
           />
         </div>
       ))}
+    </div>,
+
+    /* 13 — Bölümler */
+    <div key="sections" className="space-y-4">
+      {/*
+        Her bölümün "sayfada görünsün" anahtarı.
+
+        Bir bölümü gizlemenin tek yolu içeriğini boşaltmaktı — yani çift,
+        sonra geri açmak isterse yazdıklarını kaybediyordu. Anahtar
+        içeriği koruyor.
+      */}
+      <div>
+        <span className="field-label">Davetiyede Görünecek Bölümler</span>
+        <div className="mt-2 grid gap-x-8 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
+          {SECTION_TOGGLES.map(([key, label]) => (
+            <Toggle
+              key={key}
+              label={label}
+              checked={Boolean(draft[key])}
+              onChange={(v) => set(key, v as Draft[typeof key])}
+            />
+          ))}
+        </div>
+        <span className="mt-2 block text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+          Kapattığınız bölümün içeriği silinmez, yalnızca davetiyede görünmez.
+        </span>
+      </div>
+
+      {/*
+        Çocuk durumu tek bir tik. Eskiden bu bilgi SSS'te bir soru-cevaptı;
+        çift metni elle yazıyordu ve çoğu zaman kırıcı çıkıyordu.
+      */}
+      <div className="pt-[var(--sp-sm)]">
+        <span className="rule-dark mb-[var(--sp-sm)] block" aria-hidden />
+        <span className="field-label">Çocuk Durumu</span>
+        <Toggle
+          label="Çocuklar da davetli"
+          checked={draft.childrenWelcome}
+          onChange={(v) => set('childrenWelcome', v)}
+        />
+        <span className="mt-2 block text-xs" style={{ color: 'var(--c-on-dark-faint)' }}>
+          İşaretlenmezse davetiyede “Düğünümüz yalnızca yetişkinlere yöneliktir
+          — minik misafirlerimize iyi uykular” yazar. İşaretlerseniz “Çocuklar
+          da davetlidir” yazar.
+        </span>
+      </div>
     </div>,
   ];
 

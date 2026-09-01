@@ -5,8 +5,7 @@ import { databaseUrl } from '../database-url';
 import { ConfigError } from '../errors';
 import { hashPassword, seedFingerprint } from '../password';
 import { slugify } from '../slug';
-import { EMPTY_VENUE } from '../venue';
-import type { Venue } from '../venue';
+import { defaultSettings, type Settings } from '../settings';
 import type {
   GuestPhoto,
   Wish,
@@ -148,17 +147,29 @@ const iso = (value: Date | string): string =>
 /* ==================================================================== ayarlar */
 
 /**
- * Mekân bilgisi tüm davetiyelerde ortaktır ve yalnızca yönetici değiştirir.
- * Çiftin sihirbazında bu alanlar sorulmaz; değer davetiye okunurken
- * sunucuda üstüne yazılır (bkz. store/index.ts).
+ * Genel ayarlar — salonlar, menüler, işletme bilgisi, davetiye ömrü.
+ *
+ * Salon bilgisi davetiyede DEĞİL burada durur; davetiye okunurken çiftin
+ * seçtiği salon üstüne yazılır (bkz. store/index.ts). Böylece salonun
+ * adresi değişince yayındaki bütün davetiyeler aynı anda düzelir.
  */
-export async function getVenue(): Promise<Venue> {
-  const rows = await query<{ data: Venue }>('select data from settings where id = $1', ['genel']);
-  return { ...EMPTY_VENUE, ...(rows[0]?.data ?? {}) };
+export async function getSettings(): Promise<Settings> {
+  const bos = defaultSettings();
+  const rows = await query<{ data: Partial<Settings> }>(
+    'select data from settings where id = $1',
+    ['genel'],
+  );
+  const d = rows[0]?.data ?? {};
+  return {
+    venues: Array.isArray(d.venues) ? d.venues : bos.venues,
+    menus: Array.isArray(d.menus) ? d.menus : bos.menus,
+    brand: { ...bos.brand, ...(d.brand ?? {}) },
+    lifecycle: { ...bos.lifecycle, ...(d.lifecycle ?? {}) },
+  };
 }
 
-export async function saveVenue(input: Partial<Venue>): Promise<Venue> {
-  const merged = { ...(await getVenue()), ...input };
+export async function saveSettings(input: Partial<Settings>): Promise<Settings> {
+  const merged = { ...(await getSettings()), ...input };
   await query(
     `insert into settings (id, data) values ('genel', $1)
      on conflict (id) do update set data = $1, updated_at = now()`,

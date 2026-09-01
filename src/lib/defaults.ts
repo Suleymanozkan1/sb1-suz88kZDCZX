@@ -1,5 +1,5 @@
+import { SESSIONS } from './session';
 import type {
-  FaqItem,
   Invitation,
   InvitationDesign,
   ProgramItem,
@@ -108,25 +108,6 @@ export const DEFAULT_PROGRAM_ITEMS: ProgramItem[] = [
   { time: '20:30', title: 'Müzik & Eğlence', desc: 'Canlı müzik ve dans keyfi', icon: '◇' },
 ];
 
-export const DEFAULT_FAQ_ITEMS: FaqItem[] = [
-  {
-    q: 'Çocuklar davetli mi?',
-    a: 'Düğünümüz yetişkinlere özel bir kutlama olarak planlanmıştır. Küçük misafirlerimizin olmamasını rica ediyoruz.',
-  },
-  {
-    q: 'Otopark mevcut mu?',
-    a: 'Mekan bünyesinde kapalı otopark bulunmaktadır. Ücretsiz olarak hizmet vermektedir.',
-  },
-  {
-    q: 'Konaklama önerisi var mı?',
-    a: 'Mekanın çevresinde birçok butik otel mevcuttur. Özel fiyatlar için bizimle iletişime geçebilirsiniz.',
-  },
-  {
-    q: 'Düğün programı ne zaman başlıyor?',
-    a: 'Kapılar 30 dk önce açılacak, tören belirtilen saatte başlayacaktır.',
-  },
-];
-
 export const DEFAULT_GALLERY = [
   'https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=85',
   'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=900&q=85',
@@ -142,8 +123,8 @@ export const DEFAULT_GALLERY = [
  * hiçbir davetiyede müzik çalmıyordu.
  */
 export const DEFAULT_MUSIC = '/muzik/piyano-sakin.mp3';
-export const DEFAULT_SEAL_SOUND = '/muzik/muhur-kirilma.mp3';
-export const DEFAULT_ENVELOPE_SOUND = '/muzik/zarf-acilma.mp3';
+export const DEFAULT_SEAL_SOUND = '/muzik/muhur-kirilma.mp3';   // sabit — çift değiştiremez
+export const DEFAULT_ENVELOPE_SOUND = '/muzik/zarf-acilma.mp3'; // sabit — çift değiştiremez
 
 /** Davetiye formunun üzerinde çalıştığı alanlar (kimlik ve sahiplik hariç). */
 export type InvitationDraft = Omit<
@@ -161,13 +142,17 @@ export function emptyInvitation(): InvitationDraft {
     groomSurname: '',
     conjunction: '&',
     weddingDate: '',
-    weddingTime: '16:00',
-    weddingEndTime: '23:00',
+    // Saat oturumdan türer; bu ikisi yalnızca okunur birer kopya.
+    session: 'aksam',
+    weddingTime: SESSIONS.aksam.start,
+    weddingEndTime: SESSIONS.aksam.end,
+    venueId: '',
     venueName: '',
     address: '',
     city: '',
     district: '',
     mapUrl: '',
+    venueFeatures: [],
     invitationText: READY_TEXTS[0].text,
     sealType: 'gold-wax',
     sealMonogram: '',
@@ -184,8 +169,6 @@ export function emptyInvitation(): InvitationDraft {
     programSectionSubtitle: '',
     locationSectionTitle: '',
     locationSectionSubtitle: '',
-    faqSectionTitle: '',
-    faqSectionSubtitle: '',
     rsvpSectionTitle: '',
     rsvpSectionSubtitle: '',
     contactSectionTitle: '',
@@ -206,16 +189,47 @@ export function emptyInvitation(): InvitationDraft {
     soundEnabled: true,
     soundVolume: 50,
     backgroundMusicUrl: DEFAULT_MUSIC,
-    sealBreakSound: DEFAULT_SEAL_SOUND,
-    envelopeOpenSound: DEFAULT_ENVELOPE_SOUND,
     storySectionTitle: 'Hikayemiz',
     storySectionSubtitle: 'Bizim',
     storyItems: DEFAULT_STORY_ITEMS,
     programItems: DEFAULT_PROGRAM_ITEMS,
-    faqItems: DEFAULT_FAQ_ITEMS,
     socialLinks: [],
+    socialSectionTitle: '',
     hashtag: '',
+
+    menuId: '',
+    menuGroups: [],
+    menuSectionTitle: '',
+    menuSectionSubtitle: '',
+
+    familySectionTitle: '',
+    familySectionSubtitle: '',
+    brideFamilyLabel: '',
+    brideFamilyText: '',
+    groomFamilyLabel: '',
+    groomFamilyText: '',
+
+    // İşaretsiz = yalnızca yetişkinlere yönelik. Türkiye'de yaygın olan
+    // varsayılan bu; çocuk daveti açıkça işaretlenir.
+    childrenWelcome: false,
+
     rsvpDeadline: '',
+
+    showLetter: true,
+    showStory: true,
+    showDetails: true,
+    showProgram: true,
+    showGallery: true,
+    showLocation: true,
+    showMenu: true,
+    // Aile bölümü kapalı başlar: metin girilmeden açık olması, davetiyede
+    // boş bir başlık bırakırdı.
+    showFamily: false,
+    showChildren: true,
+    showRsvp: true,
+    showSocial: true,
+    showContact: true,
+
     theme: 'cream-gold',
     isActive: true,
   };
@@ -232,7 +246,8 @@ export const DEMO_INVITATION: Invitation = {
   brideSurname: 'Yılmaz',
   groomSurname: 'Kaya',
   weddingDate: '2026-02-14',
-  weddingTime: '15:00',
+  session: 'aksam',
+  weddingTime: '19:00',
   weddingEndTime: '22:00',
   venueName: 'The Grand Bosphorus',
   address: 'Çırağan Cad. No:32',

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { sealPalette } from '@/lib/theme';
 import { useMounted } from '@/lib/useMounted';
+import { DEFAULT_ENVELOPE_SOUND, DEFAULT_SEAL_SOUND } from '@/lib/defaults';
 import type { Invitation } from '@/lib/types';
 
 type Phase = 'idle' | 'cracking' | 'burst' | 'parting' | 'revealed' | 'done';
@@ -154,7 +155,7 @@ function WaxSeal({
   const colors = sealPalette(invitation.sealType);
   const monogram =
     invitation.sealMonogram?.trim() ||
-    `${invitation.groomName?.[0] ?? 'A'}${invitation.brideName?.[0] ?? 'B'}`;
+    `${invitation.brideName?.[0] ?? 'A'}${invitation.groomName?.[0] ?? 'B'}`;
   /*
      Tuğra kavisleri yalnızca MÜHÜR seçimine bakar.
 
@@ -347,7 +348,7 @@ export default function SealCurtain({
   const [phase, setPhase] = useState<Phase>('idle');
   const colors = sealPalette(invitation.sealType);
 
-  const names = [invitation.groomName || 'Damat', invitation.brideName || 'Gelin'];
+  const names = [invitation.brideName || 'Gelin', invitation.groomName || 'Damat'];
   const conjunction = invitation.conjunction || '&';
 
   const finish = useCallback(() => {
@@ -359,7 +360,7 @@ export default function SealCurtain({
     const volume = invitation.soundEnabled ? invitation.soundVolume : 0;
 
     setPhase('cracking');
-    playCue(invitation.sealBreakSound, volume);
+    playCue(DEFAULT_SEAL_SOUND, volume);
 
     // Açılış zaman çizgisi, bölüm animasyonlarıyla aynı oranda uzatıldı;
     // aksi hâlde bir sonraki aşama, öncekinin animasyonu bitmeden başlıyor
@@ -367,11 +368,16 @@ export default function SealCurtain({
     window.setTimeout(() => setPhase('burst'), 650);
     window.setTimeout(() => {
       setPhase('parting');
-      playCue(invitation.envelopeOpenSound, volume);
+      playCue(DEFAULT_ENVELOPE_SOUND, volume);
     }, 1600);
     window.setTimeout(() => setPhase('revealed'), 3600);
     window.setTimeout(finish, 4900);
-  }, [finish, invitation.sealBreakSound, invitation.envelopeOpenSound, invitation.soundEnabled, invitation.soundVolume]);
+  /*
+   * Bu iki ses SABİT, çiftin seçimi değil: açılış sahnesinin parçası.
+   * Yanlış uzunlukta ya da yüksek sesli bir dosya perdenin zamanlamasını
+   * bozuyor ve ürünün ilk üç saniyesi bozuk görünüyordu.
+   */
+  }, [finish, invitation.soundEnabled, invitation.soundVolume]);
 
   /* Escape ile atla */
   useEffect(() => {

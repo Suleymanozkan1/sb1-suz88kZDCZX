@@ -23,7 +23,7 @@ function formatIban(raw: string): string {
  * Bölüm yalnızca çift açıkça açtığında ve dolduracak bir şey verdiğinde
  * görünür — IBAN kişisel bir bilgidir, varsayılan olarak yayımlanmaz.
  */
-export default function GiftSection({ invitation }: { invitation: Invitation }) {
+export default function GiftSection({ invitation, n }: { invitation: Invitation; n: number }) {
   const [copied, setCopied] = useState(false);
 
   const iban = invitation.giftIban?.trim() ?? '';
@@ -47,7 +47,7 @@ export default function GiftSection({ invitation }: { invitation: Invitation }) 
     <section id="gift" className="section-gap relative">
       <div className="mx-auto max-w-2xl px-[var(--sp-md)]">
         <SectionHead
-          n={8}
+          n={n}
           label="Hediye"
           title={invitation.giftTitle || 'Hediye'}
           align="center"

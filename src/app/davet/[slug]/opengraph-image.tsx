@@ -118,11 +118,11 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const muhur = sealPalette(invitation.sealType);
 
   const conjunction = invitation.conjunction || '&';
-  const isimler = `${invitation.groomName ?? ''} ${conjunction} ${invitation.brideName ?? ''}`.trim();
+  const isimler = `${invitation.brideName ?? ''} ${conjunction} ${invitation.groomName ?? ''}`.trim();
   const altBaslik = [formatDate(invitation.weddingDate), invitation.city].filter(Boolean).join(' · ');
   const monogram =
     invitation.sealMonogram?.trim() ||
-    `${invitation.groomName?.[0] ?? ''}${invitation.brideName?.[0] ?? ''}`;
+    `${invitation.brideName?.[0] ?? ''}${invitation.groomName?.[0] ?? ''}`;
 
   const fotograf = mutlak(invitation.coverImage) ??
     mutlak(invitation.letterImage) ??

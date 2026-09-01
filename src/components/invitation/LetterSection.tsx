@@ -77,7 +77,7 @@ export default function LetterSection({ invitation }: { invitation: Invitation }
   const conjunction = invitation.conjunction || '&';
   const monogram =
     invitation.sealMonogram?.trim() ||
-    `${invitation.groomName?.[0] ?? ''} ${conjunction} ${invitation.brideName?.[0] ?? ''}`;
+    `${invitation.brideName?.[0] ?? ''} ${conjunction} ${invitation.groomName?.[0] ?? ''}`;
 
   const fullNames = [
     [invitation.groomName, invitation.groomSurname].filter(Boolean).join(' '),

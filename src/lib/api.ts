@@ -1,5 +1,5 @@
 import type { GuestPhoto, Invitation, InvitationInput, Rsvp, SafeUser, Session, Wish } from './types';
-import type { Venue } from './venue';
+import type { Menu, Settings, Venue } from './settings';
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -9,18 +9,30 @@ async function json<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-/** Ortak mekân — okuma oturumlu herkese, yazma yalnızca yöneticiye açık. */
-export function getVenue(): Promise<Venue> {
-  return fetch('/api/settings/venue', { cache: 'no-store' }).then(json<Venue>);
+/** Genel ayarlar — okuma oturumlu herkese, yazma yalnızca yöneticiye açık. */
+export function getSettings(): Promise<Settings> {
+  return fetch('/api/settings', { cache: 'no-store' }).then(json<Settings>);
 }
 
-export function saveVenue(input: Partial<Venue>): Promise<Venue> {
-  return fetch('/api/settings/venue', {
+function yamala(body: unknown): Promise<Settings> {
+  return fetch('/api/settings', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  }).then(json<Venue>);
+    body: JSON.stringify(body),
+  }).then(json<Settings>);
 }
+
+/** features hem metin hem dizi kabul eder; sunucu ikisini de anlıyor. */
+export const saveVenue = (venue: Partial<Omit<Venue, 'features'>> & { features?: string | string[] }) =>
+  yamala({ venue });
+export const deleteVenue = (id: string) => yamala({ deleteVenue: id });
+
+export const saveMenu = (menu: Partial<Omit<Menu, 'groups'>> & { groups?: string | Menu['groups'] }) =>
+  yamala({ menu });
+export const deleteMenu = (id: string) => yamala({ deleteMenu: id });
+
+export const saveBrand = (brand: Settings['brand']) => yamala({ brand });
+export const saveLifecycle = (lifecycle: Settings['lifecycle']) => yamala({ lifecycle });
 
 export function listInvitations(): Promise<Invitation[]> {
   return fetch('/api/invitations', { cache: 'no-store' }).then(json<Invitation[]>);

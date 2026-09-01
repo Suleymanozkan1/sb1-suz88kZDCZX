@@ -15,7 +15,7 @@ export default function ShareBar({ invitation }: { invitation: Invitation }) {
   const [copied, setCopied] = useState(false);
 
   const conjunction = invitation.conjunction || '&';
-  const names = `${invitation.groomName} ${conjunction} ${invitation.brideName}`;
+  const names = `${invitation.brideName} ${conjunction} ${invitation.groomName}`;
 
   // Sunucuda window yoktur; adres istemcide çözülür.
   const url = typeof window === 'undefined' ? '' : window.location.href;

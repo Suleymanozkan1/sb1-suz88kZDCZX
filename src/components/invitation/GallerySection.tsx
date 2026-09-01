@@ -17,7 +17,7 @@ import type { Invitation } from '@/lib/types';
  * yerine düz `img` yeterli.
  */
 
-export default function GallerySection({ invitation }: { invitation: Invitation }) {
+export default function GallerySection({ invitation, n }: { invitation: Invitation; n: number }) {
   const images = invitation.galleryImages ?? [];
   const [open, setOpen] = useState<number | null>(null);
 
@@ -49,7 +49,7 @@ export default function GallerySection({ invitation }: { invitation: Invitation 
     <section id="gallery" className="section-gap relative">
       <div className="mx-auto max-w-6xl px-[var(--sp-md)]">
         <SectionHead
-          n={4}
+          n={n}
           label={invitation.gallerySectionSubtitle || 'Anılar'}
           title={invitation.gallerySectionTitle || 'Fotoğraf Galerisi'}
         />

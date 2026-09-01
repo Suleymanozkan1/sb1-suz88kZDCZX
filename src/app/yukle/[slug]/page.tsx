@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!invitation?.isActive) return { title: 'Fotoğraf Yükleme' };
 
   return {
-    title: `Fotoğraf Yükle | ${invitation.groomName} ${invitation.conjunction} ${invitation.brideName}`,
+    title: `Fotoğraf Yükle | ${invitation.brideName} ${invitation.conjunction} ${invitation.groomName}`,
     description: 'Düğünde çektiğiniz fotoğrafları çiftle paylaşın.',
     robots: { index: false, follow: false },
   };
@@ -26,7 +26,7 @@ export default async function GuestUploadPage({ params }: Props) {
 
   if (!invitation?.isActive) notFound();
 
-  const names = `${invitation.groomName} ${invitation.conjunction || '&'} ${invitation.brideName}`;
+  const names = `${invitation.brideName} ${invitation.conjunction || '&'} ${invitation.groomName}`;
 
   return (
     <main

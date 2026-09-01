@@ -123,7 +123,7 @@ export default function PhotoGallery({
         <div className="mb-[var(--sp-md)] flex flex-wrap gap-[var(--sp-md)]">
           {[{ id: 'all', label: 'Tümü' }, ...invitations.map((inv) => ({
             id: inv.id,
-            label: `${inv.groomName} ${inv.conjunction} ${inv.brideName}`,
+            label: `${inv.brideName} ${inv.conjunction} ${inv.groomName}`,
           }))].map((option) => (
             <button
               key={option.id}

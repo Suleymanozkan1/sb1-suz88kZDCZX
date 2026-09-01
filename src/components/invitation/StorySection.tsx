@@ -62,7 +62,7 @@ function Entry({ item, index, total }: { item: StoryItem; index: number; total: 
   );
 }
 
-export default function StorySection({ invitation }: { invitation: Invitation }) {
+export default function StorySection({ invitation, n }: { invitation: Invitation; n: number }) {
   const items = invitation.storyItems ?? [];
   const ref = useRef<HTMLElement>(null);
 
@@ -76,7 +76,7 @@ export default function StorySection({ invitation }: { invitation: Invitation })
     <section ref={ref} id="story" className="section-gap relative">
       <div className="mx-auto max-w-5xl px-[var(--sp-md)]">
         <SectionHead
-          n={1}
+          n={n}
           label={invitation.storySectionSubtitle || 'Bizim'}
           title={invitation.storySectionTitle || 'Hikayemiz'}
         />

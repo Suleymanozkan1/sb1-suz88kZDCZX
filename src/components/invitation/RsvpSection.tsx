@@ -17,7 +17,7 @@ const COUNTS = ['1', '2', '3', '4', '5+'];
  * işaretlenir. Amaç: formun bir yönetim panelinden çok bir kart üzerine
  * el yazısıyla doldurulmuş gibi durması.
  */
-export default function RsvpSection({ invitation }: { invitation: Invitation }) {
+export default function RsvpSection({ invitation, n }: { invitation: Invitation; n: number }) {
   const [form, setForm] = useState({ name: '', phone: '', count: '1', note: '', songRequest: '' });
   const [attending, setAttending] = useState(true);
   const [sending, setSending] = useState(false);
@@ -59,7 +59,7 @@ export default function RsvpSection({ invitation }: { invitation: Invitation }) 
     <section id="rsvp" className="section-gap relative pt-[36vh]">
       <div className="mx-auto max-w-2xl px-[var(--sp-md)]">
         <SectionHead
-          n={7}
+          n={n}
           label={invitation.rsvpSectionSubtitle || 'Katılım'}
           title={invitation.rsvpSectionTitle || 'Sizi Aramızda Görmek İsteriz'}
           lead={deadline ? `Lütfen ${deadline} tarihine kadar bildirim yapınız.` : undefined}

@@ -207,7 +207,7 @@ export default function InvitationList({
             body={
               <>
                 <strong>
-                  {deleteFor.groomName} {deleteFor.conjunction} {deleteFor.brideName}
+                  {deleteFor.brideName} {deleteFor.conjunction} {deleteFor.groomName}
                 </strong>{' '}
                 davetiyesi ve ona yüklenen fotoğraflar silinecek. Bu işlem geri alınamaz.
               </>

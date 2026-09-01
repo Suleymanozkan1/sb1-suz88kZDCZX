@@ -74,7 +74,7 @@ export default function WishBoard({
 
   const slugAdi = (slug: string) => {
     const inv = invitations.find((i) => i.slug === slug);
-    return inv ? `${inv.groomName} & ${inv.brideName}` : slug;
+    return inv ? `${inv.brideName} & ${inv.groomName}` : slug;
   };
 
   // Bekleyenler önce: panelin işi "yeni ne geldi" sorusunu yanıtlamak.

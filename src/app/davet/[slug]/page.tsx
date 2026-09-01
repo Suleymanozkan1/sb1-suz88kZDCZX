@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import InvitationView from '@/components/invitation/InvitationView';
 import { formatDate } from '@/lib/format';
-import { getInvitationBySlug, listApprovedWishes } from '@/lib/store';
+import { getInvitationBySlug, listApprovedWishes, getSettings } from '@/lib/store';
 import type { Invitation } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!invitation) return { title: 'Davetiye Bulunamadı' };
 
   const conjunction = invitation.conjunction || '&';
-  const names = `${invitation.groomName} ${conjunction} ${invitation.brideName}`;
+  const names = `${invitation.brideName} ${conjunction} ${invitation.groomName}`;
   const date = formatDate(invitation.weddingDate);
   const subtitle = [date, invitation.city].filter(Boolean).join(' · ');
 
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${names} | ${date}`,
     description:
       invitation.invitationText ||
-      `${invitation.groomName} ve ${invitation.brideName}'in düğün kutlamasına davetlisiniz.`,
+      `${invitation.brideName} ve ${invitation.groomName}'in düğün kutlamasına davetlisiniz.`,
     openGraph: {
       title: `${names} | Düğün Davetiyesi`,
       description: subtitle,
@@ -48,7 +48,10 @@ export default async function InvitationPage({ params }: Props) {
   if (!invitation) notFound();
 
   // Yalnızca onaylananlar; bekleyen dilekler davetiyede görünmez.
-  const wishes = invitation.wishesEnabled ? await listApprovedWishes(invitation.id) : [];
+  const [wishes, settings] = await Promise.all([
+    invitation.wishesEnabled ? listApprovedWishes(invitation.id) : Promise.resolve([]),
+    getSettings(),
+  ]);
 
-  return <InvitationView invitation={invitation} wishes={wishes} />;
+  return <InvitationView invitation={invitation} wishes={wishes} brand={settings.brand} />;
 }

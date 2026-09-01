@@ -11,6 +11,9 @@ export type SealType =
 
 export type InvitationDesign = 'ottoman' | 'classic' | 'minimal' | 'arch' | 'vellum';
 
+/** Düğün oturumu — saatler buradan türer. */
+export type SessionId = 'gunduz' | 'aksam';
+
 export type ThemeId =
   | 'cream-gold'
   | 'ottoman-premium'
@@ -34,9 +37,15 @@ export interface ProgramItem {
   icon: string;
 }
 
-export interface FaqItem {
-  q: string;
-  a: string;
+/**
+ * Menü grubu — "ORDÖVR TABAĞI" başlığı ve altındaki öğeler.
+ *
+ * Menünün ADI burada yok: davetiyede görünmüyor, çünkü misafir için
+ * "Menü-3" bir anlam taşımıyor — o, işletmeyle çift arasındaki bir numara.
+ */
+export interface MenuGroup {
+  title: string;
+  items: string[];
 }
 
 export interface SocialLink {
@@ -61,14 +70,25 @@ export interface Invitation {
 
   /* Düğün bilgileri */
   weddingDate: string;
+  /**
+   * Oturum — saatleri BU belirler.
+   *
+   * Salon iki oturum çalışıyor; serbest saat alanı çifte gerçekte var
+   * olmayan bir seçenek sunuyordu (11:00 yazan bir davetiye, salonda
+   * karşılığı olmayan bir söz).
+   */
+  session: SessionId;
   weddingTime: string;
-  /** Bitiş saati — boşsa davetiyede yalnızca başlangıç yazar. */
   weddingEndTime: string;
+  /** Seçilen salonun kimliği; adres alanları ondan gelir. */
+  venueId: string;
   venueName: string;
   address: string;
   city: string;
   district: string;
   mapUrl: string;
+  /** Salonun misafire yönelik bilgileri — otopark, ulaşım, çocuk alanı. */
+  venueFeatures: string[];
 
   /* Davet metni */
   invitationText: string;
@@ -105,8 +125,6 @@ export interface Invitation {
   soundEnabled: boolean;
   soundVolume: number;
   backgroundMusicUrl: string;
-  sealBreakSound: string;
-  envelopeOpenSound: string;
 
   /* Bölüm başlıkları — boş bırakılırsa varsayılan metin kullanılır. */
   detailsSectionTitle: string;
@@ -115,8 +133,6 @@ export interface Invitation {
   programSectionSubtitle: string;
   locationSectionTitle: string;
   locationSectionSubtitle: string;
-  faqSectionTitle: string;
-  faqSectionSubtitle: string;
   rsvpSectionTitle: string;
   rsvpSectionSubtitle: string;
   contactSectionTitle: string;
@@ -126,12 +142,49 @@ export interface Invitation {
   storySectionSubtitle: string;
   storyItems: StoryItem[];
   programItems: ProgramItem[];
-  faqItems: FaqItem[];
   socialLinks: SocialLink[];
+  socialSectionTitle: string;
   hashtag: string;
+
+  /* Menü */
+  menuId: string;
+  menuGroups: MenuGroup[];
+  menuSectionTitle: string;
+  menuSectionSubtitle: string;
+
+  /* Ailelerimiz */
+  familySectionTitle: string;
+  familySectionSubtitle: string;
+  brideFamilyLabel: string;
+  brideFamilyText: string;
+  groomFamilyLabel: string;
+  groomFamilyText: string;
+
+  /** İşaretsizse davetiyede "yalnızca yetişkinlere yöneliktir" yazar. */
+  childrenWelcome: boolean;
 
   /* Katılım */
   rsvpDeadline: string;
+
+  /*
+   * Bölüm görünürlükleri.
+   *
+   * Bir bölümü gizlemenin tek yolu içeriğini boşaltmaktı — yani çift
+   * sonra geri açmak isterse yazdıklarını kaybediyordu. giftEnabled ve
+   * wishesEnabled aynı işi görüyor, adları eski kayıtlar yüzünden korundu.
+   */
+  showLetter: boolean;
+  showStory: boolean;
+  showDetails: boolean;
+  showProgram: boolean;
+  showGallery: boolean;
+  showLocation: boolean;
+  showMenu: boolean;
+  showFamily: boolean;
+  showChildren: boolean;
+  showRsvp: boolean;
+  showSocial: boolean;
+  showContact: boolean;
 
   /* Tema & durum */
   theme: ThemeId;

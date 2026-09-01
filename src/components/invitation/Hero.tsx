@@ -99,7 +99,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
             {...RISE}
             transition={{ delay: 0.5, duration: 1.74, ease: [0.22, 1, 0.36, 1] }}
           >
-            {groom}
+            {bride}
           </motion.span>
 
           <motion.span
@@ -122,7 +122,7 @@ export default function Hero({ invitation }: { invitation: Invitation }) {
             {...RISE}
             transition={{ delay: 0.95, duration: 1.74, ease: [0.22, 1, 0.36, 1] }}
           >
-            {bride}
+            {groom}
           </motion.span>
         </h1>
 
