@@ -33,7 +33,13 @@ async function handlePost(request: Request) {
 
   // Davetiye gerçekten var ve yayında olmalı; aksi hâlde uydurma bir slug ile
   // hiç kimseye ait olmayan katılım kayıtları açılabiliyordu.
-  const slug = String(body.invitationSlug ?? '');
+  /*
+   * İki misafir ucu aynı şeyi farklı adla istiyordu: dilek ucu `slug`,
+   * katılım ucu `invitationSlug`. WordPress sürümünde ikisi de `slug`.
+   * Uçları ayrıştırmamak için burada İKİSİ DE kabul ediliyor; eski adı
+   * gönderen istemciler çalışmaya devam ediyor.
+   */
+  const slug = String(body.slug ?? body.invitationSlug ?? '');
   const invitation = await getInvitationBySlug(slug);
   if (!invitation || !invitation.isActive) {
     return NextResponse.json({ error: 'Davetiye bulunamadı' }, { status: 404 });

@@ -202,14 +202,6 @@ class Sahra_Fields {
 		);
 	}
 
-	public static function default_faq() {
-		return array(
-			array( 'q' => 'Çocuklar davetli mi?', 'a' => 'Düğünümüz yetişkinlere özel bir kutlama olarak planlanmıştır. Küçük misafirlerimizin olmamasını rica ediyoruz.' ),
-			array( 'q' => 'Otopark mevcut mu?', 'a' => 'Mekan bünyesinde kapalı otopark bulunmaktadır. Ücretsiz olarak hizmet vermektedir.' ),
-			array( 'q' => 'Konaklama önerisi var mı?', 'a' => 'Mekanın çevresinde birçok butik otel mevcuttur. Özel fiyatlar için bizimle iletişime geçebilirsiniz.' ),
-			array( 'q' => 'Düğün programı ne zaman başlıyor?', 'a' => 'Kapılar 30 dk önce açılacak, tören belirtilen saatte başlayacaktır.' ),
-		);
-	}
 
 	public static function default_story() {
 		return array(
@@ -230,13 +222,7 @@ class Sahra_Fields {
 		);
 	}
 
-	public static function seal_sounds() {
-		return array( 'muhur-kirilma' => 'Mühür Kırılma' );
-	}
 
-	public static function envelope_sounds() {
-		return array( 'zarf-acilma' => 'Zarf Açılma' );
-	}
 
 	/* ═══════════════════════════════════════════════ metin yardımcıları ══ */
 

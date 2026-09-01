@@ -91,10 +91,34 @@ $geri_sayim = $d['weddingDate']
 
 <?php /* ─────────────────────────────────────────────── perde ve mühür */ ?>
 <div class="curtain"
-	data-seal-sound="<?php echo esc_url( $d['sealBreakSound'] ); ?>"
-	data-envelope-sound="<?php echo esc_url( $d['envelopeOpenSound'] ); ?>"
+	<?php
+	/*
+	 * Sahne sesleri SABİT dosyalar.
+	 *
+	 * Bu iki alan çiftin seçiminden çıkarıldığında şablon onları okumaya
+	 * devam ediyordu: öznitelikler boş kalıyor, açılış sahnesi sessiz
+	 * çalışıyor ve `display_errors` açık sunucularda PHP uyarısı doğrudan
+	 * özniteliğin içine basılıyordu.
+	 */
+	?>
+	data-seal-sound="<?php echo esc_url( SAHRA_URL . 'assets/muzik/muhur-kirilma.mp3' ); ?>"
+	data-envelope-sound="<?php echo esc_url( SAHRA_URL . 'assets/muzik/zarf-acilma.mp3' ); ?>"
 	data-volume="<?php echo esc_attr( (int) $d['soundVolume'] ); ?>"
 	data-sound="<?php echo $d['soundEnabled'] ? '1' : '0'; ?>">
+	<?php if ( $d['coverImage'] ) : ?>
+		<?php
+		/*
+		 * Kapak fotoğrafı perdenin ARKASINDA duruyor: perde aralanırken
+		 * ilk görünen kare çiftin kendi fotoğrafı oluyor. Next sürümünde
+		 * hep böyleydi, WordPress'te yalnızca paylaşım kartında
+		 * kullanılıyordu.
+		 */
+		?>
+		<div class="curtain-cover" aria-hidden="true">
+			<img src="<?php echo esc_url( $d['coverImage'] ); ?>" alt="">
+		</div>
+	<?php endif; ?>
+
 	<div class="curtain-panel curtain-left">
 		<div class="curtain-fabric-rich"></div>
 		<div class="curtain-folds-left"></div>

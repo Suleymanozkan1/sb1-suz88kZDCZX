@@ -56,11 +56,19 @@ function sahra_activate() {
 	Sahra_Invitation::register_post_type();
 	Sahra_Render::add_rewrite_rules();
 	flush_rewrite_rules();
+	Sahra_Lifecycle::schedule();
 }
 register_activation_hook( __FILE__, 'sahra_activate' );
 
-/** Devre dışı bırakma — kurallar temizlenir, veri durur. */
+/**
+ * Devre dışı bırakma — kurallar ve zamanlanmış iş temizlenir, veri durur.
+ *
+ * Günlük bakım işi kaldırılmazsa WordPress, eklenti kapalıyken de artık
+ * var olmayan bir kancayı çağırmayı sürdürüyor: zamanlayıcı tablosunda
+ * öksüz bir kayıt kalıyor.
+ */
 function sahra_deactivate() {
+	Sahra_Lifecycle::unschedule();
 	flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'sahra_deactivate' );

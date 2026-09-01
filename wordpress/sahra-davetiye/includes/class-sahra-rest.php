@@ -41,15 +41,6 @@ class Sahra_Rest {
 			)
 		);
 
-		register_rest_route(
-			self::NS,
-			'/venue',
-			array(
-				array( 'methods' => 'GET', 'callback' => array( __CLASS__, 'get_venue' ), 'permission_callback' => $oturum ),
-				array( 'methods' => 'PUT', 'callback' => array( __CLASS__, 'save_venue' ), 'permission_callback' => array( __CLASS__, 'require_manager' ) ),
-			)
-		);
-
 		// Misafir uçları — oturum yok.
 		register_rest_route(
 			self::NS,
@@ -211,21 +202,15 @@ class Sahra_Rest {
 		return rest_ensure_response( array( 'ok' => true ) );
 	}
 
-	/* ------------------------------------------------------------- mekân */
-
-	public static function get_venue() {
-		return rest_ensure_response( Sahra_Settings::venue() );
-	}
-
-	public static function save_venue( $request ) {
-		$govde = (array) $request->get_json_params();
-		$yeni  = Sahra_Settings::save_venue( $govde );
-
-		if ( '' === $yeni['venueName'] ) {
-			return new WP_Error( 'sahra_mekan', __( 'Mekân adı boş olamaz', 'sahra-davetiye' ), array( 'status' => 400 ) );
-		}
-		return rest_ensure_response( $yeni );
-	}
+	/*
+	 * Mekân uçları KALDIRILDI.
+	 *
+	 * Tek ortak salon döneminden kalmışlardı ve çoklu salona geçince
+	 * bozulmuşlardı: save_venue() artık salonun kimliğini döndürüyor,
+	 * uç ise dönen değeri hâlâ dizi gibi okuyup ['venueName'] arıyordu.
+	 * Hiçbir istemci çağırmıyordu; yazma yetkisi isteyen bozuk bir ucu
+	 * ayakta tutmak yerine kaldırıldı. Salonlar panelden yönetiliyor.
+	 */
 
 	/* ----------------------------------------------------------- katılım */
 

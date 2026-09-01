@@ -1,7 +1,7 @@
 'use client';
 
 import SoundPicker from './SoundPicker';
-import { ENVELOPE_SOUNDS, MUSIC_TRACKS, SEAL_SOUNDS } from '@/lib/music';
+import { MUSIC_TRACKS } from '@/lib/music';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

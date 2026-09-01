@@ -79,9 +79,10 @@ export default function LetterSection({ invitation }: { invitation: Invitation }
     invitation.sealMonogram?.trim() ||
     `${invitation.brideName?.[0] ?? ''} ${conjunction} ${invitation.groomName?.[0] ?? ''}`;
 
+  // Gelin solda, damat sağda — mektup imzası da sayfanın geri kalanıyla aynı.
   const fullNames = [
-    [invitation.groomName, invitation.groomSurname].filter(Boolean).join(' '),
     [invitation.brideName, invitation.brideSurname].filter(Boolean).join(' '),
+    [invitation.groomName, invitation.groomSurname].filter(Boolean).join(' '),
   ].filter(Boolean);
 
   const kagit = KAGITLAR[invitation.invitationDesign] ?? KAGITLAR.classic;

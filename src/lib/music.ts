@@ -41,23 +41,7 @@ export const MUSIC_TRACKS: Track[] = [
   },
 ];
 
-export const SEAL_SOUNDS: Track[] = [
-  {
-    id: 'muhur-kirilma',
-    url: '/muzik/muhur-kirilma.mp3',
-    label: 'Mühür Kırılması',
-    description: 'Kısa çatlama ve ardından yumuşak çan.',
-  },
-];
 
-export const ENVELOPE_SOUNDS: Track[] = [
-  {
-    id: 'zarf-acilma',
-    url: '/muzik/zarf-acilma.mp3',
-    label: 'Zarf Açılması',
-    description: 'Hafif kâğıt hışırtısı.',
-  },
-];
 
 export const DEFAULT_MUSIC_URL = MUSIC_TRACKS[0].url;
 
