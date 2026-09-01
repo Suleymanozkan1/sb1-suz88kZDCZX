@@ -33,11 +33,42 @@ seçin ve kaydedin. (Zaten "Sade" dışında bir seçenekteyseniz sadece
 
 Bu adım atlanırsa `/davet/ahmet-zeynep` adresleri 404 verir.
 
-## 3. Mekânı girin
+## 3. Salonlarınızı girin
 
-**Sahra Davetiye → Mekân**. Buradaki bilgi bütün davetiyelerde görünür;
-çift hesapları görebilir ama değiştiremez. Adres değişirse tek yerden
-düzeltirsiniz, yayındaki tüm davetiyeler aynı anda güncellenir.
+**Sahra Davetiye → Salonlar**. Her salon için ad, adres ve Google Maps
+linki. Çift, davetiyesini hazırlarken bu salonlardan birini **seçer** —
+adresi kendisi yazmaz. Adres değişirse tek yerden düzeltirsiniz, o salonu
+kullanan tüm davetiyeler aynı anda güncellenir.
+
+**"Misafirin işine yarayacak bilgiler"** alanına her satıra bir madde
+yazın: `Kapalı otopark (ücretsiz)`, `Metroya 5 dk yürüme`, `Engelli
+erişimi`, `Çocuk oyun alanı ve palyaço`. Bunlar davetiyenin harita
+bölümünde liste olarak çıkar. Misafirin o akşam vereceği kararları
+etkileyen şeyleri yazın; "1200 kişi kapasite" gibi işletme bilgilerini
+değil.
+
+## 3b. Menüleri kontrol edin
+
+**Sahra Davetiye → Menüler**. Basılı menü kartınızdaki sekiz menü hazır
+geliyor (Kokteyl + Menü 1–7), **fiyatsız**. Değiştirebilir, silebilir,
+yenisini ekleyebilirsiniz. Her satır bir grup:
+
+```
+ORDÖVR TABAĞI | Amerikan salatası | Kısır | Haydari
+ANA YEMEK | Et kavurma | Tereyağlı pirinç pilavı
+```
+
+Çift bunlardan birini seçip **kendi kopyası üzerinde** oynayabilir;
+buradaki asıl kayıt değişmez. Menünün adı davetiyede **görünmez** —
+misafir için "Menü-3" bir anlam taşımaz, başlık yalnızca "Menü" olur.
+
+## 3c. İşletme ayarları
+
+**Sahra Davetiye → İşletme**. İki şey:
+
+- **Instagram hesabınız** — her davetiyenin "Etiketlemeyi Unutmayın"
+  bölümünde, çiftin kendi hesabının yanında görünür.
+- **Davetiye ömrü** — aşağıda.
 
 ## 4. Çift hesabı açın
 
@@ -56,6 +87,30 @@ Kullanıcı adı: ahmet-zeynep
 Bunu doğrudan çifte iletebilirsiniz. Çift giriş yaptığında WordPress
 panelinin geri kalanını görmez; doğrudan kendi davetiye ekranına düşer.
 
+### Davetiye ne kadar açık kalır?
+
+İki kademe:
+
+1. **Düğünden 1 gün sonra** davetiye **yayından kalkar**. Link kapanır,
+   misafir göremez. Sebebi: düğün bitince link elden ele dolaşmaya devam
+   ediyor, arama motorlarına düşüyor ve çiftin adresi, telefonu, IBAN'ı
+   süresiz açıkta kalıyor.
+2. **Yayından kalktıktan 30 gün sonra** her şey **kalıcı silinir** —
+   davetiye, misafir fotoğrafları, katılımlar, dilekler.
+
+Neden iki kademe? Misafir fotoğrafları çiftin düğün albümü. Bir gün sonra
+silmek, albümünü indirmeyi unutan çiftin düğün fotoğraflarını yok etmek
+olurdu. Çift bu 30 gün içinde **Katılım & Albüm** ekranından albümü tek
+ZIP olarak indirebilir.
+
+İki süre de **İşletme** ekranından değiştirilir; kalıcı silmeyi tamamen
+kapatabilirsiniz. Süreler davetiye sihirbazında çifte de yazılı olarak
+gösterilir.
+
+> Bu iş WordPress'in kendi zamanlayıcısına (WP-Cron) bağlıdır ve site
+> ziyaret edildikçe çalışır. Aylardır hiç ziyaret almayan bir sitede
+> gecikebilir.
+
 ### Giriş ekranı hakkında
 
 Giriş **`/davet/giris`** adresinden yapılır — WordPress'in mavi giriş
@@ -73,23 +128,46 @@ e-posta bulunmuyor. Parolayı **Çift Hesapları → Şifre Sıfırla** ile siz
 
 ## 5. Davetiyeyi oluşturun
 
-**Sahra Davetiye → Yeni Davetiye**. Alanlar on iki bölüme ayrılmıştır ve
+**Sahra Davetiye → Yeni Davetiye**. Alanlar on dört bölüme ayrılmıştır ve
 Next.js sürümündeki sihirbaz adımlarıyla birebir aynıdır.
 
-Program, SSS ve hikaye alanlarında her satır bir maddedir ve alanlar dikey
-çubukla ayrılır:
+Bilmeniz gereken birkaç davranış:
+
+- **Adların yazımı otomatik düzelir.** "mehmeT" → "Mehmet", "AYŞE" →
+  "Ayşe". Türkçe kuralına göre: "ışık" → "Işık", "istanbul" → "İstanbul".
+- **Gelin solda, damat sağda** — formdan davetiyeye, bağlantı adresinden
+  paylaşım kartına kadar aynı sıra.
+- **Saat seçilmez, oturum seçilir**: Gündüz (13:00–17:00) ya da Akşam
+  (19:00–23:00). Saatler oturumdan gelir.
+- **Salon listeden seçilir**, adres yazılmaz.
+- **Mühür ve mektup tasarımının canlı önizlemesi** ilgili adımlarda
+  görünür; kaydedip davetiyeyi açmadan farkı görebilirsiniz.
+- **Mühür kırılma ve zarf açılma sesi sabittir.** Açılış sahnesinin
+  parçası; yanlış uzunlukta bir dosya perdenin zamanlamasını bozuyor.
+  Arka plan müziği seçilebilir.
+- **Son adım "Bölümler"**: her bölümün "sayfada görünsün" anahtarı. Bir
+  bölümü kapatınca içeriği silinmez, yalnızca davetiyede görünmez.
+- **Çocuk durumu tek tik.** İşaretlenmezse davetiyede "Düğünümüz yalnızca
+  yetişkinlere yöneliktir — minik misafirlerimize iyi uykular" yazar.
+
+Program, menü ve hikaye alanlarında her satır bir maddedir ve alanlar
+dikey çubukla ayrılır:
 
 ```
 15:00 | Kapı Açılışı | Konukların karşılanması
 16:00 | Nikah Töreni | Resmi nikah ve yüzük takma
 ```
 
-Kaydettikten sonra iki adres oluşur:
+Kaydettikten sonra iki adres oluşur. Bağlantı adresi boş bırakılırsa
+**tarih + adlardan** üretilir:
 
 | Adres | Ne işe yarar |
 | --- | --- |
-| `siteniz.com/davet/ahmet-zeynep` | Misafire gönderilecek davetiye |
-| `siteniz.com/yukle/ahmet-zeynep` | Masadaki QR kodun açacağı yükleme sayfası |
+| `siteniz.com/davet/19-eylul-2026-zehra-ahmet` | Misafire gönderilecek davetiye |
+| `siteniz.com/yukle/19-eylul-2026-zehra-ahmet` | Masadaki QR kodun açacağı yükleme sayfası |
+
+Tarih önde çünkü yılda yüzlerce davetiye açıyorsunuz; adrese bakınca
+hangi güne ait olduğu görünmeli. İsterseniz adresi elle de yazabilirsiniz.
 
 ---
 
@@ -182,5 +260,15 @@ tam sayfa şablonuyla çizilir. Görüyorsanız başka bir eklenti
 engelleyici). Haritanın arkasında mekân adı ve adres yazar; sayfa boş bir
 dikdörtgen bırakmaz.
 
-**Çift, mekânı değiştiremiyor** — kasıtlı. Mekân tüm davetiyelerde ortaktır
-ve yalnızca yönetici değiştirir.
+**Çift, salon adresini değiştiremiyor** — kasıtlı. Çift yalnızca sizin
+tanımladığınız salonlar arasından seçer. Adresi çifte yazdırmak bir hata
+kaynağıydı: yanlış yazan bir çiftin misafirleri yanlış yere gidiyor ve
+kimse fark etmiyordu.
+
+**Davetiye kendiliğinden kapandı** — düğünden 1 gün sonra yayından kalkar
+(bkz. "Davetiye ne kadar açık kalır?"). Süreyi **İşletme** ekranından
+değiştirebilir, davetiyeyi **Davetiyeler** listesinden elle yeniden
+yayına alabilirsiniz.
+
+**Menüde "Menü 3" yazmıyor** — kasıtlı. Menünün adı yalnızca panelde
+görünür; davetiyede başlık her zaman "Menü".

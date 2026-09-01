@@ -194,7 +194,7 @@ const TOKENS: Record<ThemeId, ThemeTokens> = {
     paperHi: '#f9f4e9',
     veilA: 'rgba(255,255,255,0.55)', veilB: 'rgba(255,255,255,0.2)',
     veilEdge: 'rgba(255,255,255,0.6)',
-    foil: 'linear-gradient(135deg, #8a6b24 0%, #d8b45c 42%, #7a5d1c 100%)',
+    foil: 'linear-gradient(135deg, #6f551c 0%, #b8934a 42%, #61491a 100%)',
     bridgeA: '#4a2f18', bridgeB: '#9a7550', bridgeC: '#ddc9a8',
   },
   // Daha koyu, daha kırmızıya çalan gece; kâğıt biraz daha sarı.
@@ -206,7 +206,7 @@ const TOKENS: Record<ThemeId, ThemeTokens> = {
     paperHi: '#fbf5e6',
     veilA: 'rgba(255,255,255,0.55)', veilB: 'rgba(255,255,255,0.2)',
     veilEdge: 'rgba(255,255,255,0.62)',
-    foil: 'linear-gradient(135deg, #7f6018 0%, #d9b256 42%, #6d5312 100%)',
+    foil: 'linear-gradient(135deg, #664c12 0%, #b08f42 42%, #57420f 100%)',
     bridgeA: '#4f2d12', bridgeB: '#9d7448', bridgeC: '#e0c9a2',
   },
   // Nötr gri-siyah; altın yerine grafit vurgusu.
@@ -230,7 +230,7 @@ const TOKENS: Record<ThemeId, ThemeTokens> = {
     paperHi: '#faf5ea',
     veilA: 'rgba(255,255,255,0.52)', veilB: 'rgba(255,255,255,0.18)',
     veilEdge: 'rgba(255,255,255,0.58)',
-    foil: 'linear-gradient(135deg, #7a5d1c 0%, #cfae5e 42%, #6a5017 100%)',
+    foil: 'linear-gradient(135deg, #614a16 0%, #a98c45 42%, #554013 100%)',
     bridgeA: '#4a3a20', bridgeB: '#977d4e', bridgeC: '#ddccaa',
   },
   // Açık evre de koyu kalır: baştan sona gece.

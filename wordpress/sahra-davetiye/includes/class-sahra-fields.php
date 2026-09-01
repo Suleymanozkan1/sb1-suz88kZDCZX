@@ -22,7 +22,8 @@ class Sahra_Fields {
 	 * Alanlar: anahtar => array( tip, varsayılan ).
 	 *
 	 * Tipler: text, textarea, html_off (etiket kabul etmeyen düz metin),
-	 * bool, int, url, list (dizi), date, time.
+	 * bool, int, url, list (tek kademeli dizi), menu (iki kademeli),
+	 * date, time.
 	 */
 	public static function schema() {
 		return array(
@@ -99,7 +100,10 @@ class Sahra_Fields {
 
 			// ── Menü ──────────────────────────────────────────────────
 			'menuId'                 => array( 'text', '' ),
-			'menuGroups'             => array( 'list', array() ),
+			// 'list' DEĞİL: menü grupları iki kademeli (başlık + öğe dizisi)
+			// ve genel liste temizleyicisi ikinci kademeyi düşürüyordu —
+			// menü kaydedildiğinde başlıklar kalıyor, yemekler siliniyordu.
+			'menuGroups'             => array( 'menu', array() ),
 			'menuSectionTitle'       => array( 'text', '' ),
 			'menuSectionSubtitle'    => array( 'text', '' ),
 
@@ -582,6 +586,9 @@ class Sahra_Fields {
 			case 'time':
 				$v = sanitize_text_field( (string) $value );
 				return preg_match( '/^\d{2}:\d{2}$/', $v ) ? $v : '';
+
+			case 'menu':
+				return self::parse_menu( $value );
 
 			case 'list':
 				return self::sanitize_list( $value );
