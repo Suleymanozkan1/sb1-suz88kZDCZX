@@ -164,30 +164,6 @@ class Sahra_Lifecycle {
 	}
 
 	/**
-	 * Albümün üstünde duran uyarı.
-	 *
-	 * Çift bu fotoğrafları düğün albümü sanıyor ve orada süresiz
-	 * duracağını varsayıyor. Silineceğini silindikten sonra öğrenmesin:
-	 * hem kaç gün sonra olduğu, hem de indirmeyi planlayabilsin diye
-	 * tam tarih yazılıyor.
-	 */
-	public static function photo_notice( $invitation ) {
-		$tarih = self::photo_delete_date( $invitation );
-		if ( ! $tarih ) {
-			return '';
-		}
-
-		$gun = self::photo_days_after_wedding();
-
-		return sprintf(
-			/* translators: 1: gün sayısı, 2: tarih. */
-			__( 'Fotoğraflar düğünden %1$d gün sonra, %2$s tarihinde kalıcı olarak silinir. İndirmeyi unutmayın.', 'sahra-davetiye' ),
-			$gun,
-			Sahra_Render::format_date( $tarih )
-		);
-	}
-
-	/**
 	 * Bir davetiyenin ne zaman kapanacağı — panelde gösterilir.
 	 *
 	 * Çift "davetiyem ne zamana kadar açık?" diye sormadan görmeli;

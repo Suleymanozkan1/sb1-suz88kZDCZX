@@ -106,15 +106,6 @@ class Sahra_Rest {
 			: new WP_Error( 'sahra_yetki', __( 'Yetkisiz', 'sahra-davetiye' ), array( 'status' => 401 ) );
 	}
 
-	public static function require_manager() {
-		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'sahra_yetki', __( 'Yetkisiz', 'sahra-davetiye' ), array( 'status' => 401 ) );
-		}
-		return Sahra_Roles::is_manager()
-			? true
-			: new WP_Error( 'sahra_yasak', __( 'Bu işlem için yetkiniz yok', 'sahra-davetiye' ), array( 'status' => 403 ) );
-	}
-
 	private static function forbidden() {
 		return new WP_Error( 'sahra_yasak', __( 'Bu işlem için yetkiniz yok', 'sahra-davetiye' ), array( 'status' => 403 ) );
 	}

@@ -287,10 +287,6 @@ html.sahra-html {
   max-width: 34em;
 }
 
-.measure-sm {
-  max-width: 26em;
-}
-
 .center {
   text-align: center;
 }
@@ -322,11 +318,6 @@ html.sahra-html {
 .rule-dark {
   height: 1px;
   background: var(--c-rule-dark);
-}
-
-.rule-fade {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--c-rule), transparent);
 }
 
 .section-head {
@@ -655,14 +646,6 @@ html.sahra-html {
   opacity: 0.55;
 }
 
-.seal-monogram {
-  position: relative;
-  z-index: 2;
-  font-family: var(--f-display);
-  font-size: clamp(1.6rem, 4.4vw, 2.4rem);
-  letter-spacing: 0.06em;
-}
-
 .curtain.is-cracking .seal-button {
   animation: seal-crack 0.65s var(--ease-out) forwards;
 }
@@ -866,23 +849,6 @@ html.sahra-html {
   margin-top: 0.5rem;
   font-size: 0.875rem;
   color: var(--c-on-light-faint);
-}
-
-.deckle {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 9px;
-  pointer-events: none;
-}
-
-.deckle-top {
-  top: 0;
-  transform: scaleY(-1);
-}
-
-.deckle-bottom {
-  bottom: 0;
 }
 
 /* ══════════════════════════════════════════════ HİKAYE ═════════════ */
