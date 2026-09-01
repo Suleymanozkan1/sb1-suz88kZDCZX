@@ -243,8 +243,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				<?php endif; ?>
 
 				<?php
-				Sahra_Form::bolum_basligi( $d, 'details', 'Detaylar', 'Düğün Bilgileri' );
-				Sahra_Form::bolum_basligi( $d, 'location', 'Konum', 'Nasıl Gelirsiniz?' );
 				Sahra_Form::alan( array( 'label' => __( 'Katılım Bildirim Son Tarihi', 'sahra-davetiye' ), 'name' => 'sahra[rsvpDeadline]', 'value' => $d['rsvpDeadline'], 'type' => 'date' ) );
 				?>
 			</div>
@@ -276,8 +274,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					)
 				);
 
-				Sahra_Form::bolum_basligi( $d, 'rsvp', 'Katılım', 'Sizi Aramızda Görmek İsteriz' );
-				Sahra_Form::alan( array( 'label' => __( 'İletişim Bölümü Başlığı', 'sahra-davetiye' ), 'name' => 'sahra[contactSectionTitle]', 'value' => $d['contactSectionTitle'], 'ph' => 'Görüşmek Üzere' ) );
 				?>
 			</div>
 
@@ -384,7 +380,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					<p class="ipucu"><?php esc_html_e( 'Her satıra bir görsel adresi. Fotoğraflar galeride aynı boyutta gösterilir.', 'sahra-davetiye' ); ?></p>
 				</div>
 
-				<?php Sahra_Form::bolum_basligi( $d, 'gallery', 'Anılar', 'Fotoğraf Galerisi' ); ?>
 			</div>
 
 			<?php /* ── 7 Menü ─────────────────────────────────────────── */ ?>
@@ -423,18 +418,14 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					<p class="ipucu"><?php esc_html_e( 'Her satır bir grup: başlık | öğe | öğe | öğe', 'sahra-davetiye' ); ?></p>
 				</div>
 
-				<?php Sahra_Form::bolum_basligi( $d, 'menu', 'İkram', 'Menü' ); ?>
 			</div>
 
 			<?php /* ── 8 Ailelerimiz ──────────────────────────────────── */ ?>
 			<div class="sahra-adim" data-adim="7" hidden>
-				<?php Sahra_Form::bolum_basligi( $d, 'family', 'Bizi Yetiştirenler', 'Ailelerimiz' ); ?>
 
 				<div class="ikili">
 					<?php
 					/* Gelin solda, damat sağda — sayfadaki sırayla aynı. */
-					Sahra_Form::alan( array( 'label' => __( 'Sol Başlık', 'sahra-davetiye' ), 'name' => 'sahra[brideFamilyLabel]', 'value' => $d['brideFamilyLabel'], 'ph' => 'Gelin Ailesi' ) );
-					Sahra_Form::alan( array( 'label' => __( 'Sağ Başlık', 'sahra-davetiye' ), 'name' => 'sahra[groomFamilyLabel]', 'value' => $d['groomFamilyLabel'], 'ph' => 'Damat Ailesi' ) );
 					Sahra_Form::alan( array( 'label' => __( 'Sol Metin', 'sahra-davetiye' ), 'name' => 'sahra[brideFamilyText]', 'value' => $d['brideFamilyText'], 'type' => 'textarea', 'rows' => 3, 'ph' => "Yılmaz Ailesi\nMehmet & Fatma Yılmaz" ) );
 					Sahra_Form::alan( array( 'label' => __( 'Sağ Metin', 'sahra-davetiye' ), 'name' => 'sahra[groomFamilyText]', 'value' => $d['groomFamilyText'], 'type' => 'textarea', 'rows' => 3, 'ph' => "Demir Ailesi\nAli & Ayşe Demir" ) );
 					?>
@@ -449,7 +440,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				</label>
 
 				<?php
-				Sahra_Form::alan( array( 'label' => __( 'Bölüm Başlığı', 'sahra-davetiye' ), 'name' => 'sahra[giftTitle]', 'value' => $d['giftTitle'], 'ph' => 'Hediye' ) );
 				Sahra_Form::alan( array( 'label' => __( 'Hediye Notu', 'sahra-davetiye' ), 'name' => 'sahra[giftNote]', 'value' => $d['giftNote'], 'type' => 'textarea', 'rows' => 2, 'ph' => 'Varlığınız en büyük hediye...' ) );
 				Sahra_Form::alan( array( 'label' => __( 'IBAN', 'sahra-davetiye' ), 'name' => 'sahra[giftIban]', 'value' => $d['giftIban'], 'ph' => 'TR33 0006 1005 1978 6457 8413 26' ) );
 				?>
@@ -523,18 +513,57 @@ include SAHRA_DIR . 'templates/admin-header.php';
 						<?php foreach ( Sahra_Fields::theme_options() as $deger => $etiket ) : ?>
 							<?php $t = Sahra_Theme::theme( $deger ); ?>
 							<label class="secenek">
-								<input type="radio" name="sahra[theme]" value="<?php echo esc_attr( $deger ); ?>" <?php checked( $deger, $d['theme'] ); ?>>
+								<input type="radio" name="sahra[theme]" value="<?php echo esc_attr( $deger ); ?>" <?php checked( $deger, $d['theme'] ); ?>
+									data-night="<?php echo esc_attr( $t['night'] ); ?>"
+									data-gold="<?php echo esc_attr( $t['gold'] ); ?>"
+									data-goldlight="<?php echo esc_attr( $t['goldLight'] ); ?>"
+									data-golddeep="<?php echo esc_attr( $t['goldDeep'] ); ?>"
+									data-cream="<?php echo esc_attr( $t['cream'] ); ?>"
+									data-paper="<?php echo esc_attr( $t['paperHi'] ); ?>"
+									data-sand="<?php echo esc_attr( $t['sand'] ); ?>"
+									data-onlight="<?php echo esc_attr( $t['onLight'] ); ?>"
+									data-ondark="<?php echo esc_attr( $t['onDark'] ); ?>">
 								<span class="ad"><?php echo esc_html( $etiket ); ?></span>
 								<span class="ornek" style="background:linear-gradient(90deg,<?php echo esc_attr( $t['night'] ); ?>,<?php echo esc_attr( $t['gold'] ); ?>,<?php echo esc_attr( $t['cream'] ); ?>)"></span>
 							</label>
 						<?php endforeach; ?>
 					</div>
 				</div>
+
+				<?php
+				/*
+				 * Tema önizlemesi.
+				 *
+				 * Renk şeridi hangi renklerin kullanıldığını söylüyordu ama
+				 * davetiyenin NEYE benzeyeceğini söylemiyordu. Burada
+				 * davetiyenin iki yarısı da var: koyu açılış ve açık mektup.
+				 * Seçim değişince ikisi de anında değişiyor.
+				 */
+				$sahra_tema = Sahra_Theme::theme( $d['theme'] );
+				?>
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Önizleme', 'sahra-davetiye' ); ?></span>
+					<div class="sahra-onizleme-kutu">
+						<div class="sahra-tema-onizleme" id="sahra-tema-onizleme"
+							style="--to-night:<?php echo esc_attr( $sahra_tema['night'] ); ?>;--to-gold:<?php echo esc_attr( $sahra_tema['gold'] ); ?>;--to-goldlight:<?php echo esc_attr( $sahra_tema['goldLight'] ); ?>;--to-golddeep:<?php echo esc_attr( $sahra_tema['goldDeep'] ); ?>;--to-cream:<?php echo esc_attr( $sahra_tema['cream'] ); ?>;--to-paper:<?php echo esc_attr( $sahra_tema['paperHi'] ); ?>;--to-sand:<?php echo esc_attr( $sahra_tema['sand'] ); ?>;--to-onlight:<?php echo esc_attr( $sahra_tema['onLight'] ); ?>;--to-ondark:<?php echo esc_attr( $sahra_tema['onDark'] ); ?>">
+							<div class="to-koyu">
+								<span class="to-etiket"><?php esc_html_e( 'Düğün Davetiyesi', 'sahra-davetiye' ); ?></span>
+								<span class="to-ad"><?php echo esc_html( $onizleme ); ?></span>
+								<span class="to-tarih numerals"><?php echo esc_html( $d['weddingDate'] ? Sahra_Render::format_date( $d['weddingDate'] ) : __( 'Düğün Tarihi', 'sahra-davetiye' ) ); ?></span>
+							</div>
+							<div class="to-acik">
+								<span class="to-mono"><?php echo esc_html( $onizleme ); ?></span>
+								<span class="to-satir"></span>
+								<span class="to-satir kisa"></span>
+							</div>
+						</div>
+					</div>
+					<p class="ipucu"><?php esc_html_e( 'Davetiyenin koyu açılışı ve açık mektup bölümü bu renklerle çizilir.', 'sahra-davetiye' ); ?></p>
+				</div>
 			</div>
 
 			<?php /* ── 12 Program ─────────────────────────────────────── */ ?>
 			<div class="sahra-adim" data-adim="11" hidden>
-				<?php Sahra_Form::bolum_basligi( $d, 'program', 'Akış', 'Günün Programı' ); ?>
 
 				<div class="alan">
 					<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
@@ -551,7 +580,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 
 			<?php /* ── 13 Hikayemiz ───────────────────────────────────── */ ?>
 			<div class="sahra-adim" data-adim="12" hidden>
-				<?php Sahra_Form::bolum_basligi( $d, 'story', 'Bizim', 'Hikayemiz' ); ?>
 
 				<div class="alan">
 					<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
@@ -566,14 +594,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				</div>
 
 				<?php
-				Sahra_Form::alan(
-					array(
-						'label' => __( 'Etiketleme Bölümü Başlığı', 'sahra-davetiye' ),
-						'name'  => 'sahra[socialSectionTitle]',
-						'value' => $d['socialSectionTitle'],
-						'ph'    => 'Etiketlemeyi Unutmayın',
-					)
-				);
 				Sahra_Form::alan( array( 'label' => __( 'Etiket (Hashtag)', 'sahra-davetiye' ), 'name' => 'sahra[hashtag]', 'value' => $d['hashtag'], 'ph' => '#ZehraveAhmet2026' ) );
 				?>
 

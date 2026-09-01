@@ -368,15 +368,55 @@
 			} );
 		} );
 
+		/*
+		 * "Diğer" seçilince beşten başlayan bir sayı alanı açılıyor.
+		 * Gönderilen değer her hâlükârda bir SAYI: çift masayı ona göre
+		 * kuruyor, "5+" ona bir şey söylemiyordu.
+		 */
 		var kisi = '1';
+		var digerSatir = form.querySelector( '#rsvp-count-other-row' );
+		var digerAlan = form.querySelector( '#rsvp-count-other' );
+
+		function digerDegeri() {
+			var n = parseInt( digerAlan ? digerAlan.value : '', 10 );
+			if ( isNaN( n ) || n < 5 ) {
+				n = 5;
+			}
+			if ( n > 50 ) {
+				n = 50;
+			}
+			return String( n );
+		}
+
 		Array.prototype.forEach.call( form.querySelectorAll( '[data-count]' ), function ( dugme ) {
 			dugme.addEventListener( 'click', function () {
-				kisi = dugme.getAttribute( 'data-count' );
+				var secim = dugme.getAttribute( 'data-count' );
+				var diger = 'diger' === secim;
+
+				if ( digerSatir ) {
+					digerSatir.hidden = ! diger;
+				}
+				kisi = diger ? digerDegeri() : secim;
+				if ( diger && digerAlan ) {
+					digerAlan.focus();
+				}
+
 				Array.prototype.forEach.call( form.querySelectorAll( '[data-count]' ), function ( d ) {
 					d.setAttribute( 'aria-pressed', d === dugme ? 'true' : 'false' );
 				} );
 			} );
 		} );
+
+		if ( digerAlan ) {
+			digerAlan.addEventListener( 'input', function () {
+				kisi = digerDegeri();
+			} );
+			// Alanı boş bırakıp gönderen olmasın diye çıkışta da toparlanıyor.
+			digerAlan.addEventListener( 'blur', function () {
+				digerAlan.value = digerDegeri();
+				kisi = digerAlan.value;
+			} );
+		}
 
 		form.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();

@@ -26,16 +26,24 @@ class Sahra_Theme {
 				'foil' => 'linear-gradient(135deg, #6f551c 0%, #b8934a 42%, #61491a 100%)',
 				'bridgeA' => '#4a2f18', 'bridgeB' => '#9a7550', 'bridgeC' => '#ddc9a8',
 			),
+			/*
+			 * Osmanlı Premium: BORDO temelli.
+			 *
+			 * Eskiden Krem & Altın'ın biraz daha koyusuydu; ölçünce iki tema
+			 * arasındaki fark sayfanın %1'i çıkıyordu, yani müşteri seçtiğini
+			 * sanıp aynı davetiyeyi alıyordu. Osmanlı'nın kendi rengi vişne
+			 * ile altının birlikteliği; artık onu kullanıyor.
+			 */
 			'ottoman-premium' => array(
-				'night' => '#120802', 'ink' => '#1d1006', 'ember' => '#3a1e0b', 'bronze' => '#7d5122',
-				'tan' => '#cba36c', 'sand' => '#e9dabb', 'cream' => '#f5eddb',
-				'gold' => '#cfa246', 'goldLight' => '#f0dfae', 'goldDeep' => '#54400f',
-				'onLight' => '#241708', 'onDark' => '#f8f0dd',
-				'paperHi' => '#fbf5e6',
+				'night' => '#1a0608', 'ink' => '#2a0b0d', 'ember' => '#4a1418', 'bronze' => '#8a4a3a',
+				'tan' => '#c98f7a', 'sand' => '#ecd9c8', 'cream' => '#f8efe4',
+				'gold' => '#d4a94e', 'goldLight' => '#f2e0b0', 'goldDeep' => '#6b4a12',
+				'onLight' => '#2a1410', 'onDark' => '#faf1e4',
+				'paperHi' => '#fdf7ee',
 				'veilA' => 'rgba(255,255,255,0.55)', 'veilB' => 'rgba(255,255,255,0.2)',
 				'veilEdge' => 'rgba(255,255,255,0.62)',
-				'foil' => 'linear-gradient(135deg, #664c12 0%, #b08f42 42%, #57420f 100%)',
-				'bridgeA' => '#4f2d12', 'bridgeB' => '#9d7448', 'bridgeC' => '#e0c9a2',
+				'foil' => 'linear-gradient(135deg, #6e4a14 0%, #b8914a 42%, #5c3d10 100%)',
+				'bridgeA' => '#5c1d20', 'bridgeB' => '#a2604c', 'bridgeC' => '#e3c3ac',
 			),
 			'minimal-white'   => array(
 				'night' => '#141414', 'ink' => '#1c1c1c', 'ember' => '#2e2e2e', 'bronze' => '#6e6e6e',

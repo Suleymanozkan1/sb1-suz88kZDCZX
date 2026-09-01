@@ -51,19 +51,8 @@ class Sahra_Fields {
 
 			'coverImage'             => array( 'url', '' ),
 			'galleryImages'          => array( 'list', array() ),
-			'gallerySectionTitle'    => array( 'text', '' ),
-			'gallerySectionSubtitle' => array( 'text', '' ),
 
 			// Bölüm başlıkları — boş bırakılırsa varsayılan metin kullanılır.
-			'detailsSectionTitle'    => array( 'text', '' ),
-			'detailsSectionSubtitle' => array( 'text', '' ),
-			'programSectionTitle'    => array( 'text', '' ),
-			'programSectionSubtitle' => array( 'text', '' ),
-			'locationSectionTitle'   => array( 'text', '' ),
-			'locationSectionSubtitle' => array( 'text', '' ),
-			'rsvpSectionTitle'       => array( 'text', '' ),
-			'rsvpSectionSubtitle'    => array( 'text', '' ),
-			'contactSectionTitle'    => array( 'text', '' ),
 
 			/*
 			 * giftEnabled / wishesEnabled aynı zamanda o bölümlerin
@@ -72,7 +61,6 @@ class Sahra_Fields {
 			 * davetiyelerin bu iki alanı zaten bu anlamda dolu.
 			 */
 			'giftEnabled'            => array( 'bool', false ),
-			'giftTitle'              => array( 'text', '' ),
 			'giftNote'               => array( 'textarea', '' ),
 			'giftAccountName'        => array( 'text', '' ),
 			'giftIban'               => array( 'text', '' ),
@@ -87,12 +75,9 @@ class Sahra_Fields {
 			'soundVolume'            => array( 'int', 40 ),
 			'backgroundMusicUrl'     => array( 'url', '' ),
 
-			'storySectionTitle'      => array( 'text', '' ),
-			'storySectionSubtitle'   => array( 'text', '' ),
 			'storyItems'             => array( 'list', array() ),
 			'programItems'           => array( 'list', array() ),
 			'socialLinks'            => array( 'list', array() ),
-			'socialSectionTitle'     => array( 'text', '' ),
 			'hashtag'                => array( 'text', '' ),
 			'showSocial'             => array( 'bool', true ),
 
@@ -104,15 +89,9 @@ class Sahra_Fields {
 			// ve genel liste temizleyicisi ikinci kademeyi düşürüyordu —
 			// menü kaydedildiğinde başlıklar kalıyor, yemekler siliniyordu.
 			'menuGroups'             => array( 'menu', array() ),
-			'menuSectionTitle'       => array( 'text', '' ),
-			'menuSectionSubtitle'    => array( 'text', '' ),
 
 			// ── Ailelerimiz ───────────────────────────────────────────
-			'familySectionTitle'     => array( 'text', '' ),
-			'familySectionSubtitle'  => array( 'text', '' ),
-			'brideFamilyLabel'       => array( 'text', '' ),
 			'brideFamilyText'        => array( 'text', '' ),
-			'groomFamilyLabel'       => array( 'text', '' ),
 			'groomFamilyText'        => array( 'text', '' ),
 
 			// ── Çocuk durumu ──────────────────────────────────────────

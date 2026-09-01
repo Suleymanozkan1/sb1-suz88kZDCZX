@@ -763,9 +763,25 @@ html.sahra-html {
   box-shadow: 0 36px 80px -34px rgba(0, 0, 0, 0.8);
 }
 
-.letter.arch,
+/*
+ * Beş tasarımın BİRBİRİNDEN AYRI olması gerekiyor.
+ *
+ * Bir dönem "Osmanlı ile Kemerli" ve "Klasik ile Minimal" yalnızca ince
+ * bir çerçeve çizgisiyle ayrılıyordu: ölçünce piksellerin yalnızca
+ * %0,8'i değişiyordu, yani müşteri seçtiğini sanıp aynı şeyi alıyordu.
+ * Her birinin artık kendi kâğıdı, kendi kenarı ve kendi ritmi var.
+ */
+
+/* Osmanlı: geniş kemer, çift çerçeve ve köşe nişanları. */
 .letter.ottoman {
   border-radius: 50% 50% 0 0 / 16% 16% 0 0;
+  background: linear-gradient(168deg, var(--c-paper-hi) 0%, var(--c-cream) 40%, var(--c-sand) 100%);
+}
+
+/* Kemerli: daha dik ve dar bir kemer, çerçevesiz — sadelik kemerde. */
+.letter.arch {
+  border-radius: 50% 50% 0 0 / 28% 28% 0 0;
+  padding-top: calc(var(--sp-lg) * 1.45);
 }
 
 .letter .frame {
@@ -775,9 +791,95 @@ html.sahra-html {
   pointer-events: none;
 }
 
-.letter.arch .frame,
 .letter.ottoman .frame {
   border-radius: 50% 50% 0 0 / 15% 15% 0 0;
+}
+
+/* Osmanlı'nın köşe nişanları: dört köşede kısa altın dirsekler. */
+.letter.ottoman .frame::before,
+.letter.ottoman .frame::after {
+  content: '';
+  position: absolute;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-color: var(--c-gold-deep);
+  border-style: solid;
+}
+
+.letter.ottoman .frame::before {
+  left: -1px;
+  bottom: -1px;
+  border-width: 0 0 2px 2px;
+}
+
+.letter.ottoman .frame::after {
+  right: -1px;
+  bottom: -1px;
+  border-width: 0 2px 2px 0;
+}
+
+/* Klasik: köşeli ve ÇİFT çerçeve — gravür kartvizit hissi. */
+.letter.classic {
+  padding: calc(var(--sp-lg) * 1.1) var(--sp-md);
+  box-shadow: 0 42px 90px -34px rgba(0, 0, 0, 0.85);
+}
+
+.letter.classic .frame {
+  inset: 0.7rem;
+  border-width: 2px;
+}
+
+.letter.classic .frame::after {
+  content: '';
+  position: absolute;
+  inset: 0.45rem;
+  border: 1px solid var(--c-rule);
+}
+
+/*
+ * Minimal: çerçeve yok, gölge yok, gradyan yok. Düz tek renk kâğıt ve
+ * bol boşluk; ayırt edici olan SUSMASI. Monogramın üstünde tek kısa
+ * çizgi kalıyor.
+ */
+.letter.minimal {
+  padding: calc(var(--sp-lg) * 1.5) var(--sp-lg);
+  background: var(--c-paper-hi);
+  box-shadow: none;
+}
+
+.letter.minimal .letter-monogram {
+  letter-spacing: 0.24em;
+}
+
+.letter.minimal .letter-monogram::before {
+  content: '';
+  display: block;
+  width: 2.5rem;
+  height: 1px;
+  margin: 0 auto var(--sp-sm);
+  background: var(--c-gold-deep);
+  opacity: 0.5;
+}
+
+/* Minimal'de eğik kâğıt gölgesi de sussun. */
+.letter-wrap:has(.letter.minimal) .letter-shadow {
+  display: none;
+}
+
+/*
+ * Vellum'da monogram varak DEĞİL, düz koyu altın.
+ *
+ * Peçe kâğıdı beyaza yaklaştırıyor; varağın açık bandı o zeminde beş
+ * temanın dördünde 1,78–2,15 arasına düşüyor ve monogram okunmuyordu.
+ * Varak parıltısı diğer dört tasarımda duruyor — vellum'un kimliği
+ * zaten peçe.
+ */
+.letter.vellum .letter-monogram {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--c-gold-deep);
+  -webkit-text-fill-color: var(--c-gold-deep);
 }
 
 .letter .veil {
@@ -1345,6 +1447,17 @@ html.sahra-html {
 .salon-ozellik li span {
   color: var(--c-gold-deep);
   flex: none;
+}
+
+/* "Diğer" seçilince açılan sayı alanı. */
+.rsvp-diger {
+  display: block;
+  margin-top: var(--sp-sm);
+  max-width: 9rem;
+}
+
+.rsvp-diger[hidden] {
+  display: none;
 }
 
 /* ══════════════════════════════════════════════ ÇOCUK NOTU ════════ */

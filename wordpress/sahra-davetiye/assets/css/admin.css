@@ -460,6 +460,32 @@ body.sahra-ekran #wpwrap::before {
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 
+/* Tarih alanının takvim simgesi.
+
+   Alan zaten `type="date"`, yani takvim tarayıcıda var; ama simge koyu
+   renkli ve panel de koyu — kullanıcı tıklayacak yeri göremediği için
+   takvim yokmuş gibi duruyordu. Ters çevirip altın tonuna yaklaştırıyor
+   ve tıklanabilir olduğunu imleçle söylüyoruz. */
+.sahra-panel input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1) sepia(1) saturate(3) hue-rotate(5deg) brightness(0.95);
+  opacity: 0.85;
+  cursor: pointer;
+  padding: 0.15rem;
+}
+
+.sahra-panel input[type='date']::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Boş tarih alanında gg.aa.yyyy yer tutucusu da okunur kalsın. */
+.sahra-panel input[type='date']::-webkit-datetime-edit {
+  color: var(--c-on-dark);
+}
+
+.sahra-panel input[type='date']:invalid::-webkit-datetime-edit {
+  color: var(--c-on-dark-faint);
+}
+
 .sahra-panel select {
   padding-right: 1rem;
 }
@@ -1003,12 +1029,152 @@ body.sahra-ekran .notice-success {
   font-size: 0.95rem;
 }
 
-/* Tasarımlar — davetiyedeki .letter varyantlarının küçük karşılıkları. */
-.sahra-mektup-onizleme.ottoman { border: 1px solid #8a6b24; outline: 3px double #8a6b24; outline-offset: 4px; }
-.sahra-mektup-onizleme.classic { border: 1px solid rgba(90, 68, 19, 0.45); }
-.sahra-mektup-onizleme.minimal { border: 0; box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.6); }
-.sahra-mektup-onizleme.arch    { border: 1px solid rgba(90, 68, 19, 0.35); border-radius: 8rem 8rem 4px 4px; padding-top: var(--sp-md); }
-.sahra-mektup-onizleme.vellum  { border: 1px solid rgba(90, 68, 19, 0.2); background: #f9f4e9; box-shadow: inset 0 0 40px rgba(120, 90, 40, 0.12); }
+/* Tasarımlar — davetiyedeki .letter varyantlarının küçük karşılıkları.
+
+   Önizleme, seçimin ne getireceğini SÖYLEMEK zorunda: aralarındaki fark
+   ince bir çerçeve çizgisinden ibaretken üçü de aynı görünüyordu ve
+   önizleme hiçbir şey anlatmıyordu. Her biri davetiyedeki karşılığının
+   ayırt edici özelliğini taşıyor. */
+
+/* Osmanlı: geniş kemer, çift çerçeve, köşe nişanları. */
+.sahra-mektup-onizleme.ottoman {
+  border: 1px solid #8a6b24;
+  outline: 3px double #8a6b24;
+  outline-offset: 4px;
+  border-radius: 50% 50% 2px 2px / 16% 16% 2px 2px;
+  padding-top: var(--sp-md);
+  background: linear-gradient(168deg, #f9f4e9 0%, #f4ecda 46%, #e6d9c2 100%);
+}
+
+/* Kemerli: dik ve dar kemer, çerçevesiz. */
+.sahra-mektup-onizleme.arch {
+  border: 0;
+  border-radius: 50% 50% 2px 2px / 30% 30% 2px 2px;
+  padding-top: calc(var(--sp-md) * 1.6);
+  background: linear-gradient(168deg, #f9f4e9 0%, #f1e9d8 100%);
+}
+
+/* Klasik: köşeli, çift çerçeve. */
+.sahra-mektup-onizleme.classic {
+  border: 2px solid rgba(90, 68, 19, 0.55);
+  box-shadow: inset 0 0 0 3px #f6f0e3, inset 0 0 0 4px rgba(90, 68, 19, 0.35);
+  padding: var(--sp-md) var(--sp-sm);
+}
+
+/* Minimal: çerçeve yok, gölge yok, düz kâğıt, bol boşluk. */
+.sahra-mektup-onizleme.minimal {
+  border: 0;
+  box-shadow: none;
+  background: #f9f4e9;
+  padding: calc(var(--sp-md) * 1.35) var(--sp-md);
+}
+
+.sahra-mektup-onizleme.minimal .mo-monogram {
+  letter-spacing: 0.24em;
+}
+
+.sahra-mektup-onizleme.minimal .mo-monogram::before {
+  content: '';
+  display: block;
+  width: 2.2rem;
+  height: 1px;
+  margin: 0 auto 0.7rem;
+  background: rgba(90, 68, 19, 0.5);
+}
+
+/* Vellum: kâğıdın üstünde yarı saydam bir peçe. */
+.sahra-mektup-onizleme.vellum {
+  border: 1px solid rgba(90, 68, 19, 0.2);
+  background: #f9f4e9;
+  box-shadow: inset 0 0 40px rgba(120, 90, 40, 0.12);
+  position: relative;
+}
+
+.sahra-mektup-onizleme.vellum::before {
+  content: '';
+  position: absolute;
+  inset: 0.75rem 0.5rem;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.22) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  pointer-events: none;
+}
+
+/* Tema önizlemesi: davetiyenin iki yarısı yan yana. */
+.sahra-tema-onizleme {
+  width: 100%;
+  max-width: 26rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--c-rule-dark);
+}
+
+.sahra-tema-onizleme .to-koyu,
+.sahra-tema-onizleme .to-acik {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: var(--sp-md) var(--sp-sm);
+  min-height: 11rem;
+  text-align: center;
+}
+
+.sahra-tema-onizleme .to-koyu {
+  background: var(--to-night);
+}
+
+.sahra-tema-onizleme .to-acik {
+  background: linear-gradient(168deg, var(--to-paper) 0%, var(--to-cream) 45%, var(--to-sand) 100%);
+}
+
+.sahra-tema-onizleme .to-etiket {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--to-gold);
+}
+
+.sahra-tema-onizleme .to-ad {
+  font-family: var(--f-display);
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: var(--to-ondark);
+}
+
+.sahra-tema-onizleme .to-tarih {
+  font-size: 0.72rem;
+  color: var(--to-goldlight);
+}
+
+/* Monogram temanın KOYU altınıyla: düz altın açık kâğıtta okunmuyordu.
+   Davetiyede de varak gradyanının koyu bandı okunuyor. */
+.sahra-tema-onizleme .to-mono {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: 1.25rem;
+  color: var(--to-golddeep);
+}
+
+/* Mektubun gövdesi: metnin kendisi değil, ritmi gösteriliyor. */
+.sahra-tema-onizleme .to-satir {
+  display: block;
+  width: 72%;
+  height: 1px;
+  background: var(--to-onlight);
+  opacity: 0.32;
+}
+
+.sahra-tema-onizleme .to-satir.kisa {
+  width: 46%;
+}
+
+@media (max-width: 480px) {
+  .sahra-tema-onizleme {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* Bölüm görünürlük listesi */
 .sahra-panel .sahra-bolum-listesi {

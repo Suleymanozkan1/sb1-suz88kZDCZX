@@ -184,6 +184,7 @@
 
 			muhurCiz();
 			mektupCiz();
+			temaCiz();
 		}
 
 		/* ── Mühür önizlemesi ───────────────────────────────────────────
@@ -263,6 +264,30 @@
 			}
 		}
 
+		/*
+		 * Tema önizlemesi: seçilen radyonun taşıdığı renkler kutuya
+		 * yazılıyor. Renkler PHP'den geliyor, burada tekrar tanımlanmıyor —
+		 * iki yerde iki ayrı palet, birinin unutulması demekti.
+		 */
+		function temaCiz() {
+			var kutu = document.getElementById( 'sahra-tema-onizleme' );
+			var secili = document.querySelector( 'input[name="sahra[theme]"]:checked' );
+			if ( ! kutu || ! secili ) {
+				return;
+			}
+			var esle = {
+				'--to-night': 'night', '--to-gold': 'gold', '--to-goldlight': 'goldlight',
+				'--to-golddeep': 'golddeep', '--to-cream': 'cream', '--to-paper': 'paper', '--to-sand': 'sand',
+				'--to-onlight': 'onlight', '--to-ondark': 'ondark'
+			};
+			Object.keys( esle ).forEach( function ( ozellik ) {
+				var deger = secili.getAttribute( 'data-' + esle[ ozellik ] );
+				if ( deger ) {
+					kutu.style.setProperty( ozellik, deger );
+				}
+			} );
+		}
+
 		document.addEventListener( 'input', guncelle );
 		document.addEventListener( 'change', guncelle );
 		guncelle();
@@ -272,9 +297,16 @@
 
 	/*
 	 * Menü seçilince içeriği metin alanına düşer; çift oradan istediği
-	 * gibi değiştirir. Seçim değişince ÜSTÜNE YAZILIR — ama yalnızca alan
-	 * boşsa ya da kullanıcı onaylarsa: elle yazılmış bir menüyü sessizce
-	 * silmek, kaybedilen emek demek.
+	 * gibi değiştirir.
+	 *
+	 * Üstüne yazmadan önce SORULUR — ama yalnızca kaybedilecek bir emek
+	 * varsa. Ölçüt "alan dolu mu" değildi ve olamazdı: menü seçilir
+	 * seçilmez alan zaten doluyor, o yüzden ikinci seçimden itibaren her
+	 * seferinde soruluyordu. Doğru ölçüt "alandaki metin hazır menülerden
+	 * birinin aynısı mı": öyleyse kullanıcının yazdığı bir şey yok,
+	 * sessizce değişir. Kullanıcı elle oynadıysa bir kez sorulur; onay
+	 * verince alan yine bir hazır menü olur ve sonraki seçim yine sessiz
+	 * geçer.
 	 */
 	( function () {
 		var sec = document.querySelector( '.sahra-menu-sec' );
@@ -288,10 +320,30 @@
 			return opt ? ( opt.getAttribute( 'data-icerik' ) || '' ) : '';
 		}
 
+		// Satır sonu ve boşluk farkları yüzünden "değişmiş" sanılmasın.
+		function sadelestir( metin ) {
+			return String( metin ).replace( /\r\n?/g, '\n' ).replace( /[ \t]+/g, ' ' )
+				.split( '\n' ).map( function ( x ) { return x.trim(); } )
+				.filter( function ( x ) { return x; } ).join( '\n' );
+		}
+
+		function kullanicininEmegiMi() {
+			var simdiki = sadelestir( kutu.value );
+			if ( ! simdiki ) {
+				return false;
+			}
+			for ( var i = 0; i < sec.options.length; i++ ) {
+				if ( sadelestir( sec.options[ i ].getAttribute( 'data-icerik' ) || '' ) === simdiki ) {
+					return false;   // hazır menülerden birinin aynısı
+				}
+			}
+			return true;
+		}
+
 		sec.addEventListener( 'change', function () {
-			var yeni = seciliIcerik();
-			if ( ! kutu.value.trim() || window.confirm( 'Menü içeriği seçtiğiniz menüyle değiştirilsin mi? Yazdıklarınız kaybolur.' ) ) {
-				kutu.value = yeni;
+			if ( ! kullanicininEmegiMi() ||
+				window.confirm( 'Menü içeriği seçtiğiniz menüyle değiştirilsin mi? Yazdıklarınız kaybolur.' ) ) {
+				kutu.value = seciliIcerik();
 			}
 		} );
 

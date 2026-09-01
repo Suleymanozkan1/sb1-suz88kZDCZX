@@ -58,32 +58,6 @@ class Sahra_Form {
 		<?php
 	}
 
-	/** Bölüm başlığı ikilisi — her bölüm için aynı iki alan. */
-	public static function bolum_basligi( $d, $anahtar, $etiket_yer, $baslik_yer ) {
-		?>
-		<div class="ikili">
-			<?php
-			self::alan(
-				array(
-					'label' => __( 'Bölüm Alt Başlık', 'sahra-davetiye' ),
-					'name'  => 'sahra[' . $anahtar . 'SectionSubtitle]',
-					'value' => $d[ $anahtar . 'SectionSubtitle' ],
-					'ph'    => $etiket_yer,
-				)
-			);
-			self::alan(
-				array(
-					'label' => __( 'Bölüm Başlık', 'sahra-davetiye' ),
-					'name'  => 'sahra[' . $anahtar . 'SectionTitle]',
-					'value' => $d[ $anahtar . 'SectionTitle' ],
-					'ph'    => $baslik_yer,
-				)
-			);
-			?>
-		</div>
-		<?php
-	}
-
 	/** Görsel alanı: doğrudan yükleme + medya kütüphanesi + elle adres. */
 	public static function gorsel( $label, $name, $value, $ipucu = '', $coklu = false ) {
 		$id = self::id( $name );

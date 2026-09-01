@@ -304,9 +304,9 @@ $geri_sayim = $d['weddingDate']
 				<div class="wrap">
 					<div class="section-head reveal">
 						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-						<span class="t-label"><?php echo esc_html( $d['storySectionSubtitle'] ? $d['storySectionSubtitle'] : 'Bizim' ); ?></span>
+						<span class="t-label">Bizim</span>
 					</div>
-					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['storySectionTitle'] ? $d['storySectionTitle'] : 'Hikayemiz' ); ?></h2>
+					<h2 class="t-display section-title reveal">Hikayemiz</h2>
 
 					<div class="timeline">
 						<?php foreach ( $d['storyItems'] as $oge ) : ?>
@@ -327,9 +327,9 @@ $geri_sayim = $d['weddingDate']
 			<div class="wrap">
 				<div class="section-head reveal">
 					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-					<span class="t-label"><?php echo esc_html( $d['detailsSectionSubtitle'] ? $d['detailsSectionSubtitle'] : 'Detaylar' ); ?></span>
+					<span class="t-label">Detaylar</span>
 				</div>
-				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['detailsSectionTitle'] ? $d['detailsSectionTitle'] : 'Düğün Bilgileri' ); ?></h2>
+				<h2 class="t-display section-title reveal">Düğün Bilgileri</h2>
 
 				<div class="detail-list">
 					<div class="detail-row reveal">
@@ -345,7 +345,6 @@ $geri_sayim = $d['weddingDate']
 					<div class="detail-row reveal">
 						<span class="lab">Saat</span>
 						<span class="val numerals"><?php echo esc_html( $saat ? $saat : '—' ); ?></span>
-						<span class="sub">Kapılar yarım saat önce açılır</span>
 					</div>
 					<?php if ( $d['address'] ) : ?>
 						<div class="detail-row reveal">
@@ -382,9 +381,9 @@ $geri_sayim = $d['weddingDate']
 				<div class="wrap">
 					<div class="section-head reveal">
 						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-						<span class="t-label"><?php echo esc_html( $d['programSectionSubtitle'] ? $d['programSectionSubtitle'] : 'Akış' ); ?></span>
+						<span class="t-label">Akış</span>
 					</div>
-					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['programSectionTitle'] ? $d['programSectionTitle'] : 'Günün Programı' ); ?></h2>
+					<h2 class="t-display section-title reveal">Günün Programı</h2>
 
 					<div class="program-list">
 						<?php foreach ( $d['programItems'] as $oge ) : ?>
@@ -414,9 +413,9 @@ $geri_sayim = $d['weddingDate']
 				<div class="wrap">
 					<div class="section-head reveal">
 						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-						<span class="t-label"><?php echo esc_html( $d['menuSectionSubtitle'] ? $d['menuSectionSubtitle'] : 'İkram' ); ?></span>
+						<span class="t-label">İkram</span>
 					</div>
-					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['menuSectionTitle'] ? $d['menuSectionTitle'] : 'Menü' ); ?></h2>
+					<h2 class="t-display section-title reveal">Menü</h2>
 
 					<div class="menu-grid">
 						<?php foreach ( $d['menuGroups'] as $sahra_grup ) : ?>
@@ -444,9 +443,9 @@ $geri_sayim = $d['weddingDate']
 			<div class="wrap">
 				<div class="section-head reveal">
 					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-					<span class="t-label"><?php echo esc_html( $d['gallerySectionSubtitle'] ? $d['gallerySectionSubtitle'] : 'Anılar' ); ?></span>
+					<span class="t-label">Anılar</span>
 				</div>
-				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['gallerySectionTitle'] ? $d['gallerySectionTitle'] : 'Fotoğraf Galerisi' ); ?></h2>
+				<h2 class="t-display section-title reveal">Fotoğraf Galerisi</h2>
 
 				<?php if ( ! empty( $d['galleryImages'] ) ) : ?>
 					<div class="gallery">
@@ -472,9 +471,9 @@ $geri_sayim = $d['weddingDate']
 			<div class="wrap">
 				<div class="section-head reveal">
 					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-					<span class="t-label"><?php echo esc_html( $d['locationSectionSubtitle'] ? $d['locationSectionSubtitle'] : 'Konum' ); ?></span>
+					<span class="t-label">Konum</span>
 				</div>
-				<h2 class="t-display section-title reveal"><?php echo esc_html( $d['locationSectionTitle'] ? $d['locationSectionTitle'] : 'Nasıl Gelirsiniz?' ); ?></h2>
+				<h2 class="t-display section-title reveal">Nasıl Gelirsiniz?</h2>
 
 				<?php
 				/*
@@ -570,21 +569,21 @@ $geri_sayim = $d['weddingDate']
 				<div class="wrap">
 					<div class="section-head reveal">
 						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-						<span class="t-label"><?php echo esc_html( $d['familySectionSubtitle'] ? $d['familySectionSubtitle'] : 'Bizi Yetiştirenler' ); ?></span>
+						<span class="t-label">Bizi Yetiştirenler</span>
 					</div>
-					<h2 class="t-display section-title reveal"><?php echo esc_html( $d['familySectionTitle'] ? $d['familySectionTitle'] : 'Ailelerimiz' ); ?></h2>
+					<h2 class="t-display section-title reveal">Ailelerimiz</h2>
 
 					<?php /* Gelin solda, damat sağda — sayfanın geri kalanıyla aynı sıra. */ ?>
 					<div class="aile-grid">
 						<?php if ( $d['brideFamilyText'] ) : ?>
 							<div class="aile-taraf reveal">
-								<p class="t-label aile-etiket"><?php echo esc_html( $d['brideFamilyLabel'] ? $d['brideFamilyLabel'] : 'Gelin Ailesi' ); ?></p>
+								<p class="t-label aile-etiket">Gelin Ailesi</p>
 								<p class="aile-metin"><?php echo nl2br( esc_html( $d['brideFamilyText'] ) ); ?></p>
 							</div>
 						<?php endif; ?>
 						<?php if ( $d['groomFamilyText'] ) : ?>
 							<div class="aile-taraf reveal">
-								<p class="t-label aile-etiket"><?php echo esc_html( $d['groomFamilyLabel'] ? $d['groomFamilyLabel'] : 'Damat Ailesi' ); ?></p>
+								<p class="t-label aile-etiket">Damat Ailesi</p>
 								<p class="aile-metin"><?php echo nl2br( esc_html( $d['groomFamilyText'] ) ); ?></p>
 							</div>
 						<?php endif; ?>
@@ -628,9 +627,9 @@ $geri_sayim = $d['weddingDate']
 			<div class="wrap-narrow">
 				<div class="section-head reveal" style="color:var(--c-gold)">
 					<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-					<span class="t-label"><?php echo esc_html( $d['rsvpSectionSubtitle'] ? $d['rsvpSectionSubtitle'] : 'Katılım' ); ?></span>
+					<span class="t-label">Katılım</span>
 				</div>
-				<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['rsvpSectionTitle'] ? $d['rsvpSectionTitle'] : 'Sizi Aramızda Görmek İsteriz' ); ?></h2>
+				<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)">Sizi Aramızda Görmek İsteriz</h2>
 
 				<?php if ( $d['rsvpDeadline'] ) : ?>
 					<p class="t-body reveal" style="margin-top:-1.5rem;margin-bottom:var(--sp-md);color:var(--c-on-dark-faint)">
@@ -660,13 +659,27 @@ $geri_sayim = $d['weddingDate']
 						</div>
 					</div>
 
+					<?php
+					/*
+					 * "5+" yerine "Diğer" ve kesin sayı.
+					 *
+					 * Çift bu formu masa düzeni için okuyor: "5+" ona 5 mi 9 mu
+					 * olduğunu söylemiyordu. Beşten fazlası için sayıyı misafir
+					 * yazıyor.
+					 */
+					?>
 					<div class="field-row" id="rsvp-count-row">
 						<span class="field-label">Kaç Kişi Geleceksiniz?</span>
 						<div class="choice">
-							<?php foreach ( array( '1', '2', '3', '4', '5+' ) as $n ) : ?>
+							<?php foreach ( array( '1', '2', '3', '4' ) as $n ) : ?>
 								<button type="button" data-count="<?php echo esc_attr( $n ); ?>" aria-pressed="<?php echo '1' === $n ? 'true' : 'false'; ?>"><?php echo esc_html( $n ); ?></button>
 							<?php endforeach; ?>
+							<button type="button" data-count="diger" aria-pressed="false">Diğer</button>
 						</div>
+						<label class="rsvp-diger" id="rsvp-count-other-row" hidden>
+							<span class="field-label">Kaç Kişi?</span>
+							<input class="field" id="rsvp-count-other" type="number" min="5" max="50" step="1" value="5" inputmode="numeric">
+						</label>
 					</div>
 
 					<div class="field-row" id="rsvp-song-row">
@@ -695,7 +708,7 @@ $geri_sayim = $d['weddingDate']
 						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
 						<span class="t-label">Hediye</span>
 					</div>
-					<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['giftTitle'] ? $d['giftTitle'] : 'Hediye' ); ?></h2>
+					<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)">Hediye</h2>
 
 					<p class="t-body measure reveal" style="margin-inline:auto;color:var(--c-on-dark-soft)">
 						<?php echo esc_html( $d['giftNote'] ? $d['giftNote'] : 'Varlığınız en büyük hediye. Yine de katkıda bulunmak isterseniz:' ); ?>
@@ -781,7 +794,7 @@ $geri_sayim = $d['weddingDate']
 				 * kare budur — Next sürümüyle birebir aynı hiyerarşi.
 				 */
 				?>
-				<p class="t-label reveal" style="color:var(--c-gold)"><?php echo esc_html( $d['contactSectionTitle'] ? $d['contactSectionTitle'] : 'Görüşmek Üzere' ); ?></p>
+				<p class="t-label reveal" style="color:var(--c-gold)">Görüşmek Üzere</p>
 				<h2 class="t-display reveal" style="color:var(--c-on-dark);margin-top:var(--sp-sm)">
 					<?php echo esc_html( $d['brideName'] ); ?>
 					<em style="color:var(--c-gold)"><?php echo esc_html( $conj ); ?></em>
@@ -814,7 +827,7 @@ $geri_sayim = $d['weddingDate']
 				?>
 				<?php if ( $d['showSocial'] && ( $d['hashtag'] || $sahra_etiketler ) ) : ?>
 					<div class="etiket-blok reveal">
-						<p class="t-label" style="color:var(--c-gold)"><?php echo esc_html( $d['socialSectionTitle'] ? $d['socialSectionTitle'] : 'Etiketlemeyi Unutmayın' ); ?></p>
+						<p class="t-label" style="color:var(--c-gold)">Etiketlemeyi Unutmayın</p>
 
 						<?php if ( $sahra_etiketler ) : ?>
 							<p class="etiket-hesaplar">
