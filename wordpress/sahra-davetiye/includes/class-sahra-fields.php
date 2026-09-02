@@ -44,7 +44,15 @@ class Sahra_Fields {
 			'invitationText'         => array( 'textarea', '' ),
 
 			'sealType'               => array( 'text', 'gold-wax' ),
-			'sealMonogram'           => array( 'text', '' ),
+			/*
+			 * Monogram en fazla 8 karakter.
+			 *
+			 * Sınırsızken "AYŞE & MEHMET" gibi bir giriş hem mührün 110
+			 * birimlik çemberinden (141 birim) hem de paylaşım kartının 96
+			 * piksellik madalyonundan taşıyordu; küçülterek sığdırmak da
+			 * 8 puntoluk okunmaz bir yazı demekti. Monogram kısa olmalı.
+			 */
+			'sealMonogram'           => array( 'monogram', '' ),
 			'sealImage'              => array( 'url', '' ),
 			'invitationDesign'       => array( 'text', 'ottoman' ),
 			'letterImage'            => array( 'url', '' ),
@@ -549,6 +557,9 @@ class Sahra_Fields {
 
 			case 'textarea':
 				return sanitize_textarea_field( (string) $value );
+
+			case 'monogram':
+				return mb_substr( sanitize_text_field( (string) $value ), 0, 8 );
 
 			case 'date':
 				$v = sanitize_text_field( (string) $value );

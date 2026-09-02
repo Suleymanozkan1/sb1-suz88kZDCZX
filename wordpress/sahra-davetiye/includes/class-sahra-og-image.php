@@ -56,6 +56,15 @@ class Sahra_Og_Image {
 		$imza = md5(
 			wp_json_encode(
 				array(
+					/*
+					 * Sürüm de imzada.
+					 *
+					 * İmza yalnızca davetiye içeriğine bakıyordu; kartın
+					 * ÇİZİMİ değişince (yazı tipi, düzen, monogram biçimi)
+					 * eski kart sonsuza kadar önbellekte kalıyor ve
+					 * güncelleme kimsenin kartına yansımıyordu.
+					 */
+					SAHRA_VERSION,
 					$davetiye['brideName'],
 					$davetiye['groomName'],
 					$davetiye['conjunction'],
@@ -109,9 +118,22 @@ class Sahra_Og_Image {
 		$conjunction = $davetiye['conjunction'] ? $davetiye['conjunction'] : '&';
 		$isimler     = trim( $davetiye['brideName'] . ' ' . $conjunction . ' ' . $davetiye['groomName'] );
 
+		/*
+		 * Baş harflerin arasında da bağlaç var.
+		 *
+		 * Kart "AM" yazıyordu; davetiyenin mührü "A&M", panel önizlemesi
+		 * "A & M". Aynı çiftin monogramı üç yerde üç türlü görünüyordu ve
+		 * kartta iki harf yan yana bir kısaltma gibi okunuyordu.
+		 * Madalyon dar olduğu için boşluksuz yazılıyor — davetiyedeki
+		 * mühürle birebir aynı biçim.
+		 */
 		$monogram = trim( (string) $davetiye['sealMonogram'] );
 		if ( '' === $monogram ) {
-			$monogram = mb_substr( (string) $davetiye['brideName'], 0, 1 ) . mb_substr( (string) $davetiye['groomName'], 0, 1 );
+			$monogram = mb_substr( (string) $davetiye['brideName'], 0, 1 )
+				. $conjunction
+				. mb_substr( (string) $davetiye['groomName'], 0, 1 );
+		} else {
+			$monogram = str_replace( ' ', '', $monogram );
 		}
 
 		$alt = array_filter( array( Sahra_Render::format_date( $davetiye['weddingDate'] ), $davetiye['city'] ) );
@@ -130,7 +152,31 @@ class Sahra_Og_Image {
 			$im,
 			Sahra_Theme::readable_on( $muhur['grad2'], $muhur['grad1'], $muhur['grad3'] )
 		);
-		self::centered( $im, $font, 34, $monogram_rengi, 205, Sahra_Render::tr_upper( $monogram ), 3 );
+		/*
+		 * Monogram madalyona ÖLÇÜLEREK sığdırılıyor.
+		 *
+		 * 96 piksellik daireye iki harf rahat giriyor, bağlaçla üç karaktere
+		 * çıkınca harfler kenara değiyor, çift "AYŞE & MEHMET" yazınca da
+		 * daireden taşıyordu. Karakter sayısına göre kademeli bir punto
+		 * tablosu bunu çözmüyor: harf genişlikleri eşit değil ("İ" ile "M"
+		 * aynı yeri tutmuyor). Bu yüzden metin gerçekten ölçülüp sığana
+		 * kadar küçültülüyor.
+		 */
+		$mono_yazi   = Sahra_Render::tr_upper( $monogram );
+		$mono_punto  = 34;
+		$mono_aralik = 3;
+		$mono_alan   = 74;   // 96'lık dairenin içinde güvenli genişlik
+
+		while ( $mono_punto > 8 && self::text_width( $font, $mono_punto, $mono_yazi, $mono_aralik ) > $mono_alan ) {
+			$mono_punto -= 2;
+			if ( $mono_punto < 22 ) {
+				$mono_aralik = 0;   // küçülürken harf aralığı da kapanır
+			} elseif ( $mono_punto < 30 ) {
+				$mono_aralik = 1;
+			}
+		}
+
+		self::centered( $im, $font, $mono_punto, $monogram_rengi, 205, $mono_yazi, $mono_aralik );
 
 		self::centered( $im, $font, 20, $vurgu, 290, Sahra_Render::tr_upper( 'Düğünümüze Davetlisiniz' ), 9 );
 		self::centered( $im, $font, mb_strlen( $isimler ) > 30 ? 62 : 78, $acik, 400, $isimler, 0 );

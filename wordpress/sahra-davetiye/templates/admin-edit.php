@@ -315,7 +315,7 @@ include SAHRA_DIR . 'templates/admin-header.php';
 						'name'  => 'sahra[sealMonogram]',
 						'value' => $d['sealMonogram'],
 						'ph'    => 'M & A',
-						'ipucu' => __( 'Boş bırakılırsa adların baş harfleri kullanılır.', 'sahra-davetiye' ),
+						'ipucu' => __( 'Boş bırakılırsa adların baş harfleri ve bağlaç kullanılır. En fazla 8 karakter — mühre sığması gerekiyor.', 'sahra-davetiye' ),
 					)
 				);
 

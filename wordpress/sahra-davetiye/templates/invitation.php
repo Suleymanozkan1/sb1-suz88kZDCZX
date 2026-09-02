@@ -212,8 +212,18 @@ $geri_sayim = $d['weddingDate']
 							stroke="<?php echo esc_attr( $muhur['grad1'] ); ?>" stroke-width="0.7" opacity="0.45"/>
 					<?php endfor; ?>
 
+					<?php
+					/*
+					 * `textLength` bir emniyet kemeri: monogram 8 karakterle
+					 * sınırlı ama "MMMMMMMM" ile "İİİİİİİİ" aynı yeri tutmuyor.
+					 * Uzun monogramda metin çembere sığacak şekilde sıkışıyor,
+					 * kısa olanda hiç karışılmıyor.
+					 */
+					$sahra_mono_uzun = mb_strlen( $muhur_mono ) > 3;
+					?>
 					<text x="55" y="63" text-anchor="middle" font-family="var(--f-display)"
-						font-size="<?php echo mb_strlen( $muhur_mono ) > 3 ? 17 : 24; ?>" font-weight="500"
+						font-size="<?php echo $sahra_mono_uzun ? 17 : 24; ?>" font-weight="500"
+						<?php echo $sahra_mono_uzun ? 'textLength="74" lengthAdjust="spacingAndGlyphs"' : ''; ?>
 						letter-spacing="1" fill="<?php echo esc_attr( $muhur['grad1'] ); ?>">
 						<?php echo esc_html( $muhur_mono ); ?>
 					</text>
