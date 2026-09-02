@@ -244,6 +244,13 @@ class Sahra_Invitation {
 
 	/** Silme — bağlı katılım, dilek ve fotoğraflarla birlikte. */
 	public static function delete( $post_id ) {
+		// Paylaşım kartı da gitsin: üstünde çiftin adı, şehri ve düğün
+		// tarihi yazıyor ve "her şey silindi" dediğimiz yerde kalıyordu.
+		$post = get_post( $post_id );
+		if ( $post ) {
+			Sahra_Og_Image::purge( $post->post_name );
+		}
+
 		Sahra_Tables::purge_invitation( $post_id );
 		wp_delete_post( $post_id, true );
 		return true;

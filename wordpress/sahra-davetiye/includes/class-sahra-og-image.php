@@ -38,6 +38,8 @@ class Sahra_Og_Image {
 			}
 			wp_mkdir_p( dirname( $onbellek ) );
 			file_put_contents( $onbellek, $png ); // phpcs:ignore
+			// Aynı davetiyenin eski kartları artık kimseye lazım değil.
+			self::purge( $davetiye['slug'], basename( $onbellek ) );
 		}
 
 		header( 'Content-Type: image/png' );
@@ -52,6 +54,38 @@ class Sahra_Og_Image {
 	 * Çift isimleri ya da temayı değiştirdiğinde kartın da değişmesi
 	 * gerekiyor; sabit bir dosya adı eski kartı sonsuza kadar sabitlerdi.
 	 */
+	/**
+	 * Bir davetiyenin disk üstündeki kartlarını siler.
+	 *
+	 * İki sızıntı vardı. Kart adı içeriğin özetini taşıyor, yani çift her
+	 * isim ya da tema değişikliğinde geriye bir dosya bırakıyordu; bir
+	 * davetiye için onlarca öksüz kart birikiyordu. Daha ciddisi: davetiye
+	 * KALICI SİLİNDİĞİNDE kart yerinde kalıyordu — üstünde çiftin adı,
+	 * şehri ve düğün tarihi yazan bir görsel, "her şey silindi" dediğimiz
+	 * hâlde sunucuda duruyordu.
+	 *
+	 * @param string $slug   Davetiyenin adresi.
+	 * @param string $koru   Silinmeyecek dosya adı (yeni yazılan kart).
+	 */
+	public static function purge( $slug, $koru = '' ) {
+		$uploads = wp_upload_dir();
+		$dizin   = trailingslashit( $uploads['basedir'] ) . 'sahra-davetiye/kart/';
+		if ( ! is_dir( $dizin ) ) {
+			return;
+		}
+
+		foreach ( (array) glob( $dizin . $slug . '-*.png' ) as $dosya ) {
+			if ( $koru && basename( $dosya ) === $koru ) {
+				continue;
+			}
+			// Slug ön eki başka bir slug'ın başlangıcı olabilir: "ayse" ile
+			// "ayse-mehmet" karışmasın diye ad kalıbı tam eşleşmeli.
+			if ( preg_match( '/^' . preg_quote( $slug, '/' ) . '-[0-9a-f]{32}\.png$/', basename( $dosya ) ) ) {
+				wp_delete_file( $dosya );
+			}
+		}
+	}
+
 	private static function cache_path( $davetiye ) {
 		$imza = md5(
 			wp_json_encode(
