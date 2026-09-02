@@ -1,0 +1,423 @@
+{
+  "venues": [],
+  "menus": [
+    {
+      "id": "menu-1",
+      "name": "Kokteyl Menü",
+      "groups": [
+        {
+          "title": "ANA YEMEK",
+          "items": [
+            "Su böreği",
+            "Amerikan salatası",
+            "Patates salatası",
+            "2 adet yaprak sarması",
+            "Kısır",
+            "Pembe sultan",
+            "Havuç tarator"
+          ]
+        },
+        {
+          "title": "SERPMELER",
+          "items": [
+            "Soslu ve sossuz patates cipsi tabağı",
+            "Kurudite bardağı"
+          ]
+        },
+        {
+          "title": "TATLI",
+          "items": [
+            "Dondurmalı pasta"
+          ]
+        },
+        {
+          "title": "İÇECEKLER",
+          "items": [
+            "Litrelik soft içecek ve su"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "menu-2",
+      "name": "Menü 1",
+      "groups": [
+        {
+          "title": "ANA YEMEK",
+          "items": [
+            "Tavuk kavurma / Şinitzel (roll ekmek eşliğinde)",
+            "Tereyağlı pirinç pilavı",
+            "Patates püresi",
+            "İçli köfte"
+          ]
+        },
+        {
+          "title": "TATLI",
+          "items": [
+            "Dondurmalı pasta veya 2 dilim baklava"
+          ]
+        },
+        {
+          "title": "SERPMELER",
+          "items": [
+            "Soslu ve sossuz patates cipsi tabağı",
+            "Kurudite bardağı"
+          ]
+        },
+        {
+          "title": "İÇECEKLER",
+          "items": [
+            "Litrelik soft içecek ve su"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "menu-3",
+      "name": "Menü 2",
+      "groups": [
+        {
+          "title": "ANA YEMEK",
+          "items": [
+            "Et kavurma (roll ekmek eşliğinde)",
+            "Tereyağlı pirinç pilavı",
+            "Patates püresi",
+            "İçli köfte"
+          ]
+        },
+        {
+          "title": "TATLI",
+          "items": [
+            "Dondurmalı pasta veya 2 dilim baklava"
+          ]
+        },
+        {
+          "title": "SERPMELER",
+          "items": [
+            "Soslu ve sossuz patates cipsi tabağı",
+            "Kurudite bardağı"
+          ]
+        },
+        {
+          "title": "İÇECEKLER",
+          "items": [
+            "Litrelik soft içecek ve su"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "menu-4",
+      "name": "Menü 3",
+      "groups": [
+        {
+          "title": "ORDÖVR TABAĞI",
+          "items": [
+            "Amerikan salatası",
+            "2 adet yaprak sarması",
+            "Zerdeçallı arpa şehriye",
+            "Kısır",
+            "Haydari",
+            "Havuç tarator",
+            "Pembe sultan"
+          ]
+        },
+        {
+          "title": "ANA YEMEK",
+          "items": [
+            "Et kavurma (roll ekmek eşliğinde)",
+            "Tereyağlı pirinç pilavı",
+            "Patates püresi",
+            "İçli köfte"
+          ]
+        },
+        {
+          "title": "TATLI",
+          "items": [
+            "Dondurmalı pasta veya 2 dilim baklava"
+          ]
+        },
+        {
+          "title": "SERPMELER",
+          "items": [
+            "Soslu veya sossuz cips tabağı",
+            "Kurudite bardağı"
+          ]
+        },
+        {
+          "title": "İÇECEKLER",
+          "items": [
+            "Litrelik soft içecek ve su"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "menu-5",
+      "name": "Menü 4",
+      "groups": [
+        {
+          "title": "ORDÖVR TABAĞI",
+          "items": [
+            "Amerikan salatası",
+            "2 adet yaprak sarması",
+            "Zerdeçallı arpa şehriye",
+            "Kısır",
+            "Haydari",
+            "Havuç tarator",
+            "Pembe sultan"
+          ]
+        },
+        {
+          "title": "ARA SICAK",
+          "items": [
+            "Su böreği"
+          ]
+        },
+        {
+          "title": "ANA YEMEK",
+          "items": [
+            "Et kavurma",
+            "Tereyağlı pirinç pilavı",
+            "Patates püresi",
+            "İçli köfte"
+          ]
+        },
+        {
+          "title": "SALATA",
+          "items": [
+            "Mevsim salata"
+          ]
+        },
+        {
+          "title": "TATLI",
+          "items": [
+            "Dondurmalı pasta veya 2 dilim baklava"
+          ]
+        },
+        {
+          "title": "SERPMELER",
+          "items": [
+            "Soslu ve sossuz patates cipsi tabağı",
+            "Kurudite bardağı"
+          ]
+        },
+        {
+          "title": "İÇECEKLER",
+          "items": [
+            "Litrelik soft içecek ve su"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "menu-6",
+      "name": "Menü 5",
+      "groups": [
+        {
+          "title": "ORDÖVR TABAĞI",
+          "items": [
+            "Amerikan salatası",
+            "2 adet yaprak sarması",
+            "Zerdeçallı arpa şehriye",
+            "Kısır",
+            "Haydari",
+            "Havuç tarator",
+            "Pembe sultan"
+          ]
+        },
+        {
+          "title": "ARA SICAK",
+          "items": [
+            "Su böreği / Paçanga böreği",
+            "Kalem böreği"
+          ]
+        },
+        {
+          "title": "ANA YEMEK",
+          "items": [
+            "Dana rosto veya dana bonfile",
+            "Tereyağlı pirinç pilavı",
+            "Patates püresi",
+            "İçli köfte",
+            "Roll ekmek"
+          ]
+        },
+        {
+          "title": "SALATA",
+          "items": [
+            "Mevsim salata"
+          ]
+        },
+        {
+          "title": "TATLI",
+          "items": [
+            "Dondurmalı pasta veya 2 dilim baklava"
+          ]
+        },
+        {
+          "title": "MEYVE",
+          "items": [
+            "Mevsim meyveleri"
+          ]
+        },
+        {
+          "title": "SERPMELER",
+          "items": [
+            "Soslu ve sossuz patates cipsi tabağı",
+            "Kurudite bardağı"
+          ]
+        },
+        {
+          "title": "İÇECEKLER",
+          "items": [
+            "Litrelik sınırsız soft içecek ve su"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "menu-7",
+      "name": "Menü 6",
+      "groups": [
+        {
+          "title": "ORDÖVR TABAĞI",
+          "items": [
+            "Amerikan salatası",
+            "2 adet yaprak sarması",
+            "Zerdeçallı arpa şehriye",
+            "Kısır",
+            "Haydari",
+            "Havuç tarator",
+            "Pembe sultan"
+          ]
+        },
+        {
+          "title": "ARA SICAK",
+          "items": [
+            "Su böreği / Paçanga böreği",
+            "Kalem böreği"
+          ]
+        },
+        {
+          "title": "ANA YEMEK",
+          "items": [
+            "Fırın biftek",
+            "Tereyağlı pirinç pilavı",
+            "Kekik sos eşliğinde sebze türlüsü",
+            "Patates püresi",
+            "İçli köfte",
+            "Roll ekmek"
+          ]
+        },
+        {
+          "title": "SALATA",
+          "items": [
+            "Mevsim salata"
+          ]
+        },
+        {
+          "title": "TATLI",
+          "items": [
+            "Dondurmalı pasta veya 2 dilim baklava"
+          ]
+        },
+        {
+          "title": "MEYVE",
+          "items": [
+            "Mevsim meyveleri"
+          ]
+        },
+        {
+          "title": "SERPMELER",
+          "items": [
+            "Soslu ve sossuz patates cipsi tabağı",
+            "Kurudite bardağı"
+          ]
+        },
+        {
+          "title": "İÇECEKLER",
+          "items": [
+            "Litrelik sınırsız soft içecek ve su"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "menu-8",
+      "name": "Menü 7",
+      "groups": [
+        {
+          "title": "ORDÖVR TABAĞI",
+          "items": [
+            "Amerikan salatası",
+            "2 adet yaprak sarması",
+            "Zerdeçallı arpa şehriye",
+            "Kısır",
+            "Haydari",
+            "Havuç tarator",
+            "Pembe sultan"
+          ]
+        },
+        {
+          "title": "ARA SICAK",
+          "items": [
+            "Su böreği / Paçanga böreği",
+            "Kalem böreği"
+          ]
+        },
+        {
+          "title": "ANA YEMEK",
+          "items": [
+            "Fırın kuzu tandır",
+            "Tereyağlı pirinç pilavı",
+            "Kekik sos eşliğinde sebze türlüsü",
+            "Patates püresi",
+            "İçli köfte",
+            "Roll ekmek"
+          ]
+        },
+        {
+          "title": "SALATA",
+          "items": [
+            "Mevsim salata"
+          ]
+        },
+        {
+          "title": "TATLI",
+          "items": [
+            "Dondurmalı pasta veya 2 dilim baklava"
+          ]
+        },
+        {
+          "title": "MEYVE",
+          "items": [
+            "Mevsim meyveleri"
+          ]
+        },
+        {
+          "title": "SERPMELER",
+          "items": [
+            "Soslu ve sossuz patates cipsi tabağı",
+            "Kurudite bardağı"
+          ]
+        },
+        {
+          "title": "İÇECEKLER",
+          "items": [
+            "Litrelik sınırsız soft içecek ve su"
+          ]
+        }
+      ]
+    }
+  ],
+  "brand": {
+    "instagram": "",
+    "instagramLabel": ""
+  },
+  "lifecycle": {
+    "unpublishDays": 1,
+    "deleteDays": 30,
+    "deleteEnabled": true
+  }
+}
