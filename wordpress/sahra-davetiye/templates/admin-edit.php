@@ -426,8 +426,8 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				<div class="ikili">
 					<?php
 					/* Gelin solda, damat sağda — sayfadaki sırayla aynı. */
-					Sahra_Form::alan( array( 'label' => __( 'Sol Metin', 'sahra-davetiye' ), 'name' => 'sahra[brideFamilyText]', 'value' => $d['brideFamilyText'], 'type' => 'textarea', 'rows' => 3, 'ph' => "Yılmaz Ailesi\nMehmet & Fatma Yılmaz" ) );
-					Sahra_Form::alan( array( 'label' => __( 'Sağ Metin', 'sahra-davetiye' ), 'name' => 'sahra[groomFamilyText]', 'value' => $d['groomFamilyText'], 'type' => 'textarea', 'rows' => 3, 'ph' => "Demir Ailesi\nAli & Ayşe Demir" ) );
+					Sahra_Form::alan( array( 'label' => __( 'Gelin Ailesi', 'sahra-davetiye' ), 'name' => 'sahra[brideFamilyText]', 'value' => $d['brideFamilyText'], 'type' => 'textarea', 'rows' => 3, 'ph' => "Yılmaz Ailesi\nMehmet & Fatma Yılmaz" ) );
+					Sahra_Form::alan( array( 'label' => __( 'Damat Ailesi', 'sahra-davetiye' ), 'name' => 'sahra[groomFamilyText]', 'value' => $d['groomFamilyText'], 'type' => 'textarea', 'rows' => 3, 'ph' => "Demir Ailesi\nAli & Ayşe Demir" ) );
 					?>
 				</div>
 			</div>

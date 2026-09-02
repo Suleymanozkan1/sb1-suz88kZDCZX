@@ -1405,24 +1405,34 @@ html.sahra-html {
 
 /* ═════════════════════════════════════════════ AİLELERİMİZ ════════ */
 
-.aile-grid {
-  margin-top: var(--sp-md);
-  display: grid;
-  gap: var(--sp-md);
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  text-align: center;
+/* Aileler hero'da, isimlerin altında.
+
+   Koyu zeminde duruyorlar: renkler açık bölümün değil, gecenin renkleri.
+   Punto küçük — isimlerin altındaki ikinci satır olmaları gerekiyor,
+   onlarla yarışmaları değil. */
+.hero-aile {
+  margin-top: var(--sp-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-sm) var(--sp-md);
+  align-items: flex-start;
 }
 
-.aile-etiket {
-  color: var(--c-gold-deep);
+.hero-aile-taraf {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.aile-metin {
-  margin-top: 0.75rem;
+.hero-aile-etiket {
+  color: var(--c-gold);
+}
+
+.hero-aile-metin {
   font-family: var(--f-display);
-  font-size: var(--t-lead);
-  line-height: 1.7;
-  color: var(--c-on-light);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  color: var(--c-on-dark-soft);
 }
 
 /* ═══════════════════════════════════════ SALON ÖZELLİKLERİ ════════ */

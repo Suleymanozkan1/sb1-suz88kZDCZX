@@ -91,8 +91,14 @@ class Sahra_Fields {
 			'menuGroups'             => array( 'menu', array() ),
 
 			// ── Ailelerimiz ───────────────────────────────────────────
-			'brideFamilyText'        => array( 'text', '' ),
-			'groomFamilyText'        => array( 'text', '' ),
+			/*
+			 * Çok satırlı: form bunları textarea olarak soruyor, yer tutucusu
+			 * iki satır gösteriyor ve şablon `nl2br()` ile çiziyor. 'text'
+			 * olarak durduğu sürece çiftin yazdığı ikinci satır sessizce
+			 * birinciye yapışıyordu.
+			 */
+			'brideFamilyText'        => array( 'textarea', '' ),
+			'groomFamilyText'        => array( 'textarea', '' ),
 
 			// ── Çocuk durumu ──────────────────────────────────────────
 			'childrenWelcome'        => array( 'bool', false ),

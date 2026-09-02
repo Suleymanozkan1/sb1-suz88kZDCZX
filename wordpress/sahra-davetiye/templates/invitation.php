@@ -226,6 +226,37 @@ $geri_sayim = $d['weddingDate']
 					<?php echo esc_html( $d['groomName'] ); ?>
 				</h1>
 
+				<?php
+				/*
+				 * Aileler, isimlerin hemen ALTINDA.
+				 *
+				 * Ayrı bir bölümdeyken sayfanın ortasında, isimlerden çok
+				 * uzakta kalıyordu; oysa davetiyenin geleneğinde aileler
+				 * çiftin adının altında durur. Küçük punto bilerek: burası
+				 * kimin evlendiğini söyleyen yer, aileler onun altında
+				 * ikinci satır.
+				 *
+				 * Gelin solda, damat sağda — sayfanın geri kalanıyla aynı sıra.
+				 */
+				$sahra_aile = array_filter( array( $d['brideFamilyText'], $d['groomFamilyText'] ) );
+				?>
+				<?php if ( $d['showFamily'] && $sahra_aile ) : ?>
+					<div class="hero-aile reveal">
+						<?php if ( $d['brideFamilyText'] ) : ?>
+							<div class="hero-aile-taraf">
+								<span class="t-label hero-aile-etiket">Gelin Ailesi</span>
+								<span class="hero-aile-metin"><?php echo nl2br( esc_html( $d['brideFamilyText'] ) ); ?></span>
+							</div>
+						<?php endif; ?>
+						<?php if ( $d['groomFamilyText'] ) : ?>
+							<div class="hero-aile-taraf">
+								<span class="t-label hero-aile-etiket">Damat Ailesi</span>
+								<span class="hero-aile-metin"><?php echo nl2br( esc_html( $d['groomFamilyText'] ) ); ?></span>
+							</div>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+
 				<div class="hero-meta t-body numerals reveal">
 					<?php foreach ( array_filter( array( $tarih, $gun, $saat, $d['city'] ) ) as $parca ) : ?>
 						<span><?php echo esc_html( $parca ); ?></span>
@@ -558,38 +589,6 @@ $geri_sayim = $d['weddingDate']
 				</div>
 			</div>
 		</section>
-		<?php endif; ?>
-
-		<?php /* ────────────────────────────────────────────── ailelerimiz */ ?>
-		<?php
-		$sahra_aile = array_filter( array( $d['brideFamilyText'], $d['groomFamilyText'] ) );
-		?>
-		<?php if ( $d['showFamily'] && $sahra_aile ) : ?>
-			<section id="family" class="section-gap">
-				<div class="wrap">
-					<div class="section-head reveal">
-						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-						<span class="t-label">Bizi Yetiştirenler</span>
-					</div>
-					<h2 class="t-display section-title reveal">Ailelerimiz</h2>
-
-					<?php /* Gelin solda, damat sağda — sayfanın geri kalanıyla aynı sıra. */ ?>
-					<div class="aile-grid">
-						<?php if ( $d['brideFamilyText'] ) : ?>
-							<div class="aile-taraf reveal">
-								<p class="t-label aile-etiket">Gelin Ailesi</p>
-								<p class="aile-metin"><?php echo nl2br( esc_html( $d['brideFamilyText'] ) ); ?></p>
-							</div>
-						<?php endif; ?>
-						<?php if ( $d['groomFamilyText'] ) : ?>
-							<div class="aile-taraf reveal">
-								<p class="t-label aile-etiket">Damat Ailesi</p>
-								<p class="aile-metin"><?php echo nl2br( esc_html( $d['groomFamilyText'] ) ); ?></p>
-							</div>
-						<?php endif; ?>
-					</div>
-				</div>
-			</section>
 		<?php endif; ?>
 
 		<?php /* ───────────────────────────────────────────────── çocuklar */ ?>
