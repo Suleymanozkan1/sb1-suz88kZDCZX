@@ -65,15 +65,35 @@ $geri_sayim = $d['weddingDate']
 	<title><?php echo esc_html( $isimler . ' | ' . $tarih ); ?></title>
 	<meta name="description" content="<?php echo esc_attr( $d['invitationText'] ? $d['invitationText'] : $isimler . ' düğün davetiyesi' ); ?>">
 
-	<?php /* Paylaşım kartı: davetiye WhatsApp'ta görselsiz düz bir bağlantı olarak çıkmasın. */ ?>
+	<?php
+	/*
+	 * Paylaşım kartı: davetiye WhatsApp'ta görselsiz düz bir bağlantı
+	 * olarak çıkmasın.
+	 *
+	 * Etiketler <head>'in en başında, ilk kilobaytın içinde: bazı botlar
+	 * belgenin tamamını okumuyor. `og:image:secure_url` ve `og:image:type`
+	 * bilerek var — WhatsApp ve Facebook bazı sürümlerde görseli ancak
+	 * şeması ve türü açıkça verildiğinde çekiyor.
+	 */
+	?>
 	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+	<meta property="og:locale" content="tr_TR">
 	<meta property="og:title" content="<?php echo esc_attr( $isimler . ' | Düğün Davetiyesi' ); ?>">
 	<meta property="og:description" content="<?php echo esc_attr( implode( ' · ', array_filter( array( $tarih, $d['city'] ) ) ) ); ?>">
 	<meta property="og:url" content="<?php echo esc_url( $adres ); ?>">
 	<meta property="og:image" content="<?php echo esc_url( $kart ); ?>">
+	<?php /* `secure_url` YALNIZCA https'te: http bir adresi güvenli diye bildirmek bazı botlara görseli tamamen reddettiriyor. */ ?>
+	<?php if ( 0 === strpos( $kart, 'https://' ) ) : ?>
+		<meta property="og:image:secure_url" content="<?php echo esc_url( $kart ); ?>">
+	<?php endif; ?>
+	<meta property="og:image:type" content="image/png">
 	<meta property="og:image:width" content="1200">
 	<meta property="og:image:height" content="630">
+	<meta property="og:image:alt" content="<?php echo esc_attr( $isimler . ' düğün davetiyesi' ); ?>">
 	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="<?php echo esc_attr( $isimler . ' | Düğün Davetiyesi' ); ?>">
+	<meta name="twitter:description" content="<?php echo esc_attr( implode( ' · ', array_filter( array( $tarih, $d['city'] ) ) ) ); ?>">
 	<meta name="twitter:image" content="<?php echo esc_url( $kart ); ?>">
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
