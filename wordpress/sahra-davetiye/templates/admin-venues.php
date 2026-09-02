@@ -76,6 +76,28 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 
 			<?php
 			/*
+			 * Salonun kendi Instagram hesabı.
+			 *
+			 * Misafir hangi salondaysa orayı etiketlemeli; işletmenin tek
+			 * hesabı varsayımı salonların ayrı hesapları olunca yanlış
+			 * oldu. Boş bırakılırsa İşletme sayfasındaki genel hesap
+			 * kullanılır.
+			 */
+			?>
+			<div class="ikili">
+				<div class="alan">
+					<label class="field-label" for="v-ig-ad"><?php esc_html_e( 'Instagram Görünen Adı', 'sahra-davetiye' ); ?></label>
+					<input id="v-ig-ad" type="text" name="venue[venueInstagramLabel]" value="<?php echo esc_attr( $venue['venueInstagramLabel'] ); ?>" placeholder="@sahrabahce">
+				</div>
+				<div class="alan">
+					<label class="field-label" for="v-ig"><?php esc_html_e( 'Instagram Adresi', 'sahra-davetiye' ); ?></label>
+					<input id="v-ig" type="url" name="venue[venueInstagram]" value="<?php echo esc_attr( $venue['venueInstagram'] ); ?>" placeholder="https://instagram.com/sahrabahce">
+					<p class="ipucu"><?php esc_html_e( 'Bu salon seçildiğinde davetiyenin etiketleme bölümünde bu hesap görünür. Boş bırakılırsa İşletme sayfasındaki genel hesap kullanılır.', 'sahra-davetiye' ); ?></p>
+				</div>
+			</div>
+
+			<?php
+			/*
 			 * Salonun özellikleri MİSAFİR için yazılır, işletme için değil.
 			 * "Kapalı otopark", "Metroya 5 dk", "Çocuk oyun alanı" gibi
 			 * satırlar misafirin o akşam vereceği kararları etkiliyor;

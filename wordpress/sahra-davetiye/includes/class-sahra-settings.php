@@ -33,6 +33,16 @@ class Sahra_Settings {
 			 * ve salon değişince hepsi birden düzeliyor.
 			 */
 			'venueDirections' => '',
+			/*
+			 * Her salonun kendi Instagram hesabı.
+			 *
+			 * İşletmenin tek bir hesabı varsayılıyordu; oysa salonların
+			 * ayrı hesapları var ve misafir hangi salondaysa orayı
+			 * etiketlemeli. Boş bırakılırsa işletmenin genel hesabına
+			 * düşülüyor — tek hesaplı kurulumlar bozulmasın.
+			 */
+			'venueInstagram'      => '',
+			'venueInstagramLabel' => '',
 			'features'  => array(),
 		);
 	}
@@ -116,6 +126,9 @@ class Sahra_Settings {
 		$temiz['venueDirections'] = isset( $input['venueDirections'] )
 			? sanitize_textarea_field( (string) $input['venueDirections'] )
 			: '';
+
+		$temiz['venueInstagram']      = isset( $input['venueInstagram'] ) ? Sahra_Fields::safe_url( $input['venueInstagram'] ) : '';
+		$temiz['venueInstagramLabel'] = isset( $input['venueInstagramLabel'] ) ? sanitize_text_field( (string) $input['venueInstagramLabel'] ) : '';
 		$temiz['mapUrl']   = isset( $input['mapUrl'] ) ? Sahra_Fields::safe_url( $input['mapUrl'] ) : '';
 		$temiz['features'] = self::satirlar( isset( $input['features'] ) ? $input['features'] : '' );
 

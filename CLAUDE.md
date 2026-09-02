@@ -19,7 +19,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | Tur | Ne ölçer | Beklenen |
 |---|---|---|
 | `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 49/49 |
-| `salon-alan.mjs` | her salon alanının davetiyede etkisi | 7/7 |
+| `salon-alan.mjs` | her salon alanının davetiyede etkisi | 9/9 |
 | `audit-uyari.js` | 14 sayfada PHP uyarısı / JS hatası | 14 temiz |
 | `audit-wp-rest.mjs` | her REST ucu, her rol | 13/13 |
 | `wp-guvenlik.mjs` | XSS, yetki, dizin aşımı, yükleme, nonce | 18/18 |
@@ -54,8 +54,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - **Gradyanla boyanmış kutunun `backgroundColor`'ı saydam döner.**
   Kontrast tarayıcısı açık kâğıttaki metni koyu panelin üstünde sanıyordu.
 - **Test sırası durumu bozar.** Ömür testi davetiyeyi taslağa çeker;
-  arkasından koşan kart denetimi 404 sayfasını okur. Testler bilinen
-  davetiyeyi hedeflemeli, "ilk gönderi"yi değil.
+  arkasından koşan kart denetimi 404 sayfasını okur. Instagram testi
+  davetiyenin salonunu değiştirir; salon denetimi yanlış salonu yamalayıp
+  "hiçbir alan görünmüyor" der. Testler hedefi VERİDEN okumalı — sabit bir
+  kimlik ya da "ilk gönderi" değil.
 - **Beklenen değerler sabit yazılmaz**, veriden hesaplanır.
 - **php -S yol önbelleği** sembolik bağ değişince eskiyi tutar; eklenti
   yerini değiştirdiysen sunucuyu yeniden başlat.

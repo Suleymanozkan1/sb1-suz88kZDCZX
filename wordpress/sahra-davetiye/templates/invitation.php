@@ -847,10 +847,22 @@ $geri_sayim = $d['weddingDate']
 						);
 					}
 				}
-				if ( $marka['instagram'] ) {
+				/*
+				 * İşletme hesabı SEÇİLEN SALONUN hesabı.
+				 *
+				 * Misafir hangi salondaysa orayı etiketlemeli. Salonun
+				 * kendi hesabı yoksa İşletme sayfasındaki genel hesaba
+				 * düşülüyor: tek hesaplı kurulumlar olduğu gibi çalışsın.
+				 */
+				$sahra_ig     = $d['venueInstagram'] ? $d['venueInstagram'] : $marka['instagram'];
+				$sahra_ig_ad  = $d['venueInstagram']
+					? ( $d['venueInstagramLabel'] ? $d['venueInstagramLabel'] : $d['venueName'] )
+					: ( $marka['instagramLabel'] ? $marka['instagramLabel'] : 'Sahra Davet' );
+
+				if ( $sahra_ig ) {
 					$sahra_etiketler[] = array(
-						'name' => $marka['instagramLabel'] ? $marka['instagramLabel'] : 'Sahra Davet',
-						'href' => $marka['instagram'],
+						'name' => $sahra_ig_ad,
+						'href' => $sahra_ig,
 					);
 				}
 				?>
