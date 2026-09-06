@@ -39,6 +39,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `slug-guncelle.php`, `slug-isimsiz.php` | tarih/isim sonradan girilince adres | 14/14 |
 | `slug-kart.php` | adres değişince eski kart siliniyor mu | öksüz yok |
 | `eski-link.php` | dağıtılmış eski link yenisine taşınıyor mu | 6/6 |
+| `qr-omur.php` | basılmış QR adres değişince de çalışıyor mu | 10/10 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.

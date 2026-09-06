@@ -95,7 +95,7 @@ class Sahra_Render {
 				self::render_upload();
 				break;
 			case 'card':
-				Sahra_Og_Image::output( get_query_var( 'sahra_slug' ) );
+				self::render_card();
 				break;
 			case 'file':
 				self::stream_file();
@@ -141,6 +141,27 @@ class Sahra_Render {
 		status_header( 200 );
 		include SAHRA_DIR . 'templates/upload.php';
 		exit;
+	}
+
+	/**
+	 * Paylaşım kartı.
+	 *
+	 * Adres değişince eski adresin kartı siliniyor; daha önce
+	 * paylaşılmış bir mesajda o adres duruyor olabilir, kırık görsel
+	 * yerine yenisine taşınıyor.
+	 */
+	private static function render_card() {
+		$slug = get_query_var( 'sahra_slug' );
+
+		if ( ! Sahra_Invitation::get_by_slug( $slug ) ) {
+			$guncel = Sahra_Invitation::current_slug_for_old( $slug );
+			if ( '' !== $guncel ) {
+				wp_safe_redirect( Sahra_Render::card_url( $guncel ), 301 );
+				exit;
+			}
+		}
+
+		Sahra_Og_Image::output( $slug );
 	}
 
 	/**

@@ -293,10 +293,34 @@ class Sahra_Invitation {
 		 */
 		$son = get_post( $post_id );
 		if ( $son && $son->post_name !== $post->post_name ) {
+			self::eski_adresi_sakla( $post_id, $post->post_name );
 			Sahra_Og_Image::purge( $post->post_name );
 		}
 
 		return self::get( $post_id );
+	}
+
+	/**
+	 * Eski adres saklanır ki basılmış QR çalışmaya devam etsin.
+	 *
+	 * WordPress bunu kendisi de yapıyor (`_wp_old_slug`) ama YALNIZCA
+	 * yayındaki davetiyeler için. Oysa QR düğünden haftalar önce
+	 * basılıyor ve davetiye o sırada taslak olabilir — ömür işi de
+	 * düğünden sonra davetiyeyi taslağa çekiyor. Masadaki karton
+	 * "davetiye o an açık mıydı"yı bilmiyor.
+	 *
+	 * Aynı meta anahtarı kullanılıyor: WordPress'in kendi kaydıyla
+	 * çakışmasın, iki kayıt tek listede toplansın.
+	 */
+	private static function eski_adresi_sakla( $post_id, $eski_slug ) {
+		if ( '' === (string) $eski_slug ) {
+			return;
+		}
+
+		$kayitli = (array) get_post_meta( $post_id, '_wp_old_slug' );
+		if ( ! in_array( $eski_slug, $kayitli, true ) ) {
+			add_post_meta( $post_id, '_wp_old_slug', $eski_slug );
+		}
 	}
 
 	/** Silme — bağlı katılım, dilek ve fotoğraflarla birlikte. */
