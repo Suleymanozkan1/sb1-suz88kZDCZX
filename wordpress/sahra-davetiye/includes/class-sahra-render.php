@@ -112,6 +112,10 @@ class Sahra_Render {
 	private static function render_invitation() {
 		$davetiye = Sahra_Invitation::get_by_slug( get_query_var( 'sahra_slug' ) );
 
+		if ( ! $davetiye ) {
+			self::eski_adresten_tasi( 'davet' );
+		}
+
 		if ( ! $davetiye || ! $davetiye['isActive'] ) {
 			self::not_found();
 		}
@@ -126,12 +130,33 @@ class Sahra_Render {
 	private static function render_upload() {
 		$davetiye = Sahra_Invitation::get_by_slug( get_query_var( 'sahra_slug' ) );
 
+		if ( ! $davetiye ) {
+			self::eski_adresten_tasi( 'yukle' );
+		}
+
 		if ( ! $davetiye || ! $davetiye['isActive'] ) {
 			self::not_found();
 		}
 
 		status_header( 200 );
 		include SAHRA_DIR . 'templates/upload.php';
+		exit;
+	}
+
+	/**
+	 * Elde kalan eski link yenisine taşınır.
+	 *
+	 * Düğün tarihi sonradan girilince adres tarihi de taşımaya başlıyor.
+	 * O ana kadar dağıtılmış davetiye linki 404 verirdi — misafir için
+	 * bunun görünürdeki anlamı "davetiye iptal oldu".
+	 */
+	private static function eski_adresten_tasi( $onek ) {
+		$guncel = Sahra_Invitation::current_slug_for_old( get_query_var( 'sahra_slug' ) );
+		if ( '' === $guncel ) {
+			return;
+		}
+
+		wp_safe_redirect( home_url( '/' . $onek . '/' . rawurlencode( $guncel ) ), 301 );
 		exit;
 	}
 

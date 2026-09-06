@@ -90,6 +90,36 @@ class Sahra_Invitation {
 		return $posts ? self::get( $posts[0]->ID ) : null;
 	}
 
+	/**
+	 * Bu adres bir davetiyenin ESKİ adresi mi?
+	 *
+	 * Tarih sonradan girilince adres değişiyor; çift o ana kadar eski
+	 * linki dağıtmış olabilir. WordPress eski adresi `_wp_old_slug`
+	 * olarak zaten saklıyor — misafirin elindeki link 404 vermek yerine
+	 * yenisine taşınsın.
+	 *
+	 * @return string Güncel adres, yoksa ''.
+	 */
+	public static function current_slug_for_old( $slug ) {
+		$slug = sanitize_title( $slug );
+		if ( '' === $slug ) {
+			return '';
+		}
+
+		$posts = get_posts(
+			array(
+				'post_type'        => self::POST_TYPE,
+				'post_status'      => array( 'publish', 'draft' ),
+				'numberposts'      => 1,
+				'suppress_filters' => false,
+				'meta_key'         => '_wp_old_slug', // phpcs:ignore WordPress.DB.SlowDBQuery
+				'meta_value'       => $slug, // phpcs:ignore WordPress.DB.SlowDBQuery
+			)
+		);
+
+		return ( $posts && $posts[0]->post_name !== $slug ) ? $posts[0]->post_name : '';
+	}
+
 	/** Yöneticiye hepsi, çifte yalnızca kendisininki. */
 	public static function all_for_user( $user_id = null ) {
 		$user_id = $user_id ? (int) $user_id : get_current_user_id();
@@ -214,6 +244,22 @@ class Sahra_Invitation {
 
 		if ( isset( $input['slug'] ) && '' !== self::safe_slug( $input['slug'] ) ) {
 			$guncelle['post_name'] = self::safe_slug( $input['slug'] );
+		} elseif ( self::otomatik_slug_mu( $post->post_name, $mevcut ) ) {
+			/*
+			 * Tarih sonradan girilince adres de tarihi taşısın.
+			 *
+			 * Davetiye tarihsiz açılabiliyor ve o zaman adres yalnızca
+			 * isimlerden oluşuyor: /davet/zeynep-can. Tarih girildiğinde
+			 * adres eski hâlinde kalıyordu.
+			 *
+			 * Ama YALNIZCA adres bizim ürettiğimiz hâldeyse: çift kendi
+			 * adresini yazdıysa ona dokunmak, dağıttığı linki elinden
+			 * almak olurdu.
+			 */
+			$yeni_slug = Sahra_Fields::build_slug( $data['brideName'], $data['groomName'], $data['weddingDate'] );
+			if ( '' !== $yeni_slug && $yeni_slug !== $post->post_name ) {
+				$guncelle['post_name'] = self::safe_slug( $yeni_slug );
+			}
 		}
 
 		/*
@@ -239,6 +285,17 @@ class Sahra_Invitation {
 			wp_update_post( $guncelle );
 		}
 
+		/*
+		 * Adres değiştiyse eski adresin paylaşım kartı diskte öksüz kalır:
+		 * kimse onu bir daha istemez ama üstünde çiftin adı, şehri ve
+		 * tarihi yazılı durur. Kart adı slug'dan türediği için yeni kart
+		 * onu kendiliğinden üzerine yazmıyor.
+		 */
+		$son = get_post( $post_id );
+		if ( $son && $son->post_name !== $post->post_name ) {
+			Sahra_Og_Image::purge( $post->post_name );
+		}
+
 		return self::get( $post_id );
 	}
 
@@ -254,6 +311,41 @@ class Sahra_Invitation {
 		Sahra_Tables::purge_invitation( $post_id );
 		wp_delete_post( $post_id, true );
 		return true;
+	}
+
+	/**
+	 * Adres hâlâ BİZİM ürettiğimiz hâlde mi?
+	 *
+	 * Ölçüt "çift değiştirdi mi" olamaz — bunu bilmiyoruz. Ölçüt: adres,
+	 * ESKİ veriyle üretilen adrese eşit mi? Eşitse kimse ona dokunmamış
+	 * demektir ve güncellemek güvenli. WordPress aynı adres varken sona
+	 * "-2" ekliyor; o sonek de bizim ürettiğimiz sayılıyor.
+	 *
+	 * @param string $slug   Şu anki adres.
+	 * @param mixed  $eski   Güncellemeden ÖNCEKİ davetiye verisi.
+	 */
+	private static function otomatik_slug_mu( $slug, $eski ) {
+		if ( ! is_array( $eski ) ) {
+			return false;
+		}
+
+		$uretilen = Sahra_Fields::build_slug(
+			$eski['brideName'] ?? '',
+			$eski['groomName'] ?? '',
+			$eski['weddingDate'] ?? ''
+		);
+
+		/*
+		 * İsimsiz açılan davetiyenin adresi 'davetiye' oluyor (auto_slug).
+		 * İsimler sonradan girilince o da bizim ürettiğimiz addır,
+		 * güncellenmeli — yoksa çift 'davetiye-3' adresiyle kalıyordu.
+		 */
+		if ( '' === $uretilen ) {
+			$uretilen = self::safe_slug( __( 'davetiye', 'sahra-davetiye' ) );
+		}
+
+		return $slug === $uretilen
+			|| (bool) preg_match( '/^' . preg_quote( $uretilen, '/' ) . '-\d+$/', $slug );
 	}
 
 	public static function url( $slug ) {

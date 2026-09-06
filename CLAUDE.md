@@ -27,15 +27,18 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~1000 metin, 0 sorun |
-| `wpon.js` | ön yüz kontrastı — 5 tema × 5 tasarım | hepsi temiz |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~860 metin, 0 sorun |
+| `wpon.js` | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
-| `fark-olc.js` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
+| `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
 | `ayirt.js` | 9 mühür ayrı mı | 9/9 |
 | `yol-tara.js` | panelde dosya yolu görünüyor mu | çift: hiç |
 | `wp-hesap-sil3.php` | hesap silinince veri gidiyor mu | 7/7 |
 | `wp-omur.php`, `wp-tarih-dogru.php`, `wp-uyari-test.php` | davetiye ömrü | 11/11 |
 | `kart-silme.php`, `kart-omur.php` | silinen davetiyenin kartı gidiyor mu | 7/7 |
+| `slug-guncelle.php`, `slug-isimsiz.php` | tarih/isim sonradan girilince adres | 14/14 |
+| `slug-kart.php` | adres değişince eski kart siliniyor mu | öksüz yok |
+| `eski-link.php` | dağıtılmış eski link yenisine taşınıyor mu | 6/6 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -61,6 +64,17 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - **Beklenen değerler sabit yazılmaz**, veriden hesaplanır.
 - **php -S yol önbelleği** sembolik bağ değişince eskiyi tutar; eklenti
   yerini değiştirdiysen sunucuyu yeniden başlat.
+- **Boş ölçüm bir sonuç değildir.** Araç hiçbir şey ölçmeden de
+  "geçti" diyebiliyor: `fark-olc.js` argümansız çağrılınca
+  karşılaştıracak çift bulamadan "hepsi farklı" dedi; `audit-uyari.js`
+  olmayan bir kimlikle sihirbazı açtığı için "0 adım" gezip temiz
+  saydı. Turun KAÇ şey ölçtüğü de okunur, yalnızca sonucu değil.
+- **Var olmayan seçeneği ölçmek.** Temalar `blush-rose`/`sage-ivory`
+  diye ölçüldü; ikisi de yok, ürün sessizce varsayılana düşüyor ve
+  fark %0.00 çıkıyordu. Seçenek listesi üründen okunur, akıldan değil.
+- **Bir etiketi bağlantısız ölçmek.** `venueInstagramLabel` hesap
+  adresi boşken ölçüldü; etiketleyecek bağlantı olmayınca görünmüyor ve
+  "alan çalışmıyor" sanıldı. Alan, gerçek kullanım bağlamında ölçülür.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
