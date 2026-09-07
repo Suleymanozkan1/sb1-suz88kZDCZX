@@ -40,6 +40,7 @@ require_once SAHRA_DIR . 'includes/class-sahra-lifecycle.php';
 require_once SAHRA_DIR . 'includes/class-sahra-login.php';
 require_once SAHRA_DIR . 'includes/class-sahra-render.php';
 require_once SAHRA_DIR . 'includes/class-sahra-form.php';
+require_once SAHRA_DIR . 'includes/class-sahra-health.php';
 require_once SAHRA_DIR . 'includes/class-sahra-admin.php';
 require_once SAHRA_DIR . 'includes/class-sahra-plugin.php';
 

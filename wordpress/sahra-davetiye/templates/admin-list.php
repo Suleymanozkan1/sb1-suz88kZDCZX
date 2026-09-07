@@ -23,6 +23,29 @@ include SAHRA_DIR . 'templates/admin-header.php';
 		<div class="bildirim"><p class="t-body"><?php esc_html_e( 'Silindi.', 'sahra-davetiye' ); ?></p></div>
 	<?php endif; ?>
 
+	<?php
+	/*
+	 * Kurulum denetimi yalnızca yöneticide: sunucu ayarını çift
+	 * düzeltemez, ekranında durması yalnızca kaygı olurdu.
+	 */
+	$sahra_bulgular = $yonetici ? Sahra_Health::checks() : array();
+	?>
+	<?php if ( $sahra_bulgular ) : ?>
+		<?php foreach ( $sahra_bulgular as $sahra_bulgu ) : ?>
+			<div class="bildirim<?php echo 'engel' === $sahra_bulgu['seviye'] ? ' hata' : ''; ?>">
+				<p class="t-label">
+					<?php
+					echo 'engel' === $sahra_bulgu['seviye']
+						? esc_html__( 'Kurulum — çalışmıyor', 'sahra-davetiye' )
+						: esc_html__( 'Kurulum — sınırlı', 'sahra-davetiye' );
+					?>
+				</p>
+				<p class="t-body" style="margin-top:0.4rem"><?php echo esc_html( $sahra_bulgu['baslik'] ); ?></p>
+				<p class="t-body muted" style="margin-top:0.2rem"><?php echo esc_html( $sahra_bulgu['cozum'] ); ?></p>
+			</div>
+		<?php endforeach; ?>
+	<?php endif; ?>
+
 	<section class="sahra-sec">
 		<header>
 			<div class="ust">

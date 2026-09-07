@@ -41,6 +41,8 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `eski-link.php` | dağıtılmış eski link yenisine taşınıyor mu | 6/6 |
 | `qr-omur.php` | basılmış QR adres değişince de çalışıyor mu | 10/10 |
 | `adres-kenar.php` | taşımanın kenarları: devralınan adres, döngü, kapalı davetiye | 7/7 |
+| `kurulum-denetim.php` | her kurulum koşulu kurulup bulgu çıkıyor mu | 19/19 |
+| `kurulum-ekran.js` | bulgu ekranda çiziliyor, çift görmüyor | 4/4 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.

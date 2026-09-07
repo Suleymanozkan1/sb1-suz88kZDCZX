@@ -107,6 +107,21 @@ class Sahra_Admin {
 			return;
 		}
 
+		/*
+		 * Kurulum engelleri her ekranda duyuruluyor, ayrıntı panelde.
+		 * Panelin kendisinde tekrar etmiyor: liste zaten orada.
+		 */
+		$engel = Sahra_Health::blocking();
+		if ( $engel && 'sahra-panel' !== ( isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '' ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			printf(
+				'<div class="notice notice-error"><p><strong>%s</strong> %s <a href="%s">%s</a></p></div>',
+				esc_html__( 'Sahra Davetiye — kurulum eksik:', 'sahra-davetiye' ),
+				esc_html( $engel[0]['baslik'] ),
+				esc_url( admin_url( 'admin.php?page=sahra-panel' ) ),
+				esc_html__( 'Ayrıntılar', 'sahra-davetiye' )
+			);
+		}
+
 		$uyari = Sahra_Settings::storage_fallback_notice();
 		if ( $uyari ) {
 			printf(
