@@ -19,7 +19,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | Tur | Ne ölçer | Beklenen |
 |---|---|---|
 | `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 49/49 |
-| `salon-alan.mjs` | her salon alanının davetiyede etkisi | 9/9 |
+| `salon-alan.mjs` | her salon alanının davetiyede etkisi | 11/11 |
 | `audit-uyari.js` | 14 sayfada PHP uyarısı / JS hatası | 14 temiz |
 | `audit-wp-rest.mjs` | her REST ucu, her rol | 13/13 |
 | `wp-guvenlik.mjs` | XSS, yetki, dizin aşımı, yükleme, nonce | 18/18 |
@@ -27,7 +27,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~860 metin, 0 sorun |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~875 metin, 0 sorun |
 | `wpon.js` | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
@@ -43,6 +43,8 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `adres-kenar.php` | taşımanın kenarları: devralınan adres, döngü, kapalı davetiye | 7/7 |
 | `kurulum-denetim.php` | her kurulum koşulu kurulup bulgu çıkıyor mu | 19/19 |
 | `kurulum-ekran.js` | bulgu ekranda çiziliyor, çift görmüyor | 4/4 |
+| `musteri-istekleri.php` | çocuk varsayılanı, salon alanları, paylaşım açıklaması, tarih koruması | 16/16 |
+| `musteri-ekran.js` | tarih yalnızca takvimden, adımlar veri kaybetmiyor, çıkış uyarısı | 10/10 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.

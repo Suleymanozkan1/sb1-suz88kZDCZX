@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 class Sahra_Fields {
 
 	/** Mekân alanları — davetiyede DEĞİL, ortak ayarda durur. */
-	const VENUE_KEYS = array( 'venueName', 'address', 'district', 'city', 'mapUrl', 'venueDirections', 'venueInstagram', 'venueInstagramLabel' );
+	const VENUE_KEYS = array( 'venueName', 'address', 'district', 'city', 'mapUrl', 'appleMapUrl', 'venueDirections', 'venueInstagram', 'venueInstagramLabel', 'venueChildrenNote' );
 
 	/**
 	 * Alanlar: anahtar => array( tip, varsayılan ).
@@ -109,7 +109,12 @@ class Sahra_Fields {
 			'groomFamilyText'        => array( 'textarea', '' ),
 
 			// ── Çocuk durumu ──────────────────────────────────────────
-			'childrenWelcome'        => array( 'bool', false ),
+			/*
+			 * Varsayılan AÇIK. Salon çocuklu düğüne göre kurulu (oyun
+			 * alanı, palyaço); kapalı başlamak çoğu çifte yanlış cevabı
+			 * varsayılan yapıyordu. İstemeyen tiki kaldırır.
+			 */
+			'childrenWelcome'        => array( 'bool', true ),
 
 			// ── Bölüm görünürlükleri ──────────────────────────────────
 			'showLetter'             => array( 'bool', true ),
@@ -516,7 +521,23 @@ class Sahra_Fields {
 			if ( ! array_key_exists( $key, (array) $input ) ) {
 				continue;
 			}
-			$out[ $key ] = self::sanitize_value( $input[ $key ], $spec[0], $spec[1] );
+
+			$temiz = self::sanitize_value( $input[ $key ], $spec[0], $spec[1] );
+
+			/*
+			 * Okunamayan bir tarih, DURAN tarihi silmesin.
+			 *
+			 * Yıla yanlışlıkla fazladan bir hane girilince ("20266-09-19")
+			 * kalıp tutmuyor ve boş dönüyordu; sonuç, çiftin girdiği düğün
+			 * tarihinin sessizce kaybolmasıydı. Boş göndermek hâlâ
+			 * "tarihi kaldır" demek — yalnızca DOLU ama geçersiz olan
+			 * yok sayılıyor.
+			 */
+			if ( 'date' === $spec[0] && '' === $temiz && '' !== trim( (string) $input[ $key ] ) ) {
+				continue;
+			}
+
+			$out[ $key ] = $temiz;
 		}
 
 		// Mekân davetiyede tutulmaz; seçilen salondan gelir.

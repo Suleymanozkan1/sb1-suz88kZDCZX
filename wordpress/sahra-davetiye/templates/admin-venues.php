@@ -69,9 +69,16 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 				</div>
 			</div>
 
-			<div class="alan">
-				<label class="field-label" for="v-map"><?php esc_html_e( 'Google Maps Linki', 'sahra-davetiye' ); ?></label>
-				<input id="v-map" type="url" name="venue[mapUrl]" value="<?php echo esc_attr( $venue['mapUrl'] ); ?>" placeholder="https://maps.google.com/...">
+			<div class="ikili">
+				<div class="alan">
+					<label class="field-label" for="v-map"><?php esc_html_e( 'Google Maps Linki', 'sahra-davetiye' ); ?></label>
+					<input id="v-map" type="url" name="venue[mapUrl]" value="<?php echo esc_attr( $venue['mapUrl'] ); ?>" placeholder="https://maps.google.com/...">
+				</div>
+				<div class="alan">
+					<label class="field-label" for="v-apple"><?php esc_html_e( 'Apple Haritalar Linki', 'sahra-davetiye' ); ?></label>
+					<input id="v-apple" type="url" name="venue[appleMapUrl]" value="<?php echo esc_attr( $venue['appleMapUrl'] ); ?>" placeholder="https://maps.apple/p/...">
+					<p class="ipucu"><?php esc_html_e( 'Boş bırakılırsa adresten üretilir; üretilen sorgu bazen komşu bir işletmeyi gösteriyor. Apple Haritalar\'da salonu bulup "Paylaş" ile aldığınız adresi buraya yapıştırın.', 'sahra-davetiye' ); ?></p>
+				</div>
 			</div>
 
 			<?php
@@ -114,6 +121,21 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 			 * kez yazıyor, o salonu seçen bütün davetiyelerde çıkıyor.
 			 */
 			?>
+			<?php
+			/*
+			 * Çocuklu düğünde salonun ne sunduğu.
+			 *
+			 * Davetiye "çocuklar da davetlidir" diyor; asıl merak edilen
+			 * şey çocuğun orada ne yapacağı. Bu da salonun bilgisi —
+			 * yalnızca çocuklar davetliyken, o cümlenin altında çıkıyor.
+			 */
+			?>
+			<div class="alan">
+				<label class="field-label" for="v-cocuk"><?php esc_html_e( 'Çocuklar İçin Hizmetler', 'sahra-davetiye' ); ?></label>
+				<input id="v-cocuk" type="text" name="venue[venueChildrenNote]" value="<?php echo esc_attr( $venue['venueChildrenNote'] ); ?>" placeholder="Palyaço hizmetimiz ve çocuk oyun alanımız bulunmaktadır.">
+				<p class="ipucu"><?php esc_html_e( 'Yalnızca çift "çocuklar da davetli" seçtiyse, davetiyede o cümlenin altında görünür.', 'sahra-davetiye' ); ?></p>
+			</div>
+
 			<div class="alan">
 				<label class="field-label" for="v-directions"><?php esc_html_e( 'Nasıl Gelirsiniz?', 'sahra-davetiye' ); ?></label>
 				<textarea id="v-directions" name="venue[venueDirections]" rows="4" placeholder="E-5'ten Kadıköy çıkışına dönüp sahil yolunu takip edin. Marmaray Ayrılıkçeşme durağından 10 dakika yürüme mesafesinde."><?php echo esc_textarea( $venue['venueDirections'] ); ?></textarea>

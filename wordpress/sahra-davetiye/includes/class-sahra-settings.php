@@ -43,6 +43,18 @@ class Sahra_Settings {
 			 */
 			'venueInstagram'      => '',
 			'venueInstagramLabel' => '',
+			/*
+			 * Apple Haritalar adresi AYRI tutuluyor: adresten üretilen
+			 * sorgu salonu bulamayıp başka bir işletmeye düşebiliyor.
+			 * Boşsa yine adresten üretiliyor.
+			 */
+			'appleMapUrl'         => '',
+			/*
+			 * Çocuklu düğünde salonun sunduğu hizmet (oyun alanı, palyaço).
+			 * Çiftin değil salonun bilgisi: her davetiyeye ayrı yazdırmak,
+			 * birinin yanlış yazması demekti.
+			 */
+			'venueChildrenNote'   => '',
 			'features'  => array(),
 		);
 	}
@@ -129,7 +141,13 @@ class Sahra_Settings {
 
 		$temiz['venueInstagram']      = isset( $input['venueInstagram'] ) ? Sahra_Fields::safe_url( $input['venueInstagram'] ) : '';
 		$temiz['venueInstagramLabel'] = isset( $input['venueInstagramLabel'] ) ? sanitize_text_field( (string) $input['venueInstagramLabel'] ) : '';
-		$temiz['mapUrl']   = isset( $input['mapUrl'] ) ? Sahra_Fields::safe_url( $input['mapUrl'] ) : '';
+		$temiz['mapUrl']      = isset( $input['mapUrl'] ) ? Sahra_Fields::safe_url( $input['mapUrl'] ) : '';
+		$temiz['appleMapUrl'] = isset( $input['appleMapUrl'] ) ? Sahra_Fields::safe_url( $input['appleMapUrl'] ) : '';
+
+		$temiz['venueChildrenNote'] = isset( $input['venueChildrenNote'] )
+			? sanitize_text_field( (string) $input['venueChildrenNote'] )
+			: '';
+
 		$temiz['features'] = self::satirlar( isset( $input['features'] ) ? $input['features'] : '' );
 
 		if ( '' === $temiz['venueName'] ) {

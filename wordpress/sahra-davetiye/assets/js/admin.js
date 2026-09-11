@@ -751,8 +751,77 @@
 		}
 	} );
 
+	/* ---------------------------------------------------- tarih alanı */
+
+	/*
+	 * Tarih yalnızca takvimden seçilir.
+	 *
+	 * Tarayıcının gg.aa.yyyy bölmelerine yazarken yıla fazladan bir hane
+	 * girmek çok kolaydı ("20266") ve sonuç kimsenin fark etmediği bir
+	 * tarihti. Rakam yazmak engelleniyor, alana dokununca takvim
+	 * açılıyor. Ok tuşları çalışmaya devam ediyor: klavyeyle kullanan
+	 * kimse dışarıda kalmasın, ve okla fazladan hane girilemiyor.
+	 */
+	function tarihAlanlari() {
+		Array.prototype.forEach.call( document.querySelectorAll( '.sahra-tarih' ), function ( alan ) {
+			function takvim() {
+				if ( 'function' === typeof alan.showPicker ) {
+					try {
+						alan.showPicker();
+					} catch ( e ) {
+						/* Kullanıcı hareketi olmadan çağrılırsa tarayıcı
+						   reddediyor; alan yine de kullanılabilir. */
+					}
+				}
+			}
+
+			alan.addEventListener( 'keydown', function ( e ) {
+				var izinli = [ 'Tab', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight' ];
+				if ( izinli.indexOf( e.key ) === -1 && ! e.ctrlKey && ! e.metaKey ) {
+					e.preventDefault();
+					takvim();
+				}
+			} );
+
+			alan.addEventListener( 'click', takvim );
+		} );
+	}
+
+	/* ------------------------------------------ kaydedilmemiş değişiklik */
+
+	/*
+	 * Sihirbazda yazılanlar sayfa terk edilince gidiyor.
+	 *
+	 * Adımlar arasında gezinmek bir şey kaybettirmiyor — hepsi tek bir
+	 * form, yalnızca gizlenip gösteriliyor. Kaybettiren, tarayıcının geri
+	 * tuşu ya da sekmeyi kapatmak. Uzun bir formda bu, bir akşamlık emek
+	 * demek.
+	 */
+	function kaydedilmemis() {
+		var form = document.getElementById( 'sahra-sihirbaz' );
+		if ( ! form ) {
+			return;
+		}
+
+		var kirli = false;
+
+		form.addEventListener( 'input', function () { kirli = true; } );
+		form.addEventListener( 'change', function () { kirli = true; } );
+		form.addEventListener( 'submit', function () { kirli = false; } );
+
+		window.addEventListener( 'beforeunload', function ( e ) {
+			if ( ! kirli ) {
+				return;
+			}
+			e.preventDefault();
+			e.returnValue = '';
+		} );
+	}
+
 	sihirbaz();
 	onizleme();
 	gorselOnizleme();
 	qr();
+	tarihAlanlari();
+	kaydedilmemis();
 } )();

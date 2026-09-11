@@ -46,9 +46,23 @@ class Sahra_Form {
 					rows="<?php echo (int) $a['rows']; ?>" placeholder="<?php echo esc_attr( $a['ph'] ); ?>"
 					class="<?php echo esc_attr( $a['sinif'] ); ?>"><?php echo esc_textarea( $a['value'] ); ?></textarea>
 			<?php else : ?>
+				<?php
+				/*
+				 * Tarih alanı ELLE YAZILMIYOR, takvimden seçiliyor.
+				 *
+				 * Tarayıcının gg.aa.yyyy bölmelerine yazarken yıla
+				 * fazladan bir hane girmek çok kolay ("20266"); ortaya
+				 * kimsenin fark etmediği bir tarih çıkıyordu. Sınırlar
+				 * burada, davranış admin.js'te: yazma engelleniyor,
+				 * tıklayınca takvim açılıyor.
+				 */
+				$sahra_tarih_mi = 'date' === $a['type'];
+				$sahra_sinif    = trim( $a['sinif'] . ( $sahra_tarih_mi ? ' sahra-tarih' : '' ) );
+				?>
 				<input id="<?php echo esc_attr( $id ); ?>" type="<?php echo esc_attr( $a['type'] ); ?>"
 					name="<?php echo esc_attr( $a['name'] ); ?>" value="<?php echo esc_attr( $a['value'] ); ?>"
-					placeholder="<?php echo esc_attr( $a['ph'] ); ?>" class="<?php echo esc_attr( $a['sinif'] ); ?>">
+					placeholder="<?php echo esc_attr( $a['ph'] ); ?>" class="<?php echo esc_attr( $sahra_sinif ); ?>"
+					<?php echo $sahra_tarih_mi ? 'min="2020-01-01" max="2100-12-31"' : ''; ?>>
 			<?php endif; ?>
 
 			<?php if ( $a['ipucu'] ) : ?>

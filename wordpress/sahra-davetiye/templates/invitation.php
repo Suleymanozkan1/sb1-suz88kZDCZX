@@ -62,7 +62,25 @@ $geri_sayim = $d['weddingDate']
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-	<title><?php echo esc_html( $isimler . ' | ' . $tarih ); ?></title>
+	<?php
+	/*
+	 * Tarih girilmeden paylaşılan davetiyede başlık "Zehra ile Ahmet | "
+	 * diye boş ayraçla bitiyordu. Parçalar süzülüp birleştiriliyor.
+	 */
+	$sahra_baslik = implode( ' | ', array_filter( array( $isimler, $tarih ) ) );
+
+	/*
+	 * Paylaşım açıklamasında şehir değil SALON yazıyor.
+	 *
+	 * "İstanbul" hiçbir şey söylemiyor; linki gören kişi düğünün nerede
+	 * olduğunu değil, hangi salonda olduğunu merak ediyor — ve salonun
+	 * adı, işletme için de akılda kalıyor. Salon adı yoksa şehre düşülür.
+	 */
+	$sahra_mekan = $d['venueName']
+		? trim( $d['venueName'] . ( $d['district'] ? ', ' . $d['district'] : '' ) )
+		: $d['city'];
+	?>
+	<title><?php echo esc_html( $sahra_baslik ); ?></title>
 	<meta name="description" content="<?php echo esc_attr( $d['invitationText'] ? $d['invitationText'] : $isimler . ' düğün davetiyesi' ); ?>">
 
 	<?php
@@ -80,7 +98,7 @@ $geri_sayim = $d['weddingDate']
 	<meta property="og:site_name" content="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
 	<meta property="og:locale" content="tr_TR">
 	<meta property="og:title" content="<?php echo esc_attr( $isimler . ' | Düğün Davetiyesi' ); ?>">
-	<meta property="og:description" content="<?php echo esc_attr( implode( ' · ', array_filter( array( $tarih, $d['city'] ) ) ) ); ?>">
+	<meta property="og:description" content="<?php echo esc_attr( implode( ' · ', array_filter( array( $tarih, $sahra_mekan ) ) ) ); ?>">
 	<meta property="og:url" content="<?php echo esc_url( $adres ); ?>">
 	<meta property="og:image" content="<?php echo esc_url( $kart ); ?>">
 	<?php /* `secure_url` YALNIZCA https'te: http bir adresi güvenli diye bildirmek bazı botlara görseli tamamen reddettiriyor. */ ?>
@@ -93,7 +111,7 @@ $geri_sayim = $d['weddingDate']
 	<meta property="og:image:alt" content="<?php echo esc_attr( $isimler . ' düğün davetiyesi' ); ?>">
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="<?php echo esc_attr( $isimler . ' | Düğün Davetiyesi' ); ?>">
-	<meta name="twitter:description" content="<?php echo esc_attr( implode( ' · ', array_filter( array( $tarih, $d['city'] ) ) ) ); ?>">
+	<meta name="twitter:description" content="<?php echo esc_attr( implode( ' · ', array_filter( array( $tarih, $sahra_mekan ) ) ) ); ?>">
 	<meta name="twitter:image" content="<?php echo esc_url( $kart ); ?>">
 
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -588,10 +606,14 @@ $geri_sayim = $d['weddingDate']
 									 * Google Maps kurulu olmayabiliyor. Diğer cihazlarda
 									 * maps.apple.com bir web haritasına düşüyor, ölü bağlantı
 									 * olmuyor.
+									 *
+									 * Adresten üretilen sorgu salonu her zaman bulmuyor; komşu
+									 * bir işletmeye düştüğü görüldü. Salonun kendi Apple
+									 * Haritalar adresi girilmişse o kullanılıyor.
 									 */
 									?>
 									<a class="link-underline" target="_blank" rel="noopener"
-										href="<?php echo esc_url( 'https://maps.apple.com/?q=' . $konum_sorgu ); ?>">Apple Haritalar</a>
+										href="<?php echo esc_url( $d['appleMapUrl'] ? $d['appleMapUrl'] : 'https://maps.apple.com/?q=' . $konum_sorgu ); ?>">Apple Haritalar</a>
 									<a class="link-underline" target="_blank" rel="noopener"
 										href="<?php echo esc_url( 'https://yandex.com.tr/harita/?text=' . $konum_sorgu ); ?>">Yandex Harita</a>
 								</span>
@@ -637,6 +659,15 @@ $geri_sayim = $d['weddingDate']
 						<span class="cocuk-tik" aria-hidden="true">✓</span>
 						<?php if ( $d['childrenWelcome'] ) : ?>
 							<?php esc_html_e( 'Çocuklar da davetlidir — minik misafirlerimizi de bekliyoruz.', 'sahra-davetiye' ); ?>
+							<?php
+							/*
+							 * Asıl merak edilen, çocuğun orada ne yapacağı.
+							 * Salonun bilgisi olduğu için salondan geliyor.
+							 */
+							?>
+							<?php if ( $d['venueChildrenNote'] ) : ?>
+								<span class="cocuk-hizmet"><?php echo esc_html( $d['venueChildrenNote'] ); ?></span>
+							<?php endif; ?>
 						<?php else : ?>
 							<?php esc_html_e( 'Düğünümüz yalnızca yetişkinlere yöneliktir — minik misafirlerimize iyi uykular.', 'sahra-davetiye' ); ?>
 						<?php endif; ?>
