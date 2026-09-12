@@ -58,6 +58,17 @@ class Sahra_Invitation {
 		$data  = array_merge( Sahra_Fields::defaults(), $ham );
 
 		/*
+		 * Yazım onarımı OKUMADA da çalışıyor, yalnızca kayıtta değil.
+		 *
+		 * Onarım kayıt yoluna eklendiğinde daha önce girilmiş davetiyeler
+		 * ekranda "şaHin" olarak kalmıştı: çift o davetiyeyi bir daha
+		 * kaydetmedikçe hiçbir şey onları düzeltmiyordu. Salon alanları
+		 * onarılmaz — onları yönetici bilerek yazıyor; bu yüzden mekân
+		 * birleştirmesinden ÖNCE.
+		 */
+		$data = Sahra_Fields::yazim_onar( $data );
+
+		/*
 		 * Mekân, çiftin SEÇTİĞİ salondan gelir; alanları davetiyede
 		 * saklanmaz. Böylece salonun adresi değişince yayındaki bütün
 		 * davetiyeler aynı anda düzelir.

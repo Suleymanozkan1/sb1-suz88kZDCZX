@@ -18,7 +18,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 
 | Tur | Ne ölçer | Beklenen |
 |---|---|---|
-| `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 46/46 |
+| `wp-audit-alan.php` → `wp-fixture.php` → `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 46/46 |
 | `salon-alan.mjs` | her salon alanının davetiyede etkisi | 11/11 |
 | `audit-uyari.js` | 14 sayfada PHP uyarısı / JS hatası | 14 temiz |
 | `audit-wp-rest.mjs` | her REST ucu, her rol | 13/13 |
@@ -27,11 +27,11 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~860 metin, 0 sorun |
-| `wpon.js` | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~946 metin, 0 sorun |
+| `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
-| `ayirt.js` | 9 mühür ayrı mı | 9/9 |
+| `ayirt.js <etiket> <url> seal <mühürler>` | 9 mühür ayrı mı | 9/9 |
 | `yol-tara.js` | panelde dosya yolu görünüyor mu | çift: hiç |
 | `wp-hesap-sil3.php` | hesap silinince veri gidiyor mu | 7/7 |
 | `wp-omur.php`, `wp-tarih-dogru.php`, `wp-uyari-test.php` | davetiye ömrü | 11/11 |
@@ -48,9 +48,15 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 50/50 |
 | `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç | 25/25 |
 | `tarih-takvim.js` | dokununca takvim açılıyor; takvimsiz tarayıcıda alan kullanılabilir | 5/5 |
+| `yazim-okuma.php` | güncellemeden önce girilmiş davetiyenin yazımı ekranda düzeliyor mu | 24/24 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
+
+**Sıra:** ömür (`wp-omur.php`) ve hesap silme turları fixture'ı taslağa
+çeker ya da siler; onlardan sonra koşan tarayıcı turları 404 okuyup her
+şeyi "yok" der. Tarayıcı turları ÖNCE, ömür/silme turları EN SON — ya da
+aralarında `wp-fixture.php` yeniden koşulur.
 
 ### Denetim yaparken düşülen tuzaklar
 
@@ -102,6 +108,35 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - **Bir etiketi bağlantısız ölçmek.** `venueInstagramLabel` hesap
   adresi boşken ölçüldü; etiketleyecek bağlantı olmayınca görünmüyor ve
   "alan çalışmıyor" sanıldı. Alan, gerçek kullanım bağlamında ölçülür.
+- **Turun HEDEFİ veriden okunur, aracın içine yazılmaz.** Bu bir kere
+  daha, iki ayrı araçta oldu: `wp-audit-calistir.mjs` adresi sabit
+  tutuyordu, fixture yeniden kurulunca slug'a `-2` eklendi ve tur 46
+  alanın hepsini "sayfada karşılığı yok" saydı; `wp-secim.php` de sabit
+  slug'la sorguladığı için tarih değişip adres güncellenince HİÇBİR ŞEY
+  yazmadan sessizce döndü ve dokuz mührün dokuzu aynı ekran görüntüsünü
+  verince tur ürünü suçladı. Araç hedefi bulamazsa yüksek sesle düşmeli.
+- **Şemada olmayan alana yazmak sessiz bir hiçliktir.** `fark-olc.js`
+  `design` diye çağrıldı; şemadaki ad `invitationDesign`. Junk anahtar
+  yazıldı, sayfa hiç değişmedi ve beş tasarım "%0.00 aynı" çıktı.
+  `wp-secim.php` artık şema dışı alanı reddediyor.
+- **Eksik ölçüm de boş ölçüm sayılır.** `wpon.js` etiketsiz çağrılınca
+  25 birleşimden BİRİNİ ölçüp "== undefined: temiz" dedi ve tarama
+  tamamlanmış sanıldı; `ayirt.js` argümansız çağrılınca "0 seçenek, 0
+  ayrı görünüm" ile "hepsi farklı" dedi. Argüman alan tur, argümansız
+  çalışmayı reddeder.
+- **Seed betiği ürünle birlikte eskir.** `wp-audit-alan.php` şemadan
+  çıkarılmış 23 bölüm başlığını ve `conjunction`'ı ölçmeye devam
+  ediyordu. Alan listesi `Sahra_Fields::defaults()` ile süzülüyor
+  (`wp-audit-suz.php`).
+- **Kayıt yolundaki kural GEÇMİŞ veriyi düzeltmez.** Yazım onarımı
+  yalnızca `sanitize()`'a eklenmişti; güncellemeden önce girilmiş
+  davetiye çift onu bir daha kaydetmedikçe ekranda "şaHin" kalıyordu.
+  Böyle bir kural okuma yoluna da konur.
+- **Tur kendi bıraktığı duruma takılır.** `wp-uyari-test.php`'nin 4.
+  adımı "yayından kalktı" damgasını yazıyor ve temizlemiyordu; ikinci
+  koşuda 1–2. adımlar düğün tarihinden saydığını varsaydığı hâlde ürün
+  (doğru biçimde) o damgadan sayınca tur ürünü suçladı. Her tur iki kez
+  koşulabilmeli; bıraktığı damgayı kendisi siler.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.

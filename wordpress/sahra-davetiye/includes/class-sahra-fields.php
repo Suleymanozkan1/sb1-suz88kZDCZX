@@ -340,6 +340,57 @@ class Sahra_Fields {
 	 * Tamamı büyük sözcükler kasıtlı sayılır ve korunur — "TEB", "IBAN",
 	 * "DJ" gibi kısaltmalar düzeltilecek hata değil.
 	 */
+	/**
+	 * Her alanın yazımını kendi kuralıyla onarır.
+	 *
+	 * Hem kayıtta hem OKUMADA çağrılıyor. Yalnızca kayıtta çalışırken
+	 * güncellemeden önce girilmiş davetiyeler ekranda bozuk kalıyordu:
+	 * çift o davetiyeyi bir daha kaydetmedikçe "şaHin" öyle duruyor.
+	 * Tek liste, iki yol — hangisinden geçtiğinin önemi yok.
+	 *
+	 * @param array $veri Alanlar.
+	 * @return array Onarılmış alanlar.
+	 */
+	public static function yazim_onar( $veri ) {
+		// Ad alanlarında her sözcüğün başı büyük.
+		foreach ( array( 'brideName', 'groomName', 'brideSurname', 'groomSurname', 'brideFamilyText', 'groomFamilyText', 'giftAccountName' ) as $key ) {
+			if ( isset( $veri[ $key ] ) ) {
+				$veri[ $key ] = self::tr_title( $veri[ $key ] );
+			}
+		}
+
+		/*
+		 * Serbest metinde yalnızca BOZUK sözcük onarılıyor.
+		 *
+		 * Davetiyeyi müşteri dolduruyor ve caps lock yarı yolda kalıyor:
+		 * "şaHin", "YILMAz", "HAYATımızın". Sözcük başlarını büyütmek
+		 * cümleyi bozardı ("ve" → "Ve"), hepsini küçültmek özel adları
+		 * silerdi; tamamı büyük yazılanlar da kasıtlı kısaltma sayılıp
+		 * korunuyor.
+		 */
+		foreach ( array( 'invitationText', 'giftNote', 'giftBankName' ) as $key ) {
+			if ( isset( $veri[ $key ] ) ) {
+				$veri[ $key ] = self::tr_fix_case( $veri[ $key ] );
+			}
+		}
+
+		// Listelerde de aynı onarım: hikâye, program, menü ve hesap adları.
+		if ( isset( $veri['storyItems'] ) ) {
+			$veri['storyItems'] = self::liste_yazim( $veri['storyItems'], array( 'title', 'desc' ) );
+		}
+		if ( isset( $veri['programItems'] ) ) {
+			$veri['programItems'] = self::liste_yazim( $veri['programItems'], array( 'title', 'desc' ) );
+		}
+		if ( isset( $veri['socialLinks'] ) ) {
+			$veri['socialLinks'] = self::liste_yazim( $veri['socialLinks'], array( 'name' ) );
+		}
+		if ( isset( $veri['menuGroups'] ) ) {
+			$veri['menuGroups'] = self::menu_yazim( $veri['menuGroups'] );
+		}
+
+		return $veri;
+	}
+
 	public static function tr_fix_case( $metin ) {
 		$metin = (string) $metin;
 		if ( '' === trim( $metin ) ) {
@@ -641,32 +692,7 @@ class Sahra_Fields {
 			unset( $out[ $key ] );
 		}
 
-		/*
-		 * Adların yazımı BURADA düzeltiliyor, formda değil: REST ucundan
-		 * ya da elle gönderilen bir istekte de aynı kural işlesin.
-		 */
-		foreach ( array( 'brideName', 'groomName', 'brideSurname', 'groomSurname', 'brideFamilyText', 'groomFamilyText', 'giftAccountName' ) as $key ) {
-			$out[ $key ] = self::tr_title( $out[ $key ] );
-		}
-
-		/*
-		 * Serbest metinde yalnızca BOZUK sözcük onarılıyor.
-		 *
-		 * Davetiyeyi müşteri dolduruyor ve caps lock yarı yolda kalıyor:
-		 * "şaHin", "YILMAz", "HAYATımızın". Sözcük başlarını büyütmek
-		 * cümleyi bozardı ("ve" → "Ve"), hepsini küçültmek özel adları
-		 * silerdi; tamamı büyük yazılanlar da kasıtlı kısaltma sayılıp
-		 * korunuyor.
-		 */
-		foreach ( array( 'invitationText', 'giftNote', 'giftBankName' ) as $key ) {
-			$out[ $key ] = self::tr_fix_case( $out[ $key ] );
-		}
-
-		// Listelerde de aynı onarım: hikâye, program, menü ve hesap adları.
-		$out['storyItems']   = self::liste_yazim( $out['storyItems'], array( 'title', 'desc' ) );
-		$out['programItems'] = self::liste_yazim( $out['programItems'], array( 'title', 'desc' ) );
-		$out['socialLinks']  = self::liste_yazim( $out['socialLinks'], array( 'name' ) );
-		$out['menuGroups']   = self::menu_yazim( $out['menuGroups'] );
+		$out = self::yazim_onar( $out );
 
 		/*
 		 * Saat oturumdan TÜRETİLİR, ayrıca sorulmaz. Salon iki oturum
