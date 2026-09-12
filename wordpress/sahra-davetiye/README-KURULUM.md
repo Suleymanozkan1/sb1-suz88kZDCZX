@@ -21,9 +21,10 @@ kullanır.
    kopyalayın.
 2. **Eklentiler** ekranından **Sahra Davetiye**'yi etkinleştirin.
 
-Etkinleştirme sırasında üç tablo (`..._sahra_rsvps`, `..._sahra_wishes`,
-`..._sahra_photos`), **Davetiye Sahibi (Çift)** rolü ve `/davet/...`
-adresleri otomatik kurulur.
+Etkinleştirme sırasında dört tablo (`..._sahra_rsvps`, `..._sahra_wishes`,
+`..._sahra_photos`, `..._sahra_invitees`), **Davetiye Sahibi (Çift)** rolü
+ve `/davet/...` adresleri otomatik kurulur. Eklentiyi güncellerken de
+şema kendiliğinden yakalanır; elle bir şey yapmanız gerekmez.
 
 ## 2. Kalıcı bağlantıları açın
 
@@ -96,7 +97,7 @@ panelinin geri kalanını görmez; doğrudan kendi davetiye ekranına düşer.
    ediyor, arama motorlarına düşüyor ve çiftin adresi, telefonu, IBAN'ı
    süresiz açıkta kalıyor.
 2. **Yayından kalktıktan 30 gün sonra** her şey **kalıcı silinir** —
-   davetiye, misafir fotoğrafları, katılımlar, dilekler.
+   davetiye, misafir fotoğrafları, katılımlar, dilekler, davetli listesi.
 
 Neden iki kademe? Misafir fotoğrafları çiftin düğün albümü. Bir gün sonra
 silmek, albümünü indirmeyi unutan çiftin düğün fotoğraflarını yok etmek

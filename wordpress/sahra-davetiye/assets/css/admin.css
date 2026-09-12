@@ -325,6 +325,12 @@ body.sahra-ekran #wpwrap::before {
   color: var(--c-on-dark-faint);
 }
 
+/* Cevap vermemiş davetli: "katılamıyor"dan ayrı bir durum — biri karar
+   verdi, öteki hâlâ beklemede. `faint` ikisini aynı gösteriyordu. */
+.rozet.bekler {
+  color: var(--c-on-dark-soft);
+}
+
 /* ── Düğmeler ────────────────────────────────────────────────────────── */
 
 .sahra-panel .cta {

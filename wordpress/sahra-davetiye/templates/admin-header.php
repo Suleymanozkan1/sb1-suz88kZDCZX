@@ -17,8 +17,9 @@ $sahra_kullanici = wp_get_current_user();
 $sahra_yonetici  = Sahra_Roles::is_manager();
 
 $sahra_yollar = array(
-	'sahra-panel'    => __( 'Davetiyeler', 'sahra-davetiye' ),
-	'sahra-hesap'    => __( 'Katılım & Albüm', 'sahra-davetiye' ),
+	'sahra-panel'      => __( 'Davetiyeler', 'sahra-davetiye' ),
+	'sahra-davetliler' => __( 'Davetli Listesi', 'sahra-davetiye' ),
+	'sahra-hesap'      => __( 'Katılım & Albüm', 'sahra-davetiye' ),
 );
 
 if ( $sahra_yonetici ) {

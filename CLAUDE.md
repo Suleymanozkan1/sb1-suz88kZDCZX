@@ -20,20 +20,20 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 |---|---|---|
 | `wp-audit-alan.php` → `wp-fixture.php` → `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 42/42 |
 | `salon-alan.mjs` | her salon alanı + marka eşleşmesi | 14/14 |
-| `audit-uyari.js` | 14 sayfada PHP uyarısı / JS hatası | 14 temiz |
+| `audit-uyari.js` | 15 sayfada PHP uyarısı / JS hatası | 15 temiz |
 | `audit-wp-rest.mjs` | her REST ucu, her rol | 13/13 |
 | `wp-guvenlik.mjs` | XSS, yetki, dizin aşımı, yükleme, nonce | 18/18 |
 | `giris-sinir.mjs` | wp-login devralınmıyor, /davet/giris çalışıyor | 12/12 |
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~1520 metin, 0 sorun |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~1750 metin, 0 sorun |
 | `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
 | `ayirt.js <etiket> <url> seal <mühürler>` | 9 mühür ayrı mı | 9/9 |
 | `yol-tara.js` | panelde dosya yolu görünüyor mu | çift: hiç |
-| `wp-hesap-sil3.php` | hesap silinince veri gidiyor mu | 7/7 |
+| `wp-hesap-sil3.php` | hesap silinince veri gidiyor mu (davetli listesi dahil) | 8/8 |
 | `wp-omur.php`, `wp-tarih-dogru.php`, `wp-uyari-test.php` | davetiye ömrü | 11/11 |
 | `kart-silme.php`, `kart-omur.php` | silinen davetiyenin kartı gidiyor mu | 7/7 |
 | `slug-guncelle.php`, `slug-isimsiz.php` | tarih/isim sonradan girilince adres | 14/14 |
@@ -45,13 +45,15 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kurulum-ekran.js` | bulgu ekranda çiziliyor, çift görmüyor | 4/4 |
 | `musteri-istekleri.php` | çocuk varsayılanı, salon alanları, paylaşım açıklaması, tarih koruması | 16/16 |
 | `musteri-ekran.js` | tarih yalnızca takvimden, adımlar veri kaybetmiyor, çıkış uyarısı | 10/10 |
-| `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 50/50 |
+| `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 58/58 |
 | `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç | 25/25 |
 | `tarih-takvim.js` | dokununca takvim açılıyor; takvimsiz tarayıcıda alan kullanılabilir | 5/5 |
 | `yazim-okuma.php` | güncellemeden önce girilmiş davetiyenin yazımı ekranda düzeliyor mu | 24/24 |
-| `istek10.php` | kalkan alanlar, hediye Yok/Var, otomatik program, marka, katılım raporu | 62/62 |
+| `istek10.php` | kalkan alanlar, hediye Yok/Var, otomatik program, marka, katılım raporu (listesiz kip) | 63/63 |
 | `yukari-qa.js` | yukarı çık butonu (masaüstü + mobil), konumda seçim alanı yok | 18/18 |
 | `form-qa.js` | panelin GERÇEK form POST'u: katılım anahtarı yöneticide, çift kurcalayamıyor, çelişen iki denetim yok | 18/18 |
+| `davetli.php` | davetli listesi: eşleştirme (ad/telefon), sayılar, rapor, gizlilik, kademeli silme | 43/43 |
+| `davetli-ekran.js` | davetli ekranı: form kaydediyor, durum tablosu modelle uyuşuyor, başkasının listesi sızmıyor | 17/17 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -167,6 +169,20 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   eksik ölçüyordu; `istek10.php` de "ilk postayı" okuyup başka bir
   davetiyenin raporunu kendi raporu sanıyordu. Tur önkoşulunu kurar ve
   ölçtüğü şeyi kimliğiyle arar.
+- **Yeni ekran, turların sayfa listesine de eklenir.** Davetli listesi
+  sayfası beş turun sabit sayfa listesinde yoktu: kontrast, uyarı, mobil,
+  yol ve tema turları onu hiç ölçmedi. Sayfa eklendiğinde liste de
+  güncellenir — yoksa yeni ekran denetimin dışında kalıyor.
+- **Yeni ekran, yetki beyaz listesine de eklenir.** `COUPLE_PAGES`'e
+  yazılmadığı için çift yeni sayfaya girdiğinde sessizce davetiye
+  listesine düşüyordu; sayfa 200 dönüyor, içerik başka. "Kod 200" sayfanın
+  açıldığını göstermiyor, içerikten doğrulanmalı.
+- **Tur, GİRİŞ YAPTIĞI hesabı hedeflemeli.** `davetli-ekran.js` önkoşulu
+  "ilk sahra_cift kullanıcısı" için kuruyor, oturumu 'cift' ile açıyordu;
+  ikisi farklı çıkınca davetiye o çifte ait olmadı, ekran başka bir
+  davetiyeye düştü ve tur kendi kurduğu veriyi hiç görmedi. Üstelik o
+  bozuk koşu listeyi YANLIŞ davetiyeye yazdı ve arkasından koşan
+  `istek10.php`'yi düşürdü.
 - **Ürün sözleşmesi değişince TURUN ÖLÇÜTÜ de değişir.** Salon adı ve
   Instagram hesabı markadan türetilmeye başlayınca `salon-alan.mjs` ve
   `wp-audit-calistir.mjs` o alanlara damga basmaya devam etti: damga
@@ -194,6 +210,9 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   mümkün değil.
 - Günün programı düğün tipinden (gündüz/akşam) ÜRETİLİR, elle
   girilmez. Tek soru nikah: yoksa o satır hiç çizilmez.
+- Davetli listesi ÇİFTİN özel verisi: davetiyede hiç görünmez, başka
+  çift göremez. Katılımlarla telefon (öncelik) ve ada göre eşleşir;
+  eşleşmeyen bildirim "listede olmayan" olarak ayrıca gösterilir.
 - Katılım formu YÖNETİCİNİN anahtarı (`Sahra_Fields::MANAGER_KEYS`):
   salona kaç kişi geleceğini işletme sayıyor. Çift göremez, gönderse de
   yok sayılır. Kapalıyken kahramandaki "Katılım Durumunu Belirt"

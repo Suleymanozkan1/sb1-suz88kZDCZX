@@ -109,6 +109,13 @@ class Sahra_Report {
 	public static function govde( $post_id, $gun ) {
 		$d    = Sahra_Invitation::get( $post_id );
 		$ozet = self::ozet( $post_id );
+		/*
+		 * Davetli listesi varsa rapor ONUN üzerinden yazılıyor: kimin
+		 * cevap vermediği ancak kimin davet edildiği biliniyorsa
+		 * söylenebilir. Liste girilmemişse eski, dar özete düşülüyor ve
+		 * neyin bilinmediği açıkça yazılıyor.
+		 */
+		$liste  = Sahra_Guests::count( $post_id ) > 0 ? Sahra_Guests::reconcile( $post_id ) : null;
 
 		$isimler = trim( $d['brideName'] . ' ' . Sahra_Fields::CONJUNCTION . ' ' . $d['groomName'] );
 		$satir   = array();
@@ -124,40 +131,86 @@ class Sahra_Report {
 		$satir[] = sprintf( __( 'Salon: %s', 'sahra-davetiye' ), $d['venueName'] );
 		$satir[] = '';
 		$satir[] = '── ' . __( 'ÖZET', 'sahra-davetiye' ) . ' ──';
-		$satir[] = sprintf( __( 'Cevap veren davetli: %d', 'sahra-davetiye' ), $ozet['cevap'] );
-		$satir[] = sprintf( __( 'Katılacak davetli: %d', 'sahra-davetiye' ), count( $ozet['katilanlar'] ) );
-		$satir[] = sprintf( __( 'Katılacak toplam kişi: %d', 'sahra-davetiye' ), $ozet['kisi'] );
-		$satir[] = sprintf( __( 'Katılmayacak davetli: %d', 'sahra-davetiye' ), count( $ozet['katilmayanlar'] ) );
-		$satir[] = '';
-
-		$satir[] = '── ' . __( 'KATILACAKLAR', 'sahra-davetiye' ) . ' ──';
-		if ( $ozet['katilanlar'] ) {
-			foreach ( $ozet['katilanlar'] as $kisi ) {
-				$satir[] = sprintf( '%s — %d kişi', $kisi['ad'], $kisi['kisi'] );
-			}
+		if ( $liste ) {
+			$s = $liste['sayilar'];
+			$satir[] = sprintf( __( 'Toplam davetli: %d', 'sahra-davetiye' ), $s['davetli'] );
+			$satir[] = sprintf( __( 'Davet edilen kişi: %d', 'sahra-davetiye' ), $s['davet_kisi'] );
+			$satir[] = sprintf( __( 'Katılacak davetli: %d', 'sahra-davetiye' ), $s['katiliyor'] );
+			$satir[] = sprintf( __( 'Katılmayacak davetli: %d', 'sahra-davetiye' ), $s['katilmiyor'] );
+			$satir[] = sprintf( __( 'Henüz cevap vermeyen: %d', 'sahra-davetiye' ), $s['cevapsiz'] );
+			$satir[] = sprintf( __( 'Katılacak toplam kişi: %d', 'sahra-davetiye' ), $s['gelen_kisi'] );
 		} else {
-			$satir[] = __( 'Henüz yok.', 'sahra-davetiye' );
+			$satir[] = sprintf( __( 'Cevap veren davetli: %d', 'sahra-davetiye' ), $ozet['cevap'] );
+			$satir[] = sprintf( __( 'Katılacak davetli: %d', 'sahra-davetiye' ), count( $ozet['katilanlar'] ) );
+			$satir[] = sprintf( __( 'Katılacak toplam kişi: %d', 'sahra-davetiye' ), $ozet['kisi'] );
+			$satir[] = sprintf( __( 'Katılmayacak davetli: %d', 'sahra-davetiye' ), count( $ozet['katilmayanlar'] ) );
 		}
 		$satir[] = '';
 
-		$satir[] = '── ' . __( 'KATILMAYACAKLAR', 'sahra-davetiye' ) . ' ──';
-		if ( $ozet['katilmayanlar'] ) {
-			foreach ( $ozet['katilmayanlar'] as $kisi ) {
-				$satir[] = $kisi['ad'];
+		if ( $liste ) {
+			$bolumler = array(
+				'katiliyor'  => __( 'KATILACAKLAR', 'sahra-davetiye' ),
+				'katilmiyor' => __( 'KATILMAYACAKLAR', 'sahra-davetiye' ),
+				'cevapsiz'   => __( 'HENÜZ CEVAP VERMEYENLER', 'sahra-davetiye' ),
+			);
+			foreach ( $bolumler as $durum => $baslik ) {
+				$satir[] = '── ' . $baslik . ' ──';
+				$bos     = true;
+				foreach ( $liste['davetliler'] as $davetli ) {
+					if ( $durum !== $davetli['durum'] ) {
+						continue;
+					}
+					$bos = false;
+					if ( 'katiliyor' === $durum ) {
+						$satir[] = sprintf( '%s — %d kişi', $davetli['ad'], $davetli['gelen_kisi'] );
+					} elseif ( 'cevapsiz' === $durum && $davetli['telefon'] ) {
+						// Aranacak kişi: numarası elinin altında olsun.
+						$satir[] = sprintf( '%s — %s', $davetli['ad'], $davetli['telefon'] );
+					} else {
+						$satir[] = $davetli['ad'];
+					}
+				}
+				if ( $bos ) {
+					$satir[] = __( 'Yok.', 'sahra-davetiye' );
+				}
+				$satir[] = '';
+			}
+
+			if ( $liste['listede_olmayan'] ) {
+				$satir[] = '── ' . __( 'LİSTEDE OLMAYANLAR', 'sahra-davetiye' ) . ' ──';
+				$satir[] = __( 'Katılım bildirdi ama davetli listesinde bulunamadı (adı farklı yazılmış olabilir):', 'sahra-davetiye' );
+				foreach ( $liste['listede_olmayan'] as $davetli ) {
+					$satir[] = 'katiliyor' === $davetli['durum']
+						? sprintf( '%s — %d kişi', $davetli['ad'], $davetli['gelen_kisi'] )
+						: sprintf( '%s — %s', $davetli['ad'], __( 'katılamıyor', 'sahra-davetiye' ) );
+				}
+				$satir[] = '';
 			}
 		} else {
-			$satir[] = __( 'Henüz yok.', 'sahra-davetiye' );
-		}
-		$satir[] = '';
+			$satir[] = '── ' . __( 'KATILACAKLAR', 'sahra-davetiye' ) . ' ──';
+			if ( $ozet['katilanlar'] ) {
+				foreach ( $ozet['katilanlar'] as $kisi ) {
+					$satir[] = sprintf( '%s — %d kişi', $kisi['ad'], $kisi['kisi'] );
+				}
+			} else {
+				$satir[] = __( 'Henüz yok.', 'sahra-davetiye' );
+			}
+			$satir[] = '';
 
-		/*
-		 * "Henüz cevap vermeyenler" için önceden girilmiş bir davetli
-		 * listesi gerekiyor; eklentide katılımlar misafirin kendi
-		 * bildirimiyle oluşuyor, kimin davet edildiği kayıtlı değil.
-		 * Sayı uydurmak yerine neyin bilinmediği yazılıyor.
-		 */
-		$satir[] = __( 'Not: Yalnızca davetiyeden katılım bildiren misafirler listelenir. Davetli listesi sisteme girilmediği için "henüz cevap vermeyenler" hesaplanamıyor.', 'sahra-davetiye' );
-		$satir[] = '';
+			$satir[] = '── ' . __( 'KATILMAYACAKLAR', 'sahra-davetiye' ) . ' ──';
+			if ( $ozet['katilmayanlar'] ) {
+				foreach ( $ozet['katilmayanlar'] as $kisi ) {
+					$satir[] = $kisi['ad'];
+				}
+			} else {
+				$satir[] = __( 'Henüz yok.', 'sahra-davetiye' );
+			}
+			$satir[] = '';
+
+			/* Liste girilmemiş: eksik olanın ne olduğu ve nasıl doldurulacağı yazılıyor. */
+			$satir[] = __( 'Not: Davetli listesi girilmediği için "henüz cevap vermeyenler" ve "toplam davetli" hesaplanamıyor. Panelden Davetli Listesi sayfasına listenizi yazarsanız bu rapor onları da içerir.', 'sahra-davetiye' );
+			$satir[] = '';
+		}
 		$satir[] = sprintf( __( 'Davetiye: %s', 'sahra-davetiye' ), home_url( '/davet/' . $d['slug'] ) );
 
 		return implode( "\n", $satir );

@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 class Sahra_Tables {
 
-	const DB_VERSION = '1.0.0';
+	const DB_VERSION = '1.1.0';
 
 	public static function rsvps() {
 		global $wpdb;
@@ -31,6 +31,19 @@ class Sahra_Tables {
 		return $wpdb->prefix . 'sahra_photos';
 	}
 
+	/**
+	 * Davetli listesi — çiftin KİMİ davet ettiği.
+	 *
+	 * Katılımlar misafirin kendi bildirimiyle oluşuyor; kimin davet
+	 * edildiği kayıtlı olmadığı için "henüz cevap vermeyenler" ve
+	 * "toplam davetli" hesaplanamıyordu. Bu liste o boşluğu dolduruyor
+	 * ve MİSAFİRE ASLA GÖSTERİLMİYOR — yalnızca panelde ve raporda.
+	 */
+	public static function invitees() {
+		global $wpdb;
+		return $wpdb->prefix . 'sahra_invitees';
+	}
+
 	/** dbDelta ile kurulum; sürüm değişince yeniden çalışır. */
 	public static function install() {
 		global $wpdb;
@@ -38,9 +51,10 @@ class Sahra_Tables {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		$collate = $wpdb->get_charset_collate();
 
-		$rsvps  = self::rsvps();
-		$wishes = self::wishes();
-		$photos = self::photos();
+		$rsvps    = self::rsvps();
+		$wishes   = self::wishes();
+		$photos   = self::photos();
+		$invitees = self::invitees();
 
 		dbDelta(
 			"CREATE TABLE {$rsvps} (
@@ -88,6 +102,22 @@ class Sahra_Tables {
 			) {$collate};"
 		);
 
+		dbDelta(
+			"CREATE TABLE {$invitees} (
+				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+				invitation_id bigint(20) unsigned NOT NULL,
+				name varchar(191) NOT NULL DEFAULT '',
+				phone varchar(64) NOT NULL DEFAULT '',
+				party_size smallint(5) unsigned NOT NULL DEFAULT 1,
+				note varchar(255) NOT NULL DEFAULT '',
+				match_key varchar(191) NOT NULL DEFAULT '',
+				created_at datetime NOT NULL,
+				PRIMARY KEY  (id),
+				KEY invitation_id (invitation_id),
+				KEY match_key (match_key)
+			) {$collate};"
+		);
+
 		update_option( 'sahra_db_version', self::DB_VERSION );
 	}
 
@@ -122,5 +152,6 @@ class Sahra_Tables {
 		$wpdb->delete( self::photos(), array( 'invitation_id' => $invitation_id ), array( '%d' ) ); // phpcs:ignore
 		$wpdb->delete( self::rsvps(), array( 'invitation_id' => $invitation_id ), array( '%d' ) ); // phpcs:ignore
 		$wpdb->delete( self::wishes(), array( 'invitation_id' => $invitation_id ), array( '%d' ) ); // phpcs:ignore
+		$wpdb->delete( self::invitees(), array( 'invitation_id' => $invitation_id ), array( '%d' ) ); // phpcs:ignore
 	}
 }
