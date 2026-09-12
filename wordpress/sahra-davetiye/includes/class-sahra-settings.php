@@ -18,9 +18,47 @@ class Sahra_Settings {
 	const FALLBACK_NOTICE  = 'sahra_storage_fallback';
 
 	/** Salonun boş iskeleti. */
+	/**
+	 * İşletmenin markaları.
+	 *
+	 * Salonun GÖRÜNEN adı ve Instagram hesabı buradan geliyor, elle
+	 * yazılmıyor: iki hesap ve iki ad vardı, yönetici bir salona öteki
+	 * markanın hesabını bağlayabiliyordu ve misafir yanlış hesabı
+	 * etiketliyordu. Artık tek bir seçim ikisini birden belirliyor.
+	 */
+	public static function brands() {
+		return array(
+			'sahra' => array(
+				'label'               => __( 'Sahra', 'sahra-davetiye' ),
+				'venueName'           => 'Sahra Davet Salonları',
+				'venueInstagram'      => 'https://instagram.com/sahradavet',
+				'venueInstagramLabel' => '@sahradavet',
+			),
+			'grand' => array(
+				'label'               => __( 'Grand', 'sahra-davetiye' ),
+				'venueName'           => 'Grand Sahra Davet',
+				'venueInstagram'      => 'https://instagram.com/grandsahradavet',
+				'venueInstagramLabel' => '@grandsahradavet',
+			),
+		);
+	}
+
+	/** Geçerli marka anahtarı; tanınmayan değer 'sahra'ya düşer. */
+	public static function brand_key( $anahtar ) {
+		$anahtar = sanitize_key( (string) $anahtar );
+		return array_key_exists( $anahtar, self::brands() ) ? $anahtar : 'sahra';
+	}
+
 	public static function empty_venue() {
 		return array(
 			'id'        => '',
+			/*
+			 * Marka: adı ve Instagram hesabını bu belirler (bkz. brands).
+			 * Varsayılanı BOŞ — 'sahra' yazılınca markasız eski kayıtlar
+			 * wp_parse_args ile doluyor ve adından çıkarım hiç
+			 * çalışmıyordu: Grand salonları Sahra sayılıyordu.
+			 */
+			'brand'     => '',
 			'venueName' => '',
 			'address'   => '',
 			'district'  => '',
@@ -87,10 +125,40 @@ class Sahra_Settings {
 		$out = array();
 		foreach ( (array) $ham as $salon ) {
 			if ( is_array( $salon ) ) {
-				$out[] = wp_parse_args( $salon, self::empty_venue() );
+				$out[] = self::markadan_tamamla( wp_parse_args( $salon, self::empty_venue() ) );
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * Salonun adını ve Instagram hesabını markasından yazar.
+	 *
+	 * Okumada uygulanıyor, yalnızca kayıtta değil: marka alanı eklenmeden
+	 * önce tanımlanmış salonlar da doğru hesabı göstersin. Markası
+	 * yazılmamış eski kayıtta marka ADINDAN çıkarılıyor.
+	 *
+	 * @param array $salon Ham salon kaydı.
+	 * @return array Adı ve hesabı markasıyla tutarlı kayıt.
+	 */
+	private static function markadan_tamamla( $salon ) {
+		if ( empty( $salon['brand'] ) ) {
+			$ad               = self::tr_kucuk( isset( $salon['venueName'] ) ? $salon['venueName'] : '' );
+			$salon['brand']   = ( false !== strpos( $ad, 'grand' ) ) ? 'grand' : 'sahra';
+		}
+		$marka = self::brands()[ self::brand_key( $salon['brand'] ) ];
+
+		$salon['brand']               = self::brand_key( $salon['brand'] );
+		$salon['venueName']           = $marka['venueName'];
+		$salon['venueInstagram']      = $marka['venueInstagram'];
+		$salon['venueInstagramLabel'] = $marka['venueInstagramLabel'];
+
+		return $salon;
+	}
+
+	/** Marka çıkarımı için yeter: yalnızca ASCII'ye bakılıyor. */
+	private static function tr_kucuk( $metin ) {
+		return strtolower( (string) $metin );
 	}
 
 	/** Kimliğe göre salon; yoksa null. */
@@ -131,7 +199,9 @@ class Sahra_Settings {
 		$id    = isset( $input['id'] ) ? sanitize_key( (string) $input['id'] ) : '';
 
 		$temiz = self::empty_venue();
-		foreach ( array( 'venueName', 'address', 'district', 'city' ) as $anahtar ) {
+		// Marka, adı ve Instagram hesabını birlikte belirliyor.
+		$temiz['brand'] = self::brand_key( isset( $input['brand'] ) ? $input['brand'] : '' );
+		foreach ( array( 'address', 'district', 'city' ) as $anahtar ) {
 			$temiz[ $anahtar ] = isset( $input[ $anahtar ] ) ? sanitize_text_field( (string) $input[ $anahtar ] ) : '';
 		}
 		// Çok satırlı olabilir; satır sonları korunsun diye textarea temizliği.
@@ -139,8 +209,6 @@ class Sahra_Settings {
 			? sanitize_textarea_field( (string) $input['venueDirections'] )
 			: '';
 
-		$temiz['venueInstagram']      = isset( $input['venueInstagram'] ) ? Sahra_Fields::safe_url( $input['venueInstagram'] ) : '';
-		$temiz['venueInstagramLabel'] = isset( $input['venueInstagramLabel'] ) ? sanitize_text_field( (string) $input['venueInstagramLabel'] ) : '';
 		$temiz['mapUrl']      = isset( $input['mapUrl'] ) ? Sahra_Fields::safe_url( $input['mapUrl'] ) : '';
 		$temiz['appleMapUrl'] = isset( $input['appleMapUrl'] ) ? Sahra_Fields::safe_url( $input['appleMapUrl'] ) : '';
 
@@ -150,8 +218,11 @@ class Sahra_Settings {
 
 		$temiz['features'] = self::satirlar( isset( $input['features'] ) ? $input['features'] : '' );
 
-		if ( '' === $temiz['venueName'] ) {
-			return new WP_Error( 'sahra_salon_adi', __( 'Salon adı zorunlu.', 'sahra-davetiye' ) );
+		/* Ad markadan geliyor; yönetici yanlış eşleştiremiyor. */
+		$temiz = self::markadan_tamamla( $temiz );
+
+		if ( '' === $temiz['address'] ) {
+			return new WP_Error( 'sahra_salon_adres', __( 'Salon adresi zorunlu.', 'sahra-davetiye' ) );
 		}
 
 		$yer = -1;

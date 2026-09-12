@@ -309,13 +309,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 						'ipucu' => __( 'Boş bırakılırsa adların baş harfleri ve bağlaç kullanılır. En fazla 8 karakter — mühre sığması gerekiyor.', 'sahra-davetiye' ),
 					)
 				);
-
-				Sahra_Form::gorsel(
-					__( 'Mühür Görseli (İsteğe Bağlı)', 'sahra-davetiye' ),
-					'sahra[sealImage]',
-					$d['sealImage'],
-					__( 'Yüklerseniz balmumu mühür yerine bu görsel kullanılır.', 'sahra-davetiye' )
-				);
 				?>
 			</div>
 
@@ -345,8 +338,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					</div>
 					<p class="ipucu"><?php esc_html_e( 'Renkler seçtiğiniz temadan gelir; burada yalnızca kâğıt ve çerçeve tasarımı görünür.', 'sahra-davetiye' ); ?></p>
 				</div>
-
-				<?php Sahra_Form::gorsel( __( 'Mektup Fotoğrafı', 'sahra-davetiye' ), 'sahra[letterImage]', $d['letterImage'] ); ?>
 			</div>
 
 			<?php /* ── 6 Fotoğraflar ──────────────────────────────────── */ ?>
@@ -425,10 +416,30 @@ include SAHRA_DIR . 'templates/admin-header.php';
 
 			<?php /* ── 9 Hediye & Dilekler ────────────────────────────── */ ?>
 			<div class="sahra-adim" data-adim="8" hidden>
-				<label class="anahtar">
-					<input type="checkbox" name="sahra[giftEnabled]" value="1" <?php checked( $d['giftEnabled'] ); ?>>
-					<span><?php esc_html_e( 'Hediye Bölümünü Göster', 'sahra-davetiye' ); ?></span>
-				</label>
+				<?php
+				/*
+				 * Yok/Var, onay kutusu değil.
+				 *
+				 * Kutu boşken "seçim yapılmadı" ile "hediye yok" aynı
+				 * görünüyordu; çift hangisinde olduğunu bilmiyordu. Şimdi
+				 * iki seçenekten biri hep işaretli: "Yok" seçiliyse
+				 * davetiyede hediye bölümü hiç çizilmiyor.
+				 */
+				?>
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Hediye', 'sahra-davetiye' ); ?></span>
+					<div class="secenekler">
+						<label class="secenek">
+							<input type="radio" name="sahra[giftEnabled]" value="0" <?php checked( ! $d['giftEnabled'] ); ?>>
+							<span class="ad"><?php esc_html_e( 'Yok', 'sahra-davetiye' ); ?></span>
+						</label>
+						<label class="secenek">
+							<input type="radio" name="sahra[giftEnabled]" value="1" <?php checked( $d['giftEnabled'] ); ?>>
+							<span class="ad"><?php esc_html_e( 'Var', 'sahra-davetiye' ); ?></span>
+						</label>
+					</div>
+					<p class="ipucu"><?php esc_html_e( '"Var" seçilirse hediye bölümü davetiyede kendiliğinden görünür.', 'sahra-davetiye' ); ?></p>
+				</div>
 
 				<?php
 				Sahra_Form::alan( array( 'label' => __( 'Hediye Notu', 'sahra-davetiye' ), 'name' => 'sahra[giftNote]', 'value' => $d['giftNote'], 'type' => 'textarea', 'rows' => 2, 'ph' => 'Varlığınız en büyük hediye...' ) );
@@ -440,7 +451,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					Sahra_Form::alan( array( 'label' => __( 'Banka', 'sahra-davetiye' ), 'name' => 'sahra[giftBankName]', 'value' => $d['giftBankName'] ) );
 					?>
 				</div>
-				<?php Sahra_Form::alan( array( 'label' => __( 'Hediye Listesi Bağlantısı', 'sahra-davetiye' ), 'name' => 'sahra[giftRegistryUrl]', 'value' => $d['giftRegistryUrl'], 'type' => 'url' ) ); ?>
 
 				<label class="anahtar">
 					<input type="checkbox" name="sahra[wishesEnabled]" value="1" <?php checked( $d['wishesEnabled'] ); ?>>
@@ -554,16 +564,45 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			<?php /* ── 12 Program ─────────────────────────────────────── */ ?>
 			<div class="sahra-adim" data-adim="11" hidden>
 
+				<?php
+				/*
+				 * Program ELLE girilmiyor.
+				 *
+				 * Saatler salonun işleyişi; çift yazdığında davetiyede
+				 * duyurulan saatle kapının açıldığı saat birbirinden
+				 * ayrılıyordu. Akış, seçilen oturumdan üretiliyor; çifte
+				 * kalan tek soru nikah.
+				 */
+				?>
 				<div class="alan">
-					<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
-						<span class="field-label" style="margin:0"><?php esc_html_e( 'Program Maddeleri', 'sahra-davetiye' ); ?></span>
-						<button type="button" class="eylem-link sahra-varsayilan" data-hedef="f-program"
-							data-metin="<?php echo esc_attr( Sahra_Form::satirlar( Sahra_Fields::default_program(), array( 'time', 'title', 'desc' ) ) ); ?>">
-							<?php esc_html_e( 'Varsayılanları Yükle', 'sahra-davetiye' ); ?>
-						</button>
+					<span class="field-label"><?php esc_html_e( 'Nikah', 'sahra-davetiye' ); ?></span>
+					<div class="secenekler">
+						<label class="secenek">
+							<input type="radio" name="sahra[nikahVar]" value="1" <?php checked( $d['nikahVar'] ); ?>>
+							<span class="ad"><?php esc_html_e( 'Var', 'sahra-davetiye' ); ?></span>
+						</label>
+						<label class="secenek">
+							<input type="radio" name="sahra[nikahVar]" value="0" <?php checked( ! $d['nikahVar'] ); ?>>
+							<span class="ad"><?php esc_html_e( 'Yok', 'sahra-davetiye' ); ?></span>
+						</label>
 					</div>
-					<textarea id="f-program" name="sahra[programText]" rows="7" placeholder="15:00 | Kapı Açılışı | Konukların karşılanması"><?php echo esc_textarea( $metinler['program'] ); ?></textarea>
-					<p class="ipucu"><?php esc_html_e( 'Her satır bir madde: saat | başlık | açıklama', 'sahra-davetiye' ); ?></p>
+					<p class="ipucu"><?php esc_html_e( 'Nikah yoksa o saat programda hiç görünmez.', 'sahra-davetiye' ); ?></p>
+				</div>
+
+				<div class="alan">
+					<span class="field-label"><?php esc_html_e( 'Günün Programı', 'sahra-davetiye' ); ?></span>
+					<div class="program-onizleme">
+						<?php foreach ( Sahra_Fields::program_for( $d['session'], $d['nikahVar'] ) as $sahra_satir ) : ?>
+							<p>
+								<strong><?php echo esc_html( $sahra_satir['time'] ); ?></strong>
+								<?php echo esc_html( $sahra_satir['title'] ); ?>
+								<?php if ( $sahra_satir['desc'] ) : ?>
+									<span>— <?php echo esc_html( $sahra_satir['desc'] ); ?></span>
+								<?php endif; ?>
+							</p>
+						<?php endforeach; ?>
+					</div>
+					<p class="ipucu"><?php esc_html_e( 'Saatler seçtiğiniz düğün tipinden gelir. Değiştirmek için düğün tipini değiştirin.', 'sahra-davetiye' ); ?></p>
 				</div>
 			</div>
 

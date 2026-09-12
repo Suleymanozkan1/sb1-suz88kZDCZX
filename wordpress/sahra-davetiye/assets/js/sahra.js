@@ -513,6 +513,38 @@
 		}
 	}
 
+	/*
+	 * Yukarı çık.
+	 *
+	 * Bir ekran boyundan fazla kaydırılınca görünüyor: sayfanın başında
+	 * duran bir düğme, kapattığı içerik kadar bile işe yaramıyor.
+	 */
+	function yukariCik() {
+		var dugme = document.querySelector( '.yukari-cik' );
+		if ( ! dugme ) {
+			return;
+		}
+
+		var esik = Math.max( 400, Math.round( window.innerHeight * 0.8 ) );
+
+		function tazele() {
+			dugme.classList.toggle( 'gorunur', window.scrollY > esik );
+		}
+
+		window.addEventListener( 'scroll', tazele, { passive: true } );
+		window.addEventListener( 'resize', function () {
+			esik = Math.max( 400, Math.round( window.innerHeight * 0.8 ) );
+			tazele();
+		} );
+		tazele();
+
+		dugme.addEventListener( 'click', function () {
+			// Hareketi azaltma isteğine saygı: o durumda anında çıkıyor.
+			var kisit = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+			window.scrollTo( { top: 0, behavior: kisit ? 'auto' : 'smooth' } );
+		} );
+	}
+
 	belirmeyiKur();
 	ilerlemeCubugu();
 	geriSayim();
@@ -521,4 +553,5 @@
 	katilimFormu();
 	dilekFormu();
 	paylas();
+	yukariCik();
 } )();

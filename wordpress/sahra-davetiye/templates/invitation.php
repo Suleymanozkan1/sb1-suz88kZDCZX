@@ -198,11 +198,7 @@ $geri_sayim = $d['weddingDate']
 			style="--seal-1:<?php echo esc_attr( $muhur['grad1'] ); ?>;--seal-2:<?php echo esc_attr( $muhur['grad2'] ); ?>;--seal-3:<?php echo esc_attr( $muhur['grad3'] ); ?>;--seal-glow:<?php echo esc_attr( $muhur['glow'] ); ?>">
 			<span class="seal-glow" aria-hidden="true"></span>
 
-			<?php if ( $d['sealImage'] ) : ?>
-				<?php /* Çift kendi mühür görselini yüklediyse balmumu yerine o kullanılır. */ ?>
-				<img class="seal-gorsel" src="<?php echo esc_url( $d['sealImage'] ); ?>" alt="<?php esc_attr_e( 'Mühür', 'sahra-davetiye' ); ?>">
-			<?php else : ?>
-				<?php
+			<?php
 				/*
 				 * Mühür SVG olarak çiziliyor.
 				 *
@@ -262,7 +258,6 @@ $geri_sayim = $d['weddingDate']
 						<path d="M38 32 C46 26 64 26 72 32" fill="none" stroke="<?php echo esc_attr( $muhur['grad1'] ); ?>" stroke-width="1" opacity="0.6"/>
 					<?php endif; ?>
 				</svg>
-			<?php endif; ?>
 		</button>
 
 		<p class="t-lead" style="font-style:italic;color:var(--c-on-dark-faint)">Mührü kırarak perdeyi açın</p>
@@ -356,12 +351,6 @@ $geri_sayim = $d['weddingDate']
 
 					<?php if ( in_array( $d['invitationDesign'], array( 'ottoman', 'classic', 'vellum' ), true ) ) : ?>
 						<span class="frame" aria-hidden="true"></span>
-					<?php endif; ?>
-
-					<?php if ( $d['letterImage'] ) : ?>
-						<div class="letter-photo">
-							<img src="<?php echo esc_url( $d['letterImage'] ); ?>" alt="<?php echo esc_attr( implode( ' ' . $conj . ' ', $tam_adlar ) ); ?>">
-						</div>
 					<?php endif; ?>
 
 					<p class="letter-monogram"><?php echo esc_html( $monogram ); ?></p>
@@ -465,7 +454,7 @@ $geri_sayim = $d['weddingDate']
 		<?php endif; ?>
 
 		<?php /* ───────────────────────────────────────────────── program */ ?>
-		<?php if ( $d['showProgram'] && ! empty( $d['programItems'] ) ) : ?>
+		<?php if ( $d['showProgram'] && ! empty( $d['programItems'] ) ) : /* akış üretiliyor; boş kalmıyor */ ?>
 			<section id="program" class="section-gap">
 				<div class="wrap">
 					<div class="section-head reveal">
@@ -479,7 +468,9 @@ $geri_sayim = $d['weddingDate']
 							<div class="program-row reveal">
 								<span class="lab numerals"><?php echo esc_html( isset( $oge['time'] ) ? $oge['time'] : '' ); ?></span>
 								<span class="val"><?php echo esc_html( isset( $oge['title'] ) ? $oge['title'] : '' ); ?></span>
-								<span class="sub"><?php echo esc_html( isset( $oge['desc'] ) ? $oge['desc'] : '' ); ?></span>
+								<?php if ( ! empty( $oge['desc'] ) ) : ?>
+									<span class="sub"><?php echo esc_html( $oge['desc'] ); ?></span>
+								<?php endif; ?>
 							</div>
 						<?php endforeach; ?>
 					</div>
@@ -631,22 +622,24 @@ $geri_sayim = $d['weddingDate']
 						<?php endif; ?>
 					</div>
 
+					<?php
+					/*
+					 * Gömülü harita KALDIRILDI.
+					 *
+					 * Google'ın embed'i gezilebilir bir haritaydı: misafir
+					 * içinde dolaşıp başka bir yer seçebiliyor, hatta yol
+					 * tarifini yanlış noktadan alabiliyordu. Konum artık
+					 * yalnızca GÖSTERİLİYOR — salonun adı, adresi ve
+					 * yukarıdaki harita uygulaması bağlantıları. Bağlantılar
+					 * telefonun kendi haritasını doğru noktada açıyor.
+					 */
+					?>
 					<div class="map-frame reveal">
-						<?php /* Haritanın ARKASI: Google engelli bir ağda yüklenmezse burası boş bir dikdörtgen kalmasın. */ ?>
-						<div class="map-fallback" aria-hidden="true">
-							<p class="t-label" style="color:var(--c-gold-deep)">Harita</p>
+						<div class="map-fallback">
+							<p class="t-label" style="color:var(--c-gold-deep)">Konum</p>
 							<p class="t-h2"><?php echo esc_html( $d['venueName'] ); ?></p>
 							<p class="t-body" style="color:var(--c-on-light-faint)"><?php echo esc_html( $adres_satiri ); ?></p>
 						</div>
-
-						<?php if ( $konum_sorgu ) : ?>
-							<iframe
-								src="<?php echo esc_url( 'https://www.google.com/maps?q=' . $konum_sorgu . '&output=embed' ); ?>"
-								title="Düğün Lokasyonu"
-								loading="lazy"
-								referrerpolicy="no-referrer-when-downgrade"
-								allowfullscreen></iframe>
-						<?php endif; ?>
 					</div>
 				</div>
 			</div>
@@ -771,7 +764,7 @@ $geri_sayim = $d['weddingDate']
 		<?php endif; ?>
 
 		<?php /* ─────────────────────────────────────────────────── hediye */ ?>
-		<?php if ( $d['giftEnabled'] && ( $d['giftIban'] || $d['giftRegistryUrl'] ) ) : ?>
+		<?php if ( $d['giftEnabled'] ) : ?>
 			<section id="gift" class="section-gap">
 				<div class="wrap-narrow center">
 					<div class="section-head reveal" style="color:var(--c-gold);justify-content:center">
@@ -797,11 +790,6 @@ $geri_sayim = $d['weddingDate']
 						</div>
 					<?php endif; ?>
 
-					<?php if ( $d['giftRegistryUrl'] ) : ?>
-						<p class="reveal" style="margin-top:var(--sp-md)">
-							<a class="cta" href="<?php echo esc_url( $d['giftRegistryUrl'] ); ?>" target="_blank" rel="noopener">Hediye Listesi</a>
-						</p>
-					<?php endif; ?>
 				</div>
 			</section>
 		<?php endif; ?>
@@ -957,6 +945,21 @@ $geri_sayim = $d['weddingDate']
 		</svg>
 	</button>
 <?php endif; ?>
+
+<?php
+/*
+ * Yukarı çık — davetiye uzun, misafir sonuna inince başa dönemiyordu.
+ *
+ * Müzik düğmesi de sağ altta: ikisi üst üste binmesin diye müzik açıkken
+ * bu düğme bir sıra yukarı alınıyor.
+ */
+?>
+<button type="button" class="yukari-cik<?php echo ( $d['soundEnabled'] && $d['backgroundMusicUrl'] ) ? ' muzikli' : ''; ?>"
+	aria-label="Sayfanın başına dön">
+	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+		<path d="M8 13V3.5M8 3.5L3.5 8M8 3.5L12.5 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+	</svg>
+</button>
 
 <div class="lightbox" role="dialog" aria-modal="true" aria-label="Fotoğraf">
 	<button type="button" class="close" aria-label="Kapat">×</button>

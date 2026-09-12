@@ -217,10 +217,9 @@ class Sahra_Admin {
 		unset( $ham['galleryImagesText'] );
 
 		$ham['storyItems']   = self::parse_rows( isset( $ham['storyText'] ) ? $ham['storyText'] : '', array( 'year', 'title', 'desc' ) );
-		$ham['programItems'] = self::parse_rows( isset( $ham['programText'] ) ? $ham['programText'] : '', array( 'time', 'title', 'desc' ) );
 		$ham['socialLinks']  = self::parse_rows( isset( $ham['socialText'] ) ? $ham['socialText'] : '', array( 'name', 'href' ) );
 		$ham['menuGroups']   = Sahra_Fields::parse_menu( isset( $ham['menuText'] ) ? $ham['menuText'] : '' );
-		unset( $ham['storyText'], $ham['programText'], $ham['socialText'], $ham['menuText'] );
+		unset( $ham['storyText'], $ham['socialText'], $ham['menuText'] );
 
 		/*
 		 * Görünürlük anahtarları da onay kutusu: gönderilmediğinde
@@ -558,7 +557,6 @@ class Sahra_Admin {
 		$metinler = array(
 			'gallery' => implode( "\n", (array) $d['galleryImages'] ),
 			'story'   => self::rows_to_text( $d['storyItems'], array( 'year', 'title', 'desc' ) ),
-			'program' => self::rows_to_text( $d['programItems'], array( 'time', 'title', 'desc' ) ),
 			'menu'    => Sahra_Fields::menu_to_text( $d['menuGroups'] ),
 			'social'  => self::rows_to_text( $d['socialLinks'], array( 'name', 'href' ) ),
 		);

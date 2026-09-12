@@ -18,8 +18,8 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 
 | Tur | Ne ölçer | Beklenen |
 |---|---|---|
-| `wp-audit-alan.php` → `wp-fixture.php` → `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 46/46 |
-| `salon-alan.mjs` | her salon alanının davetiyede etkisi | 11/11 |
+| `wp-audit-alan.php` → `wp-fixture.php` → `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 42/42 |
+| `salon-alan.mjs` | her salon alanı + marka eşleşmesi | 14/14 |
 | `audit-uyari.js` | 14 sayfada PHP uyarısı / JS hatası | 14 temiz |
 | `audit-wp-rest.mjs` | her REST ucu, her rol | 13/13 |
 | `wp-guvenlik.mjs` | XSS, yetki, dizin aşımı, yükleme, nonce | 18/18 |
@@ -27,7 +27,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~946 metin, 0 sorun |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~1330 metin, 0 sorun |
 | `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
@@ -49,6 +49,8 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç | 25/25 |
 | `tarih-takvim.js` | dokununca takvim açılıyor; takvimsiz tarayıcıda alan kullanılabilir | 5/5 |
 | `yazim-okuma.php` | güncellemeden önce girilmiş davetiyenin yazımı ekranda düzeliyor mu | 24/24 |
+| `istek10.php` | kalkan alanlar, hediye Yok/Var, otomatik program, marka, katılım raporu | 62/62 |
+| `yukari-qa.js` | yukarı çık butonu (masaüstü + mobil), konumda seçim alanı yok | 18/18 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -57,6 +59,12 @@ Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 çeker ya da siler; onlardan sonra koşan tarayıcı turları 404 okuyup her
 şeyi "yok" der. Tarayıcı turları ÖNCE, ömür/silme turları EN SON — ya da
 aralarında `wp-fixture.php` yeniden koşulur.
+
+**Eşzamanlı koşulmaz.** Kontrast taraması 25 birleşim için aynı
+davetiyenin temasını ve tasarımını yazıyor; arka planda koşarken PHP
+turlarını başlatmak ikisini birden bozuyor (turlar taramanın yazdığı
+durumu, tarama turların yazdığını okuyor). Bir tur biterken öteki
+başlar.
 
 ### Denetim yaparken düşülen tuzaklar
 
@@ -137,6 +145,22 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   koşuda 1–2. adımlar düğün tarihinden saydığını varsaydığı hâlde ürün
   (doğru biçimde) o damgadan sayınca tur ürünü suçladı. Her tur iki kez
   koşulabilmeli; bıraktığı damgayı kendisi siler.
+- **Süzülen çıktıda çöken koşu sessizce kayboluyor.** 25 birleşimlik
+  taramayı süren betik yalnızca `temiz|SORUN` satırlarını basıyordu;
+  bir birleşim çökünce hiç satır çıkmadı ve tarama eksik tamamlandığı
+  hâlde temiz göründü. Sürücü artık verdict satırı çıkmayan birleşimi
+  "ÖLÇÜLEMEDİ" diye sayıp turu düşürüyor.
+- **"İlk salon" da sabit kimlik sayılır.** `musteri-istekleri.php`
+  `venues()[0]`'ı yamalıyordu; davetiye başka bir salonu kullanıyordu ve
+  tur yamadığı salonu hiç göstermeyen sayfaya bakıp "çocuk hizmeti
+  görünmüyor" dedi. Hedef salon davetiyenin `venueId`'sinden okunur.
+- **Ürün sözleşmesi değişince TURUN ÖLÇÜTÜ de değişir.** Salon adı ve
+  Instagram hesabı markadan türetilmeye başlayınca `salon-alan.mjs` ve
+  `wp-audit-calistir.mjs` o alanlara damga basmaya devam etti: damga
+  artık yazılamıyor, sayfada görünmüyor ve turlar "venueName çalışmıyor"
+  dedi. Damga, hâlâ elle yazılabilen bir alana (adres) taşındı; türetilen
+  alanlar için ölçüt "damga göründü mü" değil "marka iki değeri birden
+  değiştirdi mi".
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -152,5 +176,13 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   ayarın kendisi orada ve çift giremiyor.
 - Salon bilgisi (adres, yol tarifi, özellikler) yöneticinin; çift seçer,
   yazmaz.
+- Salonun ADI ve Instagram hesabı MARKADAN gelir (Sahra / Grand);
+  yönetici de yazamaz, yalnızca markayı seçer. Yanlış eşleştirme
+  mümkün değil.
+- Günün programı düğün tipinden (gündüz/akşam) ÜRETİLİR, elle
+  girilmez. Tek soru nikah: yoksa o satır hiç çizilmez.
+- Misafir ya da çift konum/harita üzerinde seçim yapamaz. Gömülü
+  gezilebilir harita kaldırıldı; konum yalnızca gösterilir, harita
+  uygulaması bağlantıları salonu doğru noktada açar.
 - Yorumlar **neden**i anlatır, ne yaptığını değil. Kod ne yaptığını
   zaten söylüyor.

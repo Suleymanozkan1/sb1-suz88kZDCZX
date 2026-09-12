@@ -62,6 +62,16 @@ class Sahra_Lifecycle {
 		$bugun  = self::bugun();
 		$sonuc  = array( 'unpublished' => array(), 'deleted' => array() );
 
+		/*
+		 * Katılım raporu ÖNCE gönderiliyor.
+		 *
+		 * Bakım davetiyeyi yayından kaldırabiliyor; rapor arkadan
+		 * koşsaydı düğün günü kapanan davetiyenin son raporu da
+		 * gitmeyebilirdi. Rapor günleri düğünden önce olduğu için
+		 * çakışma beklenmiyor, ama sıra bunu garanti ediyor.
+		 */
+		$sonuc['reported'] = Sahra_Report::run( $bugun );
+
 		$davetiyeler = get_posts(
 			array(
 				'post_type'        => Sahra_Invitation::POST_TYPE,

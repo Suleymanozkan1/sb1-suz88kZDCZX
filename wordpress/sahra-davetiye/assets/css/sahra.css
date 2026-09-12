@@ -890,22 +890,6 @@ html.sahra-html {
   pointer-events: none;
 }
 
-.letter-photo {
-  position: relative;
-  margin: 0 auto var(--sp-md);
-  width: 100%;
-  max-width: 15rem;
-  aspect-ratio: 3 / 4;
-  overflow: hidden;
-  border-radius: 50% 50% 0 0 / 30% 30% 0 0;
-  border: 1px solid var(--c-rule);
-}
-
-.letter-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
 .letter-monogram {
   font-family: var(--f-display);
@@ -1204,31 +1188,19 @@ html.sahra-html {
 .map-frame {
   position: relative;
   overflow: hidden;
-  min-height: 420px;
   border: 1px solid var(--c-rule);
 }
 
-/* Haritanın ARKASINDA duran katman. Google yüklenmezse (kurum ağı, geç
-   yükleme) burası bomboş kocaman bir dikdörtgen kalıyordu. */
+/* Gömülü harita kaldırıldı; bu panel artık konumun KENDİSİ, bir yedek
+   değil. 420px'lik harita yüksekliği de gitti: arkasında bir şey yok. */
 .map-fallback {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   text-align: center;
-  padding: var(--sp-md);
-}
-
-.map-frame iframe {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 420px;
-  border: 0;
-  filter: grayscale(0.35) sepia(0.15);
+  padding: var(--sp-lg) var(--sp-md);
 }
 
 /* ══════════════════════════════════════════════ FORMLAR ════════════ */
@@ -1401,6 +1373,59 @@ html.sahra-html {
   backdrop-filter: blur(6px);
   border: 1px solid rgba(176, 141, 63, 0.35);
   color: var(--c-gold-light);
+}
+
+/* ═════════════════════════════════════════════ YUKARI ÇIK ════════ */
+
+/* Müzik düğmesiyle aynı cam görünüm; davetiye uzun, başa dönmek gerekiyor. */
+.yukari-cik {
+  position: fixed;
+  right: var(--sp-sm);
+  bottom: var(--sp-sm);
+  z-index: 80;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(13, 8, 5, 0.35);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(176, 141, 63, 0.35);
+  color: var(--c-gold-light);
+  /* Sayfanın başındayken görünmüyor: gereksiz yere ekranı kapatmasın. */
+  opacity: 0;
+  transform: translateY(0.5rem);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.yukari-cik.gorunur {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Müzik düğmesi de sağ altta; üst üste binmesinler. */
+.yukari-cik.muzikli {
+  bottom: calc(var(--sp-sm) + 3.5rem);
+}
+
+@media (max-width: 30rem) {
+  /* Küçük ekranda içeriği kapatmayacak kadar küçük. */
+  .yukari-cik {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .yukari-cik.muzikli {
+    bottom: calc(var(--sp-sm) + 3.25rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yukari-cik {
+    transition: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════ MENÜ ════════ */
@@ -1729,13 +1754,3 @@ html.sahra-html {
   }
 }
 
-/* Çiftin kendi mühür görseli — balmumu diskin yerine geçer. */
-.seal-gorsel {
-  position: absolute;
-  inset: 14%;
-  width: 72%;
-  height: 72%;
-  border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 0 18px 44px -12px rgba(0, 0, 0, 0.8);
-}

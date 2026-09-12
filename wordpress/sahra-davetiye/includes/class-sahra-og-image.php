@@ -242,7 +242,7 @@ class Sahra_Og_Image {
 	/** Kapak görselini depodan okur. */
 	private static function load_cover( $davetiye ) {
 		$aday = '';
-		foreach ( array( 'coverImage', 'letterImage' ) as $alan ) {
+		foreach ( array( 'coverImage' ) as $alan ) {
 			if ( ! empty( $davetiye[ $alan ] ) ) {
 				$aday = $davetiye[ $alan ];
 				break;

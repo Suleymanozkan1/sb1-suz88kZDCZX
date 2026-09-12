@@ -48,14 +48,43 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 			<input type="hidden" name="sahra_action" value="save_venue">
 			<input type="hidden" name="venue[id]" value="<?php echo esc_attr( $venue['id'] ); ?>">
 
+			<?php
+			/*
+			 * Salon adı YAZILMIYOR, marka SEÇİLİYOR.
+			 *
+			 * İki marka var ve her birinin kendi Instagram hesabı; adı ve
+			 * hesabı ayrı ayrı yazdırmak, birini değiştirip ötekini
+			 * unutmak demekti — misafir Sahra'nın davetiyesinde Grand'ın
+			 * hesabını görüyordu. Tek seçim ikisini birden belirliyor.
+			 */
+			$sahra_markalar = Sahra_Settings::brands();
+			$sahra_secili   = Sahra_Settings::brand_key( $venue['brand'] );
+			?>
 			<div class="alan">
-				<label class="field-label" for="v-name"><?php esc_html_e( 'Salon Adı *', 'sahra-davetiye' ); ?></label>
-				<input id="v-name" type="text" name="venue[venueName]" value="<?php echo esc_attr( $venue['venueName'] ); ?>" placeholder="Sahra Bahçe Düğün Salonu" required>
+				<span class="field-label"><?php esc_html_e( 'Marka *', 'sahra-davetiye' ); ?></span>
+				<div class="secenekler">
+					<?php foreach ( $sahra_markalar as $sahra_anahtar => $sahra_marka ) : ?>
+						<label class="secenek">
+							<input type="radio" name="venue[brand]" value="<?php echo esc_attr( $sahra_anahtar ); ?>" <?php checked( $sahra_anahtar, $sahra_secili ); ?>>
+							<span class="ad"><?php echo esc_html( $sahra_marka['label'] ); ?></span>
+						</label>
+					<?php endforeach; ?>
+				</div>
+				<p class="ipucu">
+					<?php
+					printf(
+						/* translators: 1: davetiyede görünen salon adı, 2: Instagram hesabı. */
+						esc_html__( 'Davetiyede "%1$s" yazar, etiketleme bölümünde %2$s görünür.', 'sahra-davetiye' ),
+						esc_html( $sahra_markalar[ $sahra_secili ]['venueName'] ),
+						esc_html( $sahra_markalar[ $sahra_secili ]['venueInstagramLabel'] )
+					);
+					?>
+				</p>
 			</div>
 
 			<div class="alan">
-				<label class="field-label" for="v-address"><?php esc_html_e( 'Adres', 'sahra-davetiye' ); ?></label>
-				<input id="v-address" type="text" name="venue[address]" value="<?php echo esc_attr( $venue['address'] ); ?>" placeholder="Bağdat Caddesi No 120">
+				<label class="field-label" for="v-address"><?php esc_html_e( 'Adres *', 'sahra-davetiye' ); ?></label>
+				<input id="v-address" type="text" name="venue[address]" value="<?php echo esc_attr( $venue['address'] ); ?>" placeholder="Bağdat Caddesi No 120" required>
 			</div>
 
 			<div class="ikili">
@@ -83,25 +112,11 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 
 			<?php
 			/*
-			 * Salonun kendi Instagram hesabı.
-			 *
-			 * Misafir hangi salondaysa orayı etiketlemeli; işletmenin tek
-			 * hesabı varsayımı salonların ayrı hesapları olunca yanlış
-			 * oldu. Boş bırakılırsa İşletme sayfasındaki genel hesap
-			 * kullanılır.
+			 * Instagram hesabı da MARKADAN geliyor; ayrıca sorulmuyor.
+			 * Elle yazılırken bir salona öteki markanın hesabı
+			 * bağlanabiliyordu.
 			 */
 			?>
-			<div class="ikili">
-				<div class="alan">
-					<label class="field-label" for="v-ig-ad"><?php esc_html_e( 'Instagram Görünen Adı', 'sahra-davetiye' ); ?></label>
-					<input id="v-ig-ad" type="text" name="venue[venueInstagramLabel]" value="<?php echo esc_attr( $venue['venueInstagramLabel'] ); ?>" placeholder="@sahrabahce">
-				</div>
-				<div class="alan">
-					<label class="field-label" for="v-ig"><?php esc_html_e( 'Instagram Adresi', 'sahra-davetiye' ); ?></label>
-					<input id="v-ig" type="url" name="venue[venueInstagram]" value="<?php echo esc_attr( $venue['venueInstagram'] ); ?>" placeholder="https://instagram.com/sahrabahce">
-					<p class="ipucu"><?php esc_html_e( 'Bu salon seçildiğinde davetiyenin etiketleme bölümünde bu hesap görünür. Boş bırakılırsa İşletme sayfasındaki genel hesap kullanılır.', 'sahra-davetiye' ); ?></p>
-				</div>
-			</div>
 
 			<?php
 			/*
@@ -176,6 +191,7 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 					<article class="sahra-row">
 						<div class="ana">
 							<span class="t-h2"><?php echo esc_html( $sahra_salon['venueName'] ); ?></span>
+							<span class="t-label"><?php echo esc_html( Sahra_Settings::brands()[ Sahra_Settings::brand_key( $sahra_salon['brand'] ) ]['venueInstagramLabel'] ); ?></span>
 						</div>
 						<div class="meta">
 							<span><?php echo esc_html( implode( ', ', array_filter( array( $sahra_salon['address'], $sahra_salon['district'], $sahra_salon['city'] ) ) ) ); ?></span>

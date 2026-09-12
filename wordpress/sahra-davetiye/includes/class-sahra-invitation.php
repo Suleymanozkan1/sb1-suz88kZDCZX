@@ -80,6 +80,16 @@ class Sahra_Invitation {
 		$data['venueFeatures'] = $salon['features'];
 		$data['venueId']       = $salon['id'] ? $salon['id'] : $data['venueId'];
 
+		/*
+		 * Program ÜRETİLİYOR, saklanmıyor: oturum tipi değişince davetiye
+		 * de aynı anda değişsin. Kayıtlı eski program maddeleri varsa
+		 * kullanılmıyor — şemada da yok, kendiliğinden düşüyor.
+		 */
+		$data['programItems'] = Sahra_Fields::program_for( $data['session'], ! empty( $data['nikahVar'] ) );
+
+		// Listeden çıkarılmış hazır ses, olmayan bir dosyayı göstermesin.
+		$data['backgroundMusicUrl'] = Sahra_Fields::music_url( $data['backgroundMusicUrl'] );
+
 		$data['id']       = (int) $post->ID;
 		$data['slug']     = $post->post_name;
 		$data['ownerId']  = (int) $post->post_author;

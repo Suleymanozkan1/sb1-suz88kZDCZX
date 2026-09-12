@@ -59,9 +59,7 @@ class Sahra_Fields {
 			 * 8 puntoluk okunmaz bir yazı demekti. Monogram kısa olmalı.
 			 */
 			'sealMonogram'           => array( 'monogram', '' ),
-			'sealImage'              => array( 'url', '' ),
 			'invitationDesign'       => array( 'text', 'ottoman' ),
-			'letterImage'            => array( 'url', '' ),
 
 			'coverImage'             => array( 'url', '' ),
 			'galleryImages'          => array( 'list', array() ),
@@ -79,7 +77,6 @@ class Sahra_Fields {
 			'giftAccountName'        => array( 'text', '' ),
 			'giftIban'               => array( 'text', '' ),
 			'giftBankName'           => array( 'text', '' ),
-			'giftRegistryUrl'        => array( 'url', '' ),
 
 			'wishesEnabled'          => array( 'bool', true ),
 
@@ -88,7 +85,12 @@ class Sahra_Fields {
 			'backgroundMusicUrl'     => array( 'url', '' ),
 
 			'storyItems'             => array( 'list', array() ),
-			'programItems'           => array( 'list', array() ),
+			/*
+			 * Program artık ELLE girilmiyor; oturum tipinden üretiliyor
+			 * (bkz. program_for). Tek soru nikahın olup olmadığı: nikah
+			 * yoksa o satır hiçbir yerde görünmez.
+			 */
+			'nikahVar'               => array( 'bool', true ),
 			'socialLinks'            => array( 'list', array() ),
 			'hashtag'                => array( 'text', '' ),
 			'showSocial'             => array( 'bool', true ),
@@ -183,15 +185,35 @@ class Sahra_Fields {
 	}
 
 	/** "Varsayılanları yükle" düğmelerinin içeriği. */
-	public static function default_program() {
-		return array(
-			array( 'time' => '15:00', 'title' => 'Kapı Açılışı', 'desc' => 'Konukların karşılanması ve yerleşimi' ),
-			array( 'time' => '16:00', 'title' => 'Nikah Töreni', 'desc' => 'Resmi nikah ve yüzük takma' ),
-			array( 'time' => '16:30', 'title' => 'Kokteyl & Fotoğraf', 'desc' => 'Kadeh kaldırma ve anı fotoğrafları' ),
-			array( 'time' => '18:00', 'title' => 'Akşam Yemeği', 'desc' => 'Özel menü ile birlikte sofra zevki' ),
-			array( 'time' => '20:00', 'title' => 'Düğün Pastası', 'desc' => 'İlk dilim kesme ve kutlama' ),
-			array( 'time' => '20:30', 'title' => 'Müzik & Eğlence', 'desc' => 'Canlı müzik ve dans keyfi' ),
+	/**
+	 * Günün programı — oturum tipinden ÜRETİLİR, elle girilmez.
+	 *
+	 * Saatler salonun işleyişi; çiftin yazacağı bir şey değil. Elle
+	 * girilirken kapı saatiyle davetiyede yazan saat birbirinden
+	 * ayrılıyordu. Nikah satırı ise ayrı bir soruya bağlı: nikah
+	 * yapılmayan düğünde o saat hiç görünmez.
+	 *
+	 * @param string $oturum   'gunduz' | 'aksam'.
+	 * @param bool   $nikah_var Nikah satırı çizilsin mi.
+	 * @return array Her satır: time, title, desc.
+	 */
+	public static function program_for( $oturum, $nikah_var = true ) {
+		$saatler = array(
+			'aksam'  => array( 'kapi' => '19:00', 'nikah' => '20:00', 'ikram' => '20:30', 'bitis' => '23:00' ),
+			'gunduz' => array( 'kapi' => '13:00', 'nikah' => '14:00', 'ikram' => '14:30', 'bitis' => '17:00' ),
 		);
+		$s = isset( $saatler[ $oturum ] ) ? $saatler[ $oturum ] : $saatler['aksam'];
+
+		$akis = array(
+			array( 'time' => $s['kapi'], 'title' => __( 'Kapı Açılışı', 'sahra-davetiye' ), 'desc' => __( 'Misafirlerin karşılanması', 'sahra-davetiye' ) ),
+		);
+		if ( $nikah_var ) {
+			$akis[] = array( 'time' => $s['nikah'], 'title' => __( 'Nikah', 'sahra-davetiye' ), 'desc' => '' );
+		}
+		$akis[] = array( 'time' => $s['ikram'], 'title' => __( 'İkramlar ve Yemek Servisi', 'sahra-davetiye' ), 'desc' => '' );
+		$akis[] = array( 'time' => $s['bitis'], 'title' => __( 'Bitiş', 'sahra-davetiye' ), 'desc' => __( 'Kapanış', 'sahra-davetiye' ) );
+
+		return $akis;
 	}
 
 
@@ -204,12 +226,31 @@ class Sahra_Fields {
 		);
 	}
 
+	/**
+	 * Kayıtlı ses adresi hâlâ geçerli mi?
+	 *
+	 * Listeden bir parça çıkarılınca onu seçmiş davetiyelerin adresi
+	 * olmayan bir dosyayı gösteriyor ve ses sessizce ölüyor. Kendi
+	 * yüklediği ses olanlara dokunulmuyor.
+	 *
+	 * @param string $url Kayıtlı adres.
+	 * @return string Geçerliyse adres, hazır parça artık yoksa ''.
+	 */
+	public static function music_url( $url ) {
+		$url = (string) $url;
+		$onek = SAHRA_URL . 'assets/muzik/';
+		if ( '' === $url || 0 !== strpos( $url, $onek ) ) {
+			return $url;
+		}
+		$dosya = basename( $url, '.mp3' );
+		return array_key_exists( $dosya, self::music_tracks() ) ? $url : '';
+	}
+
 	/** Eklentiyle gelen hazır ses parçaları. */
 	public static function music_tracks() {
 		return array(
 			'piyano-sakin'   => 'Piyano — Sakin',
 			'arp-zarif'      => 'Arp — Zarif',
-			'yayli-duygusal' => 'Yaylı — Duygusal',
 			'anadolu-ney'    => 'Anadolu — Ney',
 		);
 	}
@@ -377,9 +418,6 @@ class Sahra_Fields {
 		// Listelerde de aynı onarım: hikâye, program, menü ve hesap adları.
 		if ( isset( $veri['storyItems'] ) ) {
 			$veri['storyItems'] = self::liste_yazim( $veri['storyItems'], array( 'title', 'desc' ) );
-		}
-		if ( isset( $veri['programItems'] ) ) {
-			$veri['programItems'] = self::liste_yazim( $veri['programItems'], array( 'title', 'desc' ) );
 		}
 		if ( isset( $veri['socialLinks'] ) ) {
 			$veri['socialLinks'] = self::liste_yazim( $veri['socialLinks'], array( 'name' ) );
