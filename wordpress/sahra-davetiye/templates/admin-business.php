@@ -48,10 +48,43 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			<p class="ipucu"><?php esc_html_e( 'Boş bırakılırsa davetiyede yalnızca çiftin kendi hesabı görünür.', 'sahra-davetiye' ); ?></p>
 		</section>
 
+		<?php
+		/*
+		 * Dilek defteri başlığı BURADA, çiftin sihirbazında değil.
+		 *
+		 * Bölüm başlıkları sabit: her çift kendi başlığını yazınca
+		 * "test Başlığı dilek" gibi şeyler davetiyeye çıkıyordu. Ama
+		 * işletmenin kendi diliyle söyleme hakkı var; bir kez burada
+		 * yazılıyor, bütün davetiyelerde aynı görünüyor.
+		 */
+		?>
 		<section class="sahra-sec">
 			<header>
 				<div class="ust">
 					<span class="num">02</span>
+					<span class="t-label"><?php esc_html_e( 'Dilekler', 'sahra-davetiye' ); ?></span>
+				</div>
+				<h2 class="t-display" style="margin-top:0.4rem"><?php esc_html_e( 'Dilek Defteri Başlığı', 'sahra-davetiye' ); ?></h2>
+				<p class="lead"><?php esc_html_e( 'Bütün davetiyelerin dilek bölümünde bu başlık görünür. Çift değiştiremez.', 'sahra-davetiye' ); ?></p>
+			</header>
+
+			<div class="ikili">
+				<div class="alan">
+					<label class="field-label" for="b-dilek-ust"><?php esc_html_e( 'Üst Satır', 'sahra-davetiye' ); ?></label>
+					<input id="b-dilek-ust" type="text" name="brand[wishesSubtitle]" value="<?php echo esc_attr( $brand['wishesSubtitle'] ); ?>" placeholder="Bize Bir Not Bırakın">
+				</div>
+				<div class="alan">
+					<label class="field-label" for="b-dilek-baslik"><?php esc_html_e( 'Başlık', 'sahra-davetiye' ); ?></label>
+					<input id="b-dilek-baslik" type="text" name="brand[wishesTitle]" value="<?php echo esc_attr( $brand['wishesTitle'] ); ?>" placeholder="Dilek Defteri">
+				</div>
+			</div>
+			<p class="ipucu"><?php esc_html_e( 'Boş bırakılırsa "Bize Bir Not Bırakın" ve "Dilek Defteri" yazar.', 'sahra-davetiye' ); ?></p>
+		</section>
+
+		<section class="sahra-sec">
+			<header>
+				<div class="ust">
+					<span class="num">03</span>
 					<span class="t-label"><?php esc_html_e( 'Ömür', 'sahra-davetiye' ); ?></span>
 				</div>
 				<h2 class="t-display" style="margin-top:0.4rem"><?php esc_html_e( 'Davetiye Ne Kadar Açık Kalsın?', 'sahra-davetiye' ); ?></h2>

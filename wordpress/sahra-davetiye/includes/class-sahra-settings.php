@@ -273,7 +273,15 @@ class Sahra_Settings {
 	public static function brand() {
 		return wp_parse_args(
 			get_option( self::BRAND_OPTION, array() ),
-			array( 'instagram' => '', 'instagramLabel' => '' )
+			/*
+			 * Dilek başlığı İŞLETME ayarı, davetiye alanı değil.
+			 *
+			 * Bölüm başlıkları sabit — çift değiştirmiyor. Ama işletme
+			 * kendi diliyle söylemek isteyebiliyor ve bunu her davetiyede
+			 * ayrı yazdırmak, birinin bozuk yazması demekti. Boş
+			 * bırakılırsa ürünün sabit başlığı kalıyor.
+			 */
+			array( 'instagram' => '', 'instagramLabel' => '', 'wishesTitle' => '', 'wishesSubtitle' => '' )
 		);
 	}
 
@@ -281,6 +289,8 @@ class Sahra_Settings {
 		$temiz = array(
 			'instagram'      => Sahra_Fields::safe_url( isset( $input['instagram'] ) ? $input['instagram'] : '' ),
 			'instagramLabel' => sanitize_text_field( isset( $input['instagramLabel'] ) ? (string) $input['instagramLabel'] : '' ),
+			'wishesTitle'    => sanitize_text_field( isset( $input['wishesTitle'] ) ? (string) $input['wishesTitle'] : '' ),
+			'wishesSubtitle' => sanitize_text_field( isset( $input['wishesSubtitle'] ) ? (string) $input['wishesSubtitle'] : '' ),
 		);
 		update_option( self::BRAND_OPTION, $temiz );
 		return $temiz;

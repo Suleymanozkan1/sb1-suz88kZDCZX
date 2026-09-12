@@ -812,9 +812,9 @@ $geri_sayim = $d['weddingDate']
 				<div class="wrap">
 					<div class="section-head reveal" style="color:var(--c-gold)">
 						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-						<span class="t-label">Bize Bir Not Bırakın</span>
+						<span class="t-label"><?php echo esc_html( $marka['wishesSubtitle'] ? $marka['wishesSubtitle'] : 'Bize Bir Not Bırakın' ); ?></span>
 					</div>
-					<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)">Dilek Defteri</h2>
+					<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $marka['wishesTitle'] ? $marka['wishesTitle'] : 'Dilek Defteri' ); ?></h2>
 
 					<?php if ( $wishes ) : ?>
 						<div class="wish-grid" style="margin-bottom:var(--sp-md)">
