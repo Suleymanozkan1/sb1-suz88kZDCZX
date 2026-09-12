@@ -1246,6 +1246,40 @@ html.sahra-html {
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 
+/*
+ * Tarayıcının KENDİ çizdiği parçalar da koyu olsun.
+ *
+ * Sayfa `color-scheme` bildirmediği için tarayıcı onu açık sayıyordu.
+ * Sonuç: Chrome otomatik doldurduğu alanın saydam zeminini kendi açık
+ * mavisiyle boyuyor ve koyu giriş ekranında beyaz bir kutu çıkıyordu.
+ * Bildirim, otomatik doldurmayı, parola noktalarını, takvimi ve
+ * kaydırma çubuğunu koyu karşılıklarına geçiriyor.
+ *
+ * Formlar davetiyenin KOYU evresinde; açık evre açık kalıyor.
+ */
+.giris-page,
+.upload-page,
+.phase-dark {
+  color-scheme: dark;
+}
+
+/*
+ * Bildirim tek başına yetmiyor: Chrome otomatik doldurmada zemini yine
+ * kendi seçtiği renkle boyuyor ve arka planı doğrudan yazmak mümkün
+ * değil. İçe doğru gölge, alanın içini sayfanın rengiyle doldurup onu
+ * örtüyor. Üç koyu yüzeyin rengi birbirinden ayırt edilemeyecek kadar
+ * yakın (#0d0805 ile #15100a), o yüzden tek renk yetiyor.
+ */
+.field:-webkit-autofill,
+.field:-webkit-autofill:hover,
+.field:-webkit-autofill:focus,
+.field:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--c-on-dark);
+  -webkit-box-shadow: inset 0 0 0 100px var(--c-night);
+  box-shadow: inset 0 0 0 100px var(--c-night);
+  caret-color: var(--c-on-dark);
+}
+
 /* Yer tutucu 0.25 opaklıkta neredeyse görünmezdi; alan boş mu dolu mu
    anlaşılmıyordu. */
 .field::placeholder {

@@ -98,7 +98,15 @@ body.sahra-ekran #wpwrap::before {
 
 /* ── Sarmalayıcı ─────────────────────────────────────────────────────── */
 
+/*
+ * Tarayıcının kendi çizdiği parçalar panelde de koyu olsun.
+ *
+ * Bildirim yoktu; tarayıcı paneli açık sayıyor, otomatik doldurulan
+ * alanın zeminini açık maviyle boyuyor, açılır listeyi ve kaydırma
+ * çubuğunu beyaz çiziyordu. Panel her zaman koyu, bildirim de sabit.
+ */
 .sahra-panel {
+  color-scheme: dark;
   position: relative;
   z-index: 1;
   max-width: 60rem;
@@ -460,14 +468,36 @@ body.sahra-ekran #wpwrap::before {
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 
+/*
+ * Otomatik doldurma panelde de alanı örtemesin.
+ *
+ * Bildirim tek başına yetmiyor: Chrome zemini yine kendi seçtiği renkle
+ * boyuyor ve arka planı doğrudan yazmak mümkün değil. İçe doğru gölge
+ * alanın içini panelin rengiyle doldurup onu örtüyor.
+ */
+.sahra-panel input:-webkit-autofill,
+.sahra-panel input:-webkit-autofill:hover,
+.sahra-panel input:-webkit-autofill:focus,
+.sahra-panel input:-webkit-autofill:active,
+.sahra-panel textarea:-webkit-autofill,
+.sahra-panel select:-webkit-autofill {
+  -webkit-text-fill-color: var(--c-on-dark);
+  -webkit-box-shadow: inset 0 0 0 100px var(--c-night);
+  box-shadow: inset 0 0 0 100px var(--c-night);
+  caret-color: var(--c-on-dark);
+}
+
 /* Tarih alanının takvim simgesi.
 
-   Alan zaten `type="date"`, yani takvim tarayıcıda var; ama simge koyu
-   renkli ve panel de koyu — kullanıcı tıklayacak yeri göremediği için
-   takvim yokmuş gibi duruyordu. Ters çevirip altın tonuna yaklaştırıyor
-   ve tıklanabilir olduğunu imleçle söylüyoruz. */
+   Simge, panelin koyu zemininde görünür olmalı — yoksa kullanıcı
+   tıklayacak yeri bulamıyor ve takvim yokmuş gibi duruyor.
+
+   `invert(1)` ile başlamıştı: sayfa `color-scheme` bildirmediği için
+   tarayıcı simgeyi KOYU çiziyordu ve ters çevirmek gerekiyordu.
+   Bildirim eklenince simge zaten açık geliyor; invert onu geri
+   karartıp kaybediyordu. Şimdi yalnızca altın tonuna çekiliyor. */
 .sahra-panel input[type='date']::-webkit-calendar-picker-indicator {
-  filter: invert(1) sepia(1) saturate(3) hue-rotate(5deg) brightness(0.95);
+  filter: sepia(1) saturate(4) hue-rotate(3deg) brightness(1.05);
   opacity: 0.85;
   cursor: pointer;
   padding: 0.15rem;
@@ -501,7 +531,17 @@ body.sahra-ekran #wpwrap::before {
   opacity: 1;
 }
 
-.sahra-panel input:focus,
+/*
+ * Odak göstergesi.
+ *
+ * `outline: none` yazıldığı için tek gösterge alt çizginin rengi — ve o
+ * renk hiç değişmiyordu: temel kuraldaki on `:not()` özgüllüğü (0,11,1)
+ * yapıyor, kısa yazılmış odak kuralı (0,2,1) ise altta kalıyordu.
+ * Klavyeyle gezen kimse nerede olduğunu göremiyordu. Zincir burada da
+ * tekrarlanıyor; kısaltmak WordPress'in kendi kimlikli kurallarına
+ * yenilme riski taşıyor.
+ */
+.sahra-panel input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']):not([type='reset']):not([type='file']):not([type='image']):not([type='range']):not([type='color']):focus,
 .sahra-panel select:focus,
 .sahra-panel textarea:focus {
   border-bottom-color: var(--c-gold);

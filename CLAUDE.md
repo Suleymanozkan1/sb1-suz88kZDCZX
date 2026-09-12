@@ -45,6 +45,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kurulum-ekran.js` | bulgu ekranda çiziliyor, çift görmüyor | 4/4 |
 | `musteri-istekleri.php` | çocuk varsayılanı, salon alanları, paylaşım açıklaması, tarih koruması | 16/16 |
 | `musteri-ekran.js` | tarih yalnızca takvimden, adımlar veri kaybetmiyor, çıkış uyarısı | 10/10 |
+| `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 50/50 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -78,6 +79,24 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - **Var olmayan seçeneği ölçmek.** Temalar `blush-rose`/`sage-ivory`
   diye ölçüldü; ikisi de yok, ürün sessizce varsayılana düşüyor ve
   fark %0.00 çıkıyordu. Seçenek listesi üründen okunur, akıldan değil.
+- **Kontrast turu "çirkin"i ölçmez.** Çıplak bir input beyaz üstüne
+  siyah yazıdır ve kontrastı GEÇER; koyu sayfada beyaz bir kutu olarak
+  durması ayrı bir ölçüttür. Tarayıcının çizdiği parçalar (otomatik
+  doldurma, takvim simgesi, açılır liste, kaydırma çubuğu) `tema-denetim.js`
+  ile iki işletim sistemi temasında ayrıca ölçülür.
+- **Stil okumadan önce tarayıcı yenilemeyi bekler.** `el.focus()`
+  çağırıp hemen `getComputedStyle` okumak eski değeri veriyor ve odak
+  göstergesi "hiç değişmiyor" sanılıyordu. Odak sayfanın DIŞINDAN
+  verilip beklenmeli.
+- **Değişken kökte olmayabilir.** Panelde belirteçler `body.sahra-ekran`
+  üzerinde; `documentElement`'ten okumak `var(--c-night)`'ı krem
+  gösteriyordu.
+- **Oturum açıkken /davet/giris panele yönleniyor.** Misafir sayfaları
+  oturumsuz bir bağlamda ölçülür; aynı bağlamda ölçmek "sayfa yok"
+  diyordu.
+- **`:not()` özgüllük ekler.** On `:not()` zinciri temel kuralı
+  (0,11,1) yapıyor; kısa yazılmış `:focus` kuralı altta kalıp hiç
+  uygulanmıyordu.
 - **Bir etiketi bağlantısız ölçmek.** `venueInstagramLabel` hesap
   adresi boşken ölçüldü; etiketleyecek bağlantı olmayınca görünmüyor ve
   "alan çalışmıyor" sanıldı. Alan, gerçek kullanım bağlamında ölçülür.
