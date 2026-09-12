@@ -1,0 +1,38 @@
+import { redirect } from 'next/navigation';
+import AccountSettings from '@/components/admin/AccountSettings';
+import InvitationList from '@/components/admin/InvitationList';
+import PanelHeader from '@/components/admin/PanelHeader';
+import PhotoGallery from '@/components/panel/PhotoGallery';
+import WishBoard from '@/components/panel/WishBoard';
+import { currentSession } from '@/lib/auth';
+import { listInvitations } from '@/lib/store';
+
+export const dynamic = 'force-dynamic';
+
+/** Çift paneli — hesap yalnızca kendi davetiyelerini ve albümünü görür. */
+export default async function PanelPage() {
+  const session = currentSession();
+  if (!session) redirect('/giris?next=/panel');
+  if (session.role === 'admin') redirect('/admin');
+
+  const invitations = (await listInvitations()).filter((row) => row.ownerId === session.userId);
+
+  return (
+    <div className="mx-auto max-w-4xl px-6 py-12">
+      <PanelHeader
+        session={session}
+        title="Davetiyelerim"
+        subtitle="Çift Paneli"
+        newHref="/panel/new"
+      />
+
+      <InvitationList initial={invitations} session={session} />
+
+      <AccountSettings session={session} n={3} />
+
+      <PhotoGallery invitations={invitations} n={4} />
+
+      <WishBoard invitations={invitations} n={5} />
+    </div>
+  );
+}
