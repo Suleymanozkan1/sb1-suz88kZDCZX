@@ -251,6 +251,9 @@ class Sahra_Invitation {
 			return null;
 		}
 
+		// Dizi olmayan girdi ölümcül hataya dönmesin; boş gönderi sayılır.
+		$input = is_array( $input ) ? $input : array();
+
 		$mevcut = get_post_meta( $post_id, self::META_KEY, true );
 		$data   = Sahra_Fields::sanitize( $input, is_array( $mevcut ) ? $mevcut : array() );
 

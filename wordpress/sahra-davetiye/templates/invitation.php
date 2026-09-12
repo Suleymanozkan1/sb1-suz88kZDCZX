@@ -325,10 +325,28 @@ $geri_sayim = $d['weddingDate']
 					</div>
 				<?php endif; ?>
 
-				<div class="hero-actions reveal">
-					<a href="#rsvp" class="cta">Katılım Durumunu Belirt</a>
-					<a href="#details" class="link-underline" style="color:var(--c-on-dark-soft)">Detayları Gör</a>
-				</div>
+				<?php
+				/*
+				 * Düğmeler var olan bölümlere bakıyor.
+				 *
+				 * "Katılım Durumunu Belirt" sabit yazılıydı: katılım formu
+				 * kapatıldığında misafiri olmayan bir bölüme yolluyordu.
+				 * Katılım kapalıysa asıl eylem "Detayları Gör" oluyor,
+				 * kahraman düğmesiz kalmıyor.
+				 */
+				$sahra_rsvp    = ! empty( $d['showRsvp'] );
+				$sahra_detay   = ! empty( $d['showDetails'] );
+				?>
+				<?php if ( $sahra_rsvp || $sahra_detay ) : ?>
+					<div class="hero-actions reveal">
+						<?php if ( $sahra_rsvp ) : ?>
+							<a href="#rsvp" class="cta">Katılım Durumunu Belirt</a>
+						<?php endif; ?>
+						<?php if ( $sahra_detay ) : ?>
+							<a href="#details" class="<?php echo $sahra_rsvp ? 'link-underline' : 'cta'; ?>"<?php echo $sahra_rsvp ? ' style="color:var(--c-on-dark-soft)"' : ''; ?>>Detayları Gör</a>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
 			</div>
 
 			<?php /* Kaydırma daveti — kompozisyonla aynı sol kenara hizalı. */ ?>

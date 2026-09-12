@@ -666,9 +666,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					'showGallery'   => __( 'Fotoğraf Galerisi', 'sahra-davetiye' ),
 					'showLocation'  => __( 'Konum & Harita', 'sahra-davetiye' ),
 					'showFamily'    => __( 'Ailelerimiz', 'sahra-davetiye' ),
-					'showRsvp'      => __( 'Katılım Formu', 'sahra-davetiye' ),
-					'giftEnabled'   => __( 'Hediye', 'sahra-davetiye' ),
-					'wishesEnabled' => __( 'Dilek Defteri', 'sahra-davetiye' ),
 					'showChildren'  => __( 'Çocuk Notu', 'sahra-davetiye' ),
 					'showSocial'    => __( 'Etiketleme', 'sahra-davetiye' ),
 					'showContact'   => __( 'Kapanış', 'sahra-davetiye' ),
@@ -686,6 +683,43 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					</div>
 					<p class="ipucu"><?php esc_html_e( 'Kapattığınız bölümün içeriği silinmez, yalnızca davetiyede görünmez.', 'sahra-davetiye' ); ?></p>
 				</div>
+
+				<?php
+				/*
+				 * Katılım formu YÖNETİCİNİN anahtarı, listenin içinde değil.
+				 *
+				 * Salona kaç kişi geleceğini işletme sayıyor; çift formu
+				 * kapattığında kimse katılım bildirmiyor ve sayı hiç
+				 * gelmiyordu. Çift bu satırı göremiyor, gönderse de
+				 * yok sayılıyor (Sahra_Fields::MANAGER_KEYS).
+				 */
+				?>
+				<?php if ( $yonetici ) : ?>
+					<div class="alan">
+						<span class="field-label"><?php esc_html_e( 'Katılım Formu (yalnızca yönetici)', 'sahra-davetiye' ); ?></span>
+						<div class="secenekler">
+							<label class="secenek">
+								<input type="radio" name="sahra[showRsvp]" value="1" <?php checked( ! empty( $d['showRsvp'] ) ); ?>>
+								<span class="ad"><?php esc_html_e( 'Görünsün', 'sahra-davetiye' ); ?></span>
+							</label>
+							<label class="secenek">
+								<input type="radio" name="sahra[showRsvp]" value="0" <?php checked( empty( $d['showRsvp'] ) ); ?>>
+								<span class="ad"><?php esc_html_e( 'Görünmesin', 'sahra-davetiye' ); ?></span>
+							</label>
+						</div>
+						<p class="ipucu"><?php esc_html_e( 'Kapatılırsa "Katılım Durumunu Belirt" düğmesi de davetiyede görünmez. Çift bu ayarı değiştiremez.', 'sahra-davetiye' ); ?></p>
+					</div>
+				<?php else : ?>
+					<p class="ipucu">
+						<?php
+						echo esc_html(
+							! empty( $d['showRsvp'] )
+								? __( 'Katılım formu açık. Bu ayarı yalnızca işletme değiştirebilir.', 'sahra-davetiye' )
+								: __( 'Katılım formu kapalı. Bu ayarı yalnızca işletme değiştirebilir.', 'sahra-davetiye' )
+						);
+						?>
+					</p>
+				<?php endif; ?>
 
 				<?php
 				/*

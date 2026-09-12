@@ -26,6 +26,17 @@ class Sahra_Fields {
 	const VENUE_KEYS = array( 'venueName', 'address', 'district', 'city', 'mapUrl', 'appleMapUrl', 'venueDirections', 'venueInstagram', 'venueInstagramLabel', 'venueChildrenNote' );
 
 	/**
+	 * Yalnızca YÖNETİCİNİN değiştirebildiği alanlar.
+	 *
+	 * Katılım formu işletmeyi ilgilendiriyor: salona kaç kişi geleceğini
+	 * o sayıyor. Çift kapatınca kimse katılım bildirmiyor ve sayı hiç
+	 * gelmiyordu. Çiftin gönderdiği değer yok sayılıyor — formu
+	 * kurcalayarak da, REST ucundan da değiştiremiyor; kayıtlı değer
+	 * olduğu gibi kalıyor.
+	 */
+	const MANAGER_KEYS = array( 'showRsvp' );
+
+	/**
 	 * Alanlar: anahtar => array( tip, varsayılan ).
 	 *
 	 * Tipler: text, textarea, html_off (etiket kabul etmeyen düz metin),
@@ -701,6 +712,13 @@ class Sahra_Fields {
 	public static function sanitize( $input, $current = array() ) {
 		$schema = self::schema();
 		$out    = array_merge( self::defaults(), is_array( $current ) ? $current : array() );
+
+		// Yönetici alanları çiftin gönderisinden düşürülüyor; duran değer kalır.
+		if ( ! class_exists( 'Sahra_Roles' ) || ! Sahra_Roles::is_manager() ) {
+			foreach ( self::MANAGER_KEYS as $anahtar ) {
+				unset( $input[ $anahtar ] );
+			}
+		}
 
 		foreach ( $schema as $key => $spec ) {
 			if ( ! array_key_exists( $key, (array) $input ) ) {

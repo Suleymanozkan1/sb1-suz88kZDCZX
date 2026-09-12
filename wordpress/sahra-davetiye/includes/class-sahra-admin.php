@@ -225,10 +225,15 @@ class Sahra_Admin {
 		 * Görünürlük anahtarları da onay kutusu: gönderilmediğinde
 		 * "kapalı" demektir. Aksi hâlde bir bölümü kapatmak mümkün
 		 * olmuyordu — eksik alan "dokunulmadı" sayılıyor.
+		 *
+		 * showRsvp burada YOK: artık iki seçenekli bir radyo ve her
+		 * zaman bir değer geliyor. Listede kalsaydı çiftin gönderisinde
+		 * (alan hiç yokken) "kapalı" sayılıp yönetici ayarını
+		 * eziyordu. giftEnabled ve wishesEnabled de radyo.
 		 */
 		foreach ( array(
 			'showLetter', 'showStory', 'showDetails', 'showProgram', 'showGallery',
-			'showLocation', 'showMenu', 'showFamily', 'showChildren', 'showRsvp',
+			'showLocation', 'showMenu', 'showFamily', 'showChildren',
 			'showContact', 'showSocial', 'childrenWelcome',
 		) as $anahtar ) {
 			$ham[ $anahtar ] = ! empty( $ham[ $anahtar ] );

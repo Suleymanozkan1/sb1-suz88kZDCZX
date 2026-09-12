@@ -27,7 +27,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~1330 metin, 0 sorun |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~1520 metin, 0 sorun |
 | `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
@@ -51,6 +51,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `yazim-okuma.php` | güncellemeden önce girilmiş davetiyenin yazımı ekranda düzeliyor mu | 24/24 |
 | `istek10.php` | kalkan alanlar, hediye Yok/Var, otomatik program, marka, katılım raporu | 62/62 |
 | `yukari-qa.js` | yukarı çık butonu (masaüstü + mobil), konumda seçim alanı yok | 18/18 |
+| `form-qa.js` | panelin GERÇEK form POST'u: katılım anahtarı yöneticide, çift kurcalayamıyor, çelişen iki denetim yok | 18/18 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -154,6 +155,18 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   `venues()[0]`'ı yamalıyordu; davetiye başka bir salonu kullanıyordu ve
   tur yamadığı salonu hiç göstermeyen sayfaya bakıp "çocuk hizmeti
   görünmüyor" dedi. Hedef salon davetiyenin `venueId`'sinden okunur.
+- **API'den ölçmek formu ölçmez.** Bütün turlar
+  `Sahra_Invitation::update()` üzerinden yazıyordu; oysa çift ve yönetici
+  FORMU kullanıyor. Hediye için eklediğim Yok/Var radyosu, görünürlük
+  listesindeki aynı adlı onay kutusuyla çelişiyordu ve son gelen öteki
+  seçimi eziyordu — hiçbir tur bunu görmedi. `form-qa.js` gerçek POST'u
+  ölçüyor: aynı ada sahip iki denetim var mı, kaydetmek gerçekten
+  kaydediyor mu, çift kurcalayınca ne oluyor.
+- **Önkoşulu tur kendi kurar.** `yukari-qa.js` müzik açık değilken
+  çakışmayı ölçemiyordu ve başka bir tur müziği kapattığında sessizce
+  eksik ölçüyordu; `istek10.php` de "ilk postayı" okuyup başka bir
+  davetiyenin raporunu kendi raporu sanıyordu. Tur önkoşulunu kurar ve
+  ölçtüğü şeyi kimliğiyle arar.
 - **Ürün sözleşmesi değişince TURUN ÖLÇÜTÜ de değişir.** Salon adı ve
   Instagram hesabı markadan türetilmeye başlayınca `salon-alan.mjs` ve
   `wp-audit-calistir.mjs` o alanlara damga basmaya devam etti: damga
@@ -181,6 +194,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   mümkün değil.
 - Günün programı düğün tipinden (gündüz/akşam) ÜRETİLİR, elle
   girilmez. Tek soru nikah: yoksa o satır hiç çizilmez.
+- Katılım formu YÖNETİCİNİN anahtarı (`Sahra_Fields::MANAGER_KEYS`):
+  salona kaç kişi geleceğini işletme sayıyor. Çift göremez, gönderse de
+  yok sayılır. Kapalıyken kahramandaki "Katılım Durumunu Belirt"
+  düğmesi de çizilmez.
 - Misafir ya da çift konum/harita üzerinde seçim yapamaz. Gömülü
   gezilebilir harita kaldırıldı; konum yalnızca gösterilir, harita
   uygulaması bağlantıları salonu doğru noktada açar.
