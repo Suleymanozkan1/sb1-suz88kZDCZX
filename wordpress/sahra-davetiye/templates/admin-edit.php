@@ -18,7 +18,11 @@ $yonetici    = Sahra_Roles::is_manager();
 $venue       = Sahra_Settings::venue_for( $d['venueId'] ?? '' );
 $sahra_sayfa = 'sahra-davetiye-duzenle';
 
-$conj     = $d['conjunction'] ? $d['conjunction'] : '&';
+/*
+ * Bağlaç sabit: "&". Seçenek sunulmuyordu bile denecek kadar az
+ * kullanılıyordu ve her seçim başlığın ritmini değiştiriyordu.
+ */
+$conj     = Sahra_Fields::CONJUNCTION;
 $onizleme = trim( ( $d['brideName'] ? $d['brideName'] : 'Gelin' ) . ' ' . $conj . ' ' . ( $d['groomName'] ? $d['groomName'] : 'Damat' ) );
 
 $adimlar = array(
@@ -98,19 +102,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 					Sahra_Form::alan( array( 'label' => __( 'Gelin Soyadı', 'sahra-davetiye' ), 'name' => 'sahra[brideSurname]', 'value' => $d['brideSurname'], 'ph' => 'Yılmaz' ) );
 					Sahra_Form::alan( array( 'label' => __( 'Damat Soyadı', 'sahra-davetiye' ), 'name' => 'sahra[groomSurname]', 'value' => $d['groomSurname'], 'ph' => 'Demir' ) );
 					?>
-				</div>
-
-				<div class="alan">
-					<span class="field-label"><?php esc_html_e( 'Başlıkta Nasıl Gösterilsin?', 'sahra-davetiye' ); ?></span>
-					<div class="secenekler">
-						<?php foreach ( Sahra_Fields::conjunction_options() as $deger => $ornek ) : ?>
-							<label class="secenek">
-								<input type="radio" name="sahra[conjunction]" value="<?php echo esc_attr( $deger ); ?>" <?php checked( $deger, $conj ); ?> class="sahra-onizle">
-								<span class="t-label" style="color:var(--c-gold)"><?php esc_html_e( 'Örnek', 'sahra-davetiye' ); ?></span>
-								<span class="ad" style="display:block"><?php echo esc_html( $ornek ); ?></span>
-							</label>
-						<?php endforeach; ?>
-					</div>
 				</div>
 
 				<div class="alan">
@@ -459,8 +450,6 @@ include SAHRA_DIR . 'templates/admin-header.php';
 
 				<div class="ikili">
 					<?php
-					Sahra_Form::alan( array( 'label' => __( 'Dilek Alt Başlık', 'sahra-davetiye' ), 'name' => 'sahra[wishesSubtitle]', 'value' => $d['wishesSubtitle'], 'ph' => 'Bize Bir Not Bırakın' ) );
-					Sahra_Form::alan( array( 'label' => __( 'Dilek Başlık', 'sahra-davetiye' ), 'name' => 'sahra[wishesTitle]', 'value' => $d['wishesTitle'], 'ph' => 'Dilek Defteri' ) );
 					?>
 				</div>
 			</div>

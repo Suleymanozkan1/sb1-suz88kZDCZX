@@ -18,7 +18,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 
 | Tur | Ne ölçer | Beklenen |
 |---|---|---|
-| `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 49/49 |
+| `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 46/46 |
 | `salon-alan.mjs` | her salon alanının davetiyede etkisi | 11/11 |
 | `audit-uyari.js` | 14 sayfada PHP uyarısı / JS hatası | 14 temiz |
 | `audit-wp-rest.mjs` | her REST ucu, her rol | 13/13 |
@@ -27,7 +27,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~875 metin, 0 sorun |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~853 metin, 0 sorun |
 | `wpon.js` | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
@@ -46,6 +46,8 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `musteri-istekleri.php` | çocuk varsayılanı, salon alanları, paylaşım açıklaması, tarih koruması | 16/16 |
 | `musteri-ekran.js` | tarih yalnızca takvimden, adımlar veri kaybetmiyor, çıkış uyarısı | 10/10 |
 | `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 50/50 |
+| `musteri2.php` | salon adı, yazım onarımı, sabit dilek başlığı, sabit bağlaç | 20/20 |
+| `tarih-takvim.js` | dokununca takvim açılıyor; takvimsiz tarayıcıda alan kullanılabilir | 5/5 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.

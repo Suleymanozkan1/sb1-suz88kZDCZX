@@ -16,6 +16,13 @@ defined( 'ABSPATH' ) || exit;
 class Sahra_Fields {
 
 	/** Mekân alanları — davetiyede DEĞİL, ortak ayarda durur. */
+	/*
+	 * İsimleri birleştiren bağlaç. Seçenek olarak duruyordu ("ile",
+	 * "ve", "×"); her biri başlığın ritmini değiştiriyor ve kart, sayfa,
+	 * önizleme üçünde ayrı ayrı hesaplanıyordu. Tek bir işaret kaldı.
+	 */
+	const CONJUNCTION = '&';
+
 	const VENUE_KEYS = array( 'venueName', 'address', 'district', 'city', 'mapUrl', 'appleMapUrl', 'venueDirections', 'venueInstagram', 'venueInstagramLabel', 'venueChildrenNote' );
 
 	/**
@@ -31,7 +38,6 @@ class Sahra_Fields {
 			'groomName'              => array( 'text', '' ),
 			'brideSurname'           => array( 'text', '' ),
 			'groomSurname'           => array( 'text', '' ),
-			'conjunction'            => array( 'text', '&' ),
 
 			'weddingDate'            => array( 'date', '' ),
 			// Oturum: saatleri BU belirler, iki alan ondan türer.
@@ -76,8 +82,6 @@ class Sahra_Fields {
 			'giftRegistryUrl'        => array( 'url', '' ),
 
 			'wishesEnabled'          => array( 'bool', true ),
-			'wishesTitle'            => array( 'text', '' ),
-			'wishesSubtitle'         => array( 'text', '' ),
 
 			'soundEnabled'           => array( 'bool', true ),
 			'soundVolume'            => array( 'int', 40 ),
@@ -168,16 +172,6 @@ class Sahra_Fields {
 		);
 	}
 
-	/** Bağlaç seçenekleri, örnekleriyle — Next sürümündeki kartların aynısı. */
-	public static function conjunction_options() {
-		return array(
-			'&'   => 'Zehra & Ahmet',
-			'ile' => 'Zehra ile Ahmet',
-			've'  => 'Zehra ve Ahmet',
-			'×'   => 'Zehra × Ahmet',
-		);
-	}
-
 	/** Hazır davet metinleri. */
 	public static function ready_texts() {
 		return array(
@@ -250,7 +244,14 @@ class Sahra_Fields {
 	 * yeni sözcük sayılır: "ali-can" → "Ali-Can".
 	 */
 	public static function tr_title( $metin ) {
-		$metin = trim( preg_replace( '/\s+/u', ' ', (string) $metin ) );
+		/*
+		 * Satır sonları KORUNUYOR: aile alanları iki satırlı ve
+		 * davetiyede nl2br ile çiziliyor; bütün boşlukları tek boşluğa
+		 * indirmek iki satırı birleştirip alt alta yazılanı yan yana
+		 * getiriyordu.
+		 */
+		$metin = preg_replace( '/[ \t]+/u', ' ', (string) $metin );
+		$metin = trim( preg_replace( '/[ \t]*\R[ \t]*/u', "\n", $metin ) );
 		if ( '' === $metin ) {
 			return '';
 		}
@@ -272,7 +273,102 @@ class Sahra_Fields {
 			$basta = false;
 		}
 
+		/*
+		 * Bağlaçlar büyük harfle başlamaz: "Ayşe ve Emrah" doğru,
+		 * "Ayşe Ve Emrah" değil. Satır başındaki bağlaca dokunulmuyor.
+		 */
+		$out = preg_replace_callback(
+			'/(?<=[\s\-])(Ve|İle|Ile)(?=[\s\-]|$)/u',
+			static function ( $e ) {
+				return self::tr_lower( $e[1] );
+			},
+			$out
+		);
+
 		return $out;
+	}
+
+	/** Listedeki belirtilen alanlarda yazım onarımı. */
+	private static function liste_yazim( $liste, $alanlar ) {
+		if ( ! is_array( $liste ) ) {
+			return $liste;
+		}
+
+		foreach ( $liste as $i => $satir ) {
+			if ( ! is_array( $satir ) ) {
+				continue;
+			}
+			foreach ( $alanlar as $alan ) {
+				if ( isset( $satir[ $alan ] ) ) {
+					$liste[ $i ][ $alan ] = self::tr_fix_case( $satir[ $alan ] );
+				}
+			}
+		}
+
+		return $liste;
+	}
+
+	/** Menüde grup başlığı ve satırlar. */
+	private static function menu_yazim( $menu ) {
+		if ( ! is_array( $menu ) ) {
+			return $menu;
+		}
+
+		foreach ( $menu as $i => $grup ) {
+			if ( ! is_array( $grup ) ) {
+				continue;
+			}
+			if ( isset( $grup['title'] ) ) {
+				$menu[ $i ]['title'] = self::tr_fix_case( $grup['title'] );
+			}
+			if ( isset( $grup['items'] ) && is_array( $grup['items'] ) ) {
+				$menu[ $i ]['items'] = array_map( array( __CLASS__, 'tr_fix_case' ), $grup['items'] );
+			}
+		}
+
+		return $menu;
+	}
+
+	/**
+	 * Bozuk yazılmış sözcüğü onarır: "şaHin" → "Şahin", "YILMAz" → "Yılmaz".
+	 *
+	 * Serbest metinde sözcük başlarını büyütmek cümleyi bozuyor ("ve" →
+	 * "Ve"), tamamını küçültmek de özel adları siliyor. O yüzden yalnızca
+	 * KENDİ İÇİNDE bozuk olan sözcüğe dokunuluyor: ilk harften sonra
+	 * büyük harf varsa ve sözcük tamamen büyük değilse düzeltiliyor.
+	 *
+	 * Tamamı büyük sözcükler kasıtlı sayılır ve korunur — "TEB", "IBAN",
+	 * "DJ" gibi kısaltmalar düzeltilecek hata değil.
+	 */
+	public static function tr_fix_case( $metin ) {
+		$metin = (string) $metin;
+		if ( '' === trim( $metin ) ) {
+			return '';
+		}
+
+		return preg_replace_callback(
+			'/\p{L}[\p{L}\x{2019}\x{0027}]*/u',
+			static function ( $e ) {
+				$sozcuk = $e[0];
+
+				if ( mb_strlen( $sozcuk, 'UTF-8' ) < 2 ) {
+					return $sozcuk;
+				}
+
+				// Tamamı büyük: kasıtlı kısaltma.
+				if ( self::tr_upper( $sozcuk ) === $sozcuk ) {
+					return $sozcuk;
+				}
+
+				$kuyruk = mb_substr( $sozcuk, 1, null, 'UTF-8' );
+				if ( self::tr_lower( $kuyruk ) === $kuyruk ) {
+					return $sozcuk; // İçi zaten düzgün.
+				}
+
+				return self::tr_upper( mb_substr( $sozcuk, 0, 1, 'UTF-8' ) ) . self::tr_lower( $kuyruk );
+			},
+			$metin
+		);
 	}
 
 	/** Türkçe ay adları — bağlantı adresinde kullanılır (ASCII). */
@@ -549,9 +645,28 @@ class Sahra_Fields {
 		 * Adların yazımı BURADA düzeltiliyor, formda değil: REST ucundan
 		 * ya da elle gönderilen bir istekte de aynı kural işlesin.
 		 */
-		foreach ( array( 'brideName', 'groomName', 'brideSurname', 'groomSurname' ) as $key ) {
+		foreach ( array( 'brideName', 'groomName', 'brideSurname', 'groomSurname', 'brideFamilyText', 'groomFamilyText', 'giftAccountName' ) as $key ) {
 			$out[ $key ] = self::tr_title( $out[ $key ] );
 		}
+
+		/*
+		 * Serbest metinde yalnızca BOZUK sözcük onarılıyor.
+		 *
+		 * Davetiyeyi müşteri dolduruyor ve caps lock yarı yolda kalıyor:
+		 * "şaHin", "YILMAz", "HAYATımızın". Sözcük başlarını büyütmek
+		 * cümleyi bozardı ("ve" → "Ve"), hepsini küçültmek özel adları
+		 * silerdi; tamamı büyük yazılanlar da kasıtlı kısaltma sayılıp
+		 * korunuyor.
+		 */
+		foreach ( array( 'invitationText', 'giftNote', 'giftBankName' ) as $key ) {
+			$out[ $key ] = self::tr_fix_case( $out[ $key ] );
+		}
+
+		// Listelerde de aynı onarım: hikâye, program, menü ve hesap adları.
+		$out['storyItems']   = self::liste_yazim( $out['storyItems'], array( 'title', 'desc' ) );
+		$out['programItems'] = self::liste_yazim( $out['programItems'], array( 'title', 'desc' ) );
+		$out['socialLinks']  = self::liste_yazim( $out['socialLinks'], array( 'name' ) );
+		$out['menuGroups']   = self::menu_yazim( $out['menuGroups'] );
 
 		/*
 		 * Saat oturumdan TÜRETİLİR, ayrıca sorulmaz. Salon iki oturum

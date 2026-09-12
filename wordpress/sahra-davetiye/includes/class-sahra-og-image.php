@@ -101,9 +101,8 @@ class Sahra_Og_Image {
 					SAHRA_VERSION,
 					$davetiye['brideName'],
 					$davetiye['groomName'],
-					$davetiye['conjunction'],
 					$davetiye['weddingDate'],
-					$davetiye['city'],
+					$davetiye['venueName'],
 					$davetiye['theme'],
 					$davetiye['sealType'],
 					$davetiye['sealMonogram'],
@@ -149,7 +148,7 @@ class Sahra_Og_Image {
 		$acik = self::color( $im, $t['onDark'] );
 		$vurgu = self::color( $im, $altin );
 
-		$conjunction = $davetiye['conjunction'] ? $davetiye['conjunction'] : '&';
+		$conjunction = Sahra_Fields::CONJUNCTION;
 		$isimler     = trim( $davetiye['brideName'] . ' ' . $conjunction . ' ' . $davetiye['groomName'] );
 
 		/*
@@ -170,7 +169,13 @@ class Sahra_Og_Image {
 			$monogram = str_replace( ' ', '', $monogram );
 		}
 
-		$alt = array_filter( array( Sahra_Render::format_date( $davetiye['weddingDate'] ), $davetiye['city'] ) );
+		/*
+		 * Kartta da SALON adı yazıyor, çıplak şehir değil: "İstanbul"
+		 * linki gören kişiye bir şey söylemiyor, salonun adı hem yeri
+		 * anlatıyor hem işletme için akılda kalıyor.
+		 */
+		$sahra_yer = $davetiye['venueName'] ? $davetiye['venueName'] : $davetiye['city'];
+		$alt       = array_filter( array( Sahra_Render::format_date( $davetiye['weddingDate'] ), $sahra_yer ) );
 		$alt = implode( ' · ', $alt );
 
 		// Mühür madalyonu

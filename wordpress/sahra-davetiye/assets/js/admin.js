@@ -123,9 +123,9 @@
 			return;
 		}
 
+		/* Bağlaç sabit: seçenekler kaldırıldı, okunacak bir radyo yok. */
 		function bagla() {
-			var secili = document.querySelector( 'input[name="sahra[conjunction]"]:checked' );
-			return secili ? secili.value : '&';
+			return '&';
 		}
 
 		/** "Ahmet Yılmaz" → "ahmet-yilmaz"; tire KORUNUR. */
@@ -764,17 +764,53 @@
 	 */
 	function tarihAlanlari() {
 		Array.prototype.forEach.call( document.querySelectorAll( '.sahra-tarih' ), function ( alan ) {
+			/*
+			 * Takvimi açamıyorsak yazmayı da ENGELLEMEYECEĞİZ.
+			 *
+			 * `showPicker` eski tarayıcılarda yok; engelleyip
+			 * açamayınca alan hiç doldurulamaz hâle geliyordu — tarihsiz
+			 * davetiye demek.
+			 */
+			var takvimVar = 'function' === typeof alan.showPicker;
+			if ( ! takvimVar ) {
+				return;
+			}
+
 			function takvim() {
-				if ( 'function' === typeof alan.showPicker ) {
-					try {
-						alan.showPicker();
-					} catch ( e ) {
-						/* Kullanıcı hareketi olmadan çağrılırsa tarayıcı
-						   reddediyor; alan yine de kullanılabilir. */
-					}
+				try {
+					alan.showPicker();
+				} catch ( e ) {
+					/* Kullanıcı hareketi olmadan çağrılırsa tarayıcı
+					   reddediyor; alan yine kullanılabilir. */
 				}
 			}
 
+			/*
+			 * Takvim `mousedown`da açılıyor, `click`te değil.
+			 *
+			 * Tıklamanın kendi işi (gg/aa/yyyy bölmesine girme) araya
+			 * girip açılan takvimi hemen kapatıyordu. Varsayılan davranış
+			 * durduruluyor, odak elle veriliyor ve takvim açılıyor:
+			 * alanın herhangi bir yerine dokunmak takvimi getiriyor.
+			 */
+			alan.addEventListener( 'mousedown', function ( e ) {
+				e.preventDefault();
+				alan.focus();
+				takvim();
+			} );
+
+			/* Dokunmatikte mousedown gelmeyebiliyor. */
+			alan.addEventListener( 'touchstart', function () {
+				alan.focus();
+				takvim();
+			}, { passive: true } );
+
+			/*
+			 * Rakam yazmak engelli: yıla fazladan bir hane girmek çok
+			 * kolaydı. Ok tuşları çalışmaya devam ediyor — klavyeyle
+			 * kullanan kimse dışarıda kalmasın, ve okla fazladan hane
+			 * girilemiyor.
+			 */
 			alan.addEventListener( 'keydown', function ( e ) {
 				var izinli = [ 'Tab', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight' ];
 				if ( izinli.indexOf( e.key ) === -1 && ! e.ctrlKey && ! e.metaKey ) {
@@ -782,8 +818,6 @@
 					takvim();
 				}
 			} );
-
-			alan.addEventListener( 'click', takvim );
 		} );
 	}
 

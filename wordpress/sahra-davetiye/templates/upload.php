@@ -13,7 +13,7 @@
 defined( 'ABSPATH' ) || exit;
 
 $d       = $davetiye;
-$conj    = $d['conjunction'] ? $d['conjunction'] : '&';
+$conj    = Sahra_Fields::CONJUNCTION;
 $isimler = trim( $d['brideName'] . ' ' . $conj . ' ' . $d['groomName'] );
 ?>
 <!DOCTYPE html>

@@ -69,7 +69,7 @@ include SAHRA_DIR . 'templates/admin-header.php';
 			<div class="sahra-list">
 				<?php foreach ( $davetiyeler as $d ) : ?>
 					<?php
-					$conj    = $d['conjunction'] ? $d['conjunction'] : '&';
+					$conj    = Sahra_Fields::CONJUNCTION;
 					$isimler = trim( $d['brideName'] . ' ' . $conj . ' ' . $d['groomName'] );
 					$adres   = Sahra_Invitation::url( $d['slug'] );
 					$qr      = Sahra_Invitation::upload_url( $d['slug'] );

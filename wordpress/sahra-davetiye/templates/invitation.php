@@ -14,7 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 $d       = $davetiye;
-$conj    = $d['conjunction'] ? $d['conjunction'] : '&';
+$conj    = Sahra_Fields::CONJUNCTION;
 
 /*
  * Bölüm numarası sabit yazılamaz: bölümler kapatılabiliyor ve kapalı
@@ -79,6 +79,16 @@ $geri_sayim = $d['weddingDate']
 	$sahra_mekan = $d['venueName']
 		? trim( $d['venueName'] . ( $d['district'] ? ', ' . $d['district'] : '' ) )
 		: $d['city'];
+
+	/*
+	 * Misafire gösterilen yer adı: SALON, çıplak şehir değil.
+	 *
+	 * "İstanbul" davetiyede hiçbir şey söylemiyor — misafir düğünün
+	 * hangi şehirde değil hangi salonda olduğunu merak ediyor. İmza ve
+	 * hero satırı kısa olduğu için orada yalnızca salonun adı duruyor;
+	 * ilçe ve tam adres konum bölümünde zaten var.
+	 */
+	$sahra_salon_adi = $d['venueName'] ? $d['venueName'] : $d['city'];
 	?>
 	<title><?php echo esc_html( $sahra_baslik ); ?></title>
 	<meta name="description" content="<?php echo esc_attr( $d['invitationText'] ? $d['invitationText'] : $isimler . ' düğün davetiyesi' ); ?>">
@@ -306,7 +316,7 @@ $geri_sayim = $d['weddingDate']
 				<?php endif; ?>
 
 				<div class="hero-meta t-body numerals reveal">
-					<?php foreach ( array_filter( array( $tarih, $gun, $saat, $d['city'] ) ) as $parca ) : ?>
+					<?php foreach ( array_filter( array( $tarih, $gun, $saat, $sahra_salon_adi ) ) as $parca ) : ?>
 						<span><?php echo esc_html( $parca ); ?></span>
 					<?php endforeach; ?>
 				</div>
@@ -365,7 +375,7 @@ $geri_sayim = $d['weddingDate']
 						<?php if ( $tam_adlar ) : ?>
 							<p class="letter-names"><?php echo esc_html( implode( '  ' . $conj . '  ', $tam_adlar ) ); ?></p>
 						<?php endif; ?>
-						<p class="letter-date numerals"><?php echo esc_html( implode( ' · ', array_filter( array( $tarih, $d['city'] ) ) ) ); ?></p>
+						<p class="letter-date numerals"><?php echo esc_html( implode( ' · ', array_filter( array( $tarih, $sahra_salon_adi ) ) ) ); ?></p>
 					</div>
 				</article>
 			</div>
@@ -802,9 +812,9 @@ $geri_sayim = $d['weddingDate']
 				<div class="wrap">
 					<div class="section-head reveal" style="color:var(--c-gold)">
 						<span class="num numerals"><?php echo esc_html( $sahra_no() ); ?></span>
-						<span class="t-label"><?php echo esc_html( $d['wishesSubtitle'] ? $d['wishesSubtitle'] : 'Bize Bir Not Bırakın' ); ?></span>
+						<span class="t-label">Bize Bir Not Bırakın</span>
 					</div>
-					<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)"><?php echo esc_html( $d['wishesTitle'] ? $d['wishesTitle'] : 'Dilek Defteri' ); ?></h2>
+					<h2 class="t-display section-title reveal" style="color:var(--c-on-dark)">Dilek Defteri</h2>
 
 					<?php if ( $wishes ) : ?>
 						<div class="wish-grid" style="margin-bottom:var(--sp-md)">
