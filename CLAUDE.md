@@ -46,7 +46,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `musteri-istekleri.php` | çocuk varsayılanı, salon alanları, paylaşım açıklaması, tarih koruması | 16/16 |
 | `musteri-ekran.js` | tarih yalnızca takvimden, adımlar veri kaybetmiyor, çıkış uyarısı | 10/10 |
 | `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 58/58 |
-| `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç | 25/25 |
+| `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç | 24/24 |
 | `tarih-takvim.js` | dokununca takvim açılıyor; takvimsiz tarayıcıda alan kullanılabilir | 5/5 |
 | `yazim-okuma.php` | güncellemeden önce girilmiş davetiyenin yazımı ekranda düzeliyor mu | 24/24 |
 | `istek10.php` | kalkan alanlar, hediye Yok/Var, otomatik program, marka, katılım raporu (listesiz kip) | 63/63 |
@@ -54,7 +54,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `form-qa.js` | panelin GERÇEK form POST'u: katılım anahtarı yöneticide, çift kurcalayamıyor, çelişen iki denetim yok | 18/18 |
 | `davetli.php` | davetli listesi: eşleştirme (ad/telefon), sayılar, rapor, gizlilik, kademeli silme | 43/43 |
 | `davetli-ekran.js` | davetli ekranı: form kaydediyor, durum tablosu modelle uyuşuyor, başkasının listesi sızmıyor | 17/17 |
-| `sosyal-punto.php` | sürüm damgası, marka hesabı, kullanıcı adından bağlantı, ekranda @kullanıcı, perde videosu | 27/27 |
+| `sosyal-punto.php` | sürüm damgası, marka hesabı, kullanıcı adından bağlantı, ekranda @kullanıcı, açılış videosu | 27/27 |
 | `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
 | `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, perde videosu, Kaydır düğmesi, en küçük punto 14px, uçtan uca sıkıştırma | 35/35 |
@@ -218,6 +218,36 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   dedi. Damga, hâlâ elle yazılabilen bir alana (adres) taşındı; türetilen
   alanlar için ölçüt "damga göründü mü" değil "marka iki değeri birden
   değiştirdi mi".
+- **Aracın ARGÜMANI yanlış verilince de sessizce ölçer.** `ayirt.js`'e
+  taban adres yerine davetiyenin tam adresi verildi; adres iki kez
+  eklenip 404 döndü ve tur dokuz mührün dokuzunu da AYNI hata sayfasından
+  tartıp "1 ayrı görünüm" dedi — ürün suçlandı, oysa dokuz mühür
+  gerçekten farklıydı. Üstelik aracın kendi sözlüğü şemadan ayrı
+  (`seal` → `sealType`) ve tanımadığı tür sessizce `theme`'e düşüyordu.
+  Tur artık hedef sayfanın 200 döndüğünü ve ölçeceği öğenin sayfada
+  bulunduğunu doğruluyor, ölçemediği seçenek varsa "ÖLÇÜLEMEDİ" diye
+  düşüyor.
+- **Ön ek karşılaştırması gerilemeyi göremez.** `salon-alan.mjs`'e
+  beklenen etiket `@sahradavet` diye ELLE yazılmıştı; gerçek değer
+  `@sahradavetsalonu` olduğu için `includes()` geçiyordu. Kullanıcının
+  bildirdiği tam o gerileme (etiketin `@sahradavet`e dönmesi) turdan
+  geçerdi. Beklenen değer artık `Sahra_Settings::brands()`'ten okunuyor;
+  ürünle birlikte okumak totoloji olmasın diye ölçüt sözleşmenin kendisi:
+  etiket, hesabın adresindeki kullanıcı adının TA KENDİSİ olmalı — ve
+  etiket sayfanın tamamında değil, o hesabın KENDİ bağlantısının içinde
+  aranıyor (sayfada çiftin kendi Instagram bağlantısı da var).
+- **Bir önceki koşudan kalan önkoşul dosyası turu boşa çevirir.**
+  `wp-hesap-sil3.php` `/tmp/silinecek.json`'u okuyordu; dosya eski koşudan
+  kalınca hesap zaten silinmişti, bütün sayaçlar 0 okundu ve "silindi mi"
+  diye soran yedi ölçüt boşlukta "geçti" dedi. Yalnızca "veri gerçekten
+  var mı" ölçütü düştüğü için fark edildi. Tur artık tohumu kendi koşuyor.
+- **Video PERDEYE arka plan olamaz.** İki ayrı nedenle: `.curtain-video`
+  `z-index: 0`'dayken donuk perde panelleri üstüne boyanıyor ve video HİÇ
+  görünmüyordu; öne alınınca da asıl sorun çıktı — varlığın ortasındaki
+  Sahra logosu ve telefon numarası, perdedeki "Zehra & Ahmet" ile mührün
+  tam üstüne düşüyor. İki ortalanmış altın kompozisyon birbiriyle
+  çakışıyor. Karar ekran görüntüsünden verildi, koddan değil: video
+  perdenin ÖNÜNDE bağımsız bir açılış katmanı olarak duruyor.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -255,9 +285,13 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - Davetiye açılışta SESSİZ: müzik kendiliğinden çalmaz, misafir sağ
   alttaki düğmeye dokununca başlar. Kahramanda katılım düğmesi yok;
   katılım bölümü sayfada durur.
-- Açılış videosu PERDENİN ARKA PLANI, tam ekran engel değil: sessiz,
-  döngüde, ilk kare çizilene kadar görünmez. Yüklenmezse sahne olduğu
-  gibi çalışır. Video dosyası `+faststart` ile kodlanır.
+- Açılış videosu perdenin ÖNÜNDE bağımsız bir katman: sessiz, tam
+  ekran, "Geç →" ile atlanabilir, bitince kendiliğinden kapanır.
+  Yüklenmezse (ya da azaltılmış hareket isteniyorsa) hiç çizilmez ve
+  sahne olduğu gibi çalışır. Perdeye arka plan YAPILMAZ: varlığın
+  logosu ve telefonu çiftin adlarıyla çakışıyor. Video dosyası
+  `+faststart` ile kodlanır — `moov` atomu sonda kalırsa tarayıcı
+  oynatmadan önce dosyanın tamamını indiriyor.
 - "Kaydır" bir düğmedir: her dokunuş bir sonraki BÖLÜMÜN tepesine
   götürür.
 - Sosyal hesap etiketinde adres değil `@kullanıcıadı` görünür.

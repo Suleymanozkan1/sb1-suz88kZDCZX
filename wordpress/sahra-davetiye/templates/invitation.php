@@ -137,6 +137,27 @@ $geri_sayim = $d['weddingDate']
 <div class="scroll-progress" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
+<?php
+/*
+ * Açılış videosu — kendi başına, tam ekran, bir kez.
+ *
+ * Arka plan olarak denendi ve olmadı: videonun kendi ortasında Sahra
+ * logosu ve telefon numarası var; çiftin adıyla ve mühürle üst üste
+ * biniyordu. Bu varlık kendi anını istiyor.
+ *
+ * Asıl "kötü açılıyor" sorunu dosyadaydı: moov atomu sondaydı, tarayıcı
+ * oynatmadan önce 2,4 MB'ın tamamını indiriyordu. Dosya +faststart ile
+ * yeniden kodlandı; ilk kare neredeyse anında geliyor.
+ *
+ * Yine de hiçbir zaman önkoşul değil: oynatılamazsa, gelmezse ya da
+ * ziyaretçi geçerse perde hemen açılıyor.
+ */
+?>
+<div class="intro" data-src="<?php echo esc_url( SAHRA_URL . 'assets/video/sahra-intro.mp4?v=' . SAHRA_VERSION ); ?>">
+	<video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
+	<button type="button" class="intro-gec"><?php esc_html_e( 'Geç →', 'sahra-davetiye' ); ?></button>
+</div>
+
 <?php /* ─────────────────────────────────────────────── perde ve mühür */ ?>
 <div class="curtain"
 	<?php
@@ -153,22 +174,6 @@ $geri_sayim = $d['weddingDate']
 	data-envelope-sound="<?php echo esc_url( SAHRA_URL . 'assets/muzik/zarf-acilma.mp3' ); ?>"
 	data-volume="<?php echo esc_attr( (int) $d['soundVolume'] ); ?>"
 	data-sound="<?php echo $d['soundEnabled'] ? '1' : '0'; ?>">
-	<?php
-	/*
-	 * Açılış videosu perdenin ARKA PLANI.
-	 *
-	 * Önce tam ekran, her şeyi engelleyen bir açılıştı: dosya 2,4 MB'tı,
-	 * moov atomu da sonundaydı — tarayıcı oynatmaya başlamadan önce
-	 * tamamını indirmek zorunda kalıyor ve misafir siyah ekrana bakıyordu.
-	 * Artık perdenin arkasında dönüyor: yüklenmezse sahne olduğu gibi
-	 * çalışır, yüklendiğinde de kimseyi bekletmez.
-	 */
-	?>
-	<div class="curtain-video" aria-hidden="true"
-		data-src="<?php echo esc_url( SAHRA_URL . 'assets/video/sahra-intro.mp4?v=' . SAHRA_VERSION ); ?>">
-		<video muted loop playsinline preload="none"></video>
-	</div>
-
 	<?php if ( $d['coverImage'] ) : ?>
 		<?php
 		/*

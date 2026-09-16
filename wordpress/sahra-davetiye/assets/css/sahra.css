@@ -1414,34 +1414,52 @@ html.sahra-html {
 
 /* ══════════════════════════════════════════════ AÇILIŞ VİDEOSU ════ */
 
-/* Perdenin ARKA PLANI: sahneyi engellemiyor, ona zemin oluyor. */
-.curtain-video {
-  position: absolute;
+/* Perdenin de üstünde, kendi anında. */
+.intro {
+  position: fixed;
   inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  background: var(--c-night);
-  /* Yüklenene kadar görünmüyor: yarım kare bir titreme olmuyor. */
+  z-index: 200;
+  background: #000;
+  display: grid;
+  place-items: center;
+  transition: opacity 0.7s ease;
+}
+
+.intro.kapaniyor {
   opacity: 0;
-  transition: opacity 1.2s ease;
   pointer-events: none;
 }
 
-.curtain-video.hazir {
-  opacity: 0.55;
-}
-
-/* Dikey video geniş ekranda da boşluk bırakmadan doluyor; kırpılan
-   kenarlar zaten metnin arkasında kalan alan. */
-.curtain-video video {
+/*
+ * `contain`: dikey videoyu geniş ekranda kırpmak logonun üstünü
+ * kesiyordu. Videonun kendi zemini siyah, sayfanınki de koyu — kenarda
+ * bant görünmüyor.
+ */
+.intro-video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
+  object-fit: contain;
+  background: #000;
+}
+
+.intro-gec {
+  position: absolute;
+  right: var(--sp-sm);
+  bottom: var(--sp-sm);
+  padding: 0.55rem 1.1rem;
+  border: 1px solid rgba(176, 141, 63, 0.45);
+  border-radius: 999px;
+  background: rgba(13, 8, 5, 0.55);
+  backdrop-filter: blur(6px);
+  color: var(--c-gold-light);
+  font-family: var(--f-body);
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .curtain-video {
+  .intro {
     transition: none;
   }
 }

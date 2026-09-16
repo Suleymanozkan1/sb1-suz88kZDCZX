@@ -548,40 +548,61 @@
 	}
 
 	/*
-	 * Perdenin arka plan videosu.
+	 * Açılış videosu — kendi başına, bir kez.
 	 *
-	 * `preload="none"` ve kaynak JS ile veriliyor: hareket azaltma isteği
-	 * olan ziyaretçi dosyayı hiç indirmiyor. Oynatma reddedilirse ya da
-	 * dosya gelmezse katman görünmüyor ve sahne olduğu gibi çalışıyor —
-	 * video hiçbir zaman açılışın önkoşulu değil.
+	 * Hiçbir zaman önkoşul değil: oynatma reddedilirse, dosya gelmezse
+	 * ya da 'ended' hiç ulaşmazsa perde açılıyor. Hareket azaltma
+	 * isteğinde hiç indirilmiyor.
 	 */
-	function perdeVideosu() {
-		var kutu = kok.querySelector( '.curtain-video' );
+	function acilisVideosu() {
+		var kutu = kok.querySelector( '.intro' );
 		if ( ! kutu ) {
 			return;
 		}
 
-		var video = kutu.querySelector( 'video' );
-		if ( ! video || window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) {
+		var video = kutu.querySelector( '.intro-video' );
+		var gec = kutu.querySelector( '.intro-gec' );
+		var kapandi = false;
+		var zamanlayici = null;
+
+		function kapat() {
+			if ( kapandi ) {
+				return;
+			}
+			kapandi = true;
+			if ( zamanlayici ) {
+				clearTimeout( zamanlayici );
+			}
+			kutu.classList.add( 'kapaniyor' );
+			if ( video ) {
+				video.pause();
+			}
+			setTimeout( function () {
+				kutu.parentNode && kutu.parentNode.removeChild( kutu );
+			}, 800 );
+		}
+
+		if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches || ! video ) {
 			kutu.parentNode && kutu.parentNode.removeChild( kutu );
 			return;
 		}
 
-		function vazgec() {
-			kutu.classList.remove( 'hazir' );
-		}
-
-		video.addEventListener( 'error', vazgec );
-		// Görünürlük ilk kare ÇİZİLDİĞİNDE: boş bir katman belirmesin.
-		video.addEventListener( 'playing', function () {
-			kutu.classList.add( 'hazir' );
-		} );
+		gec && gec.addEventListener( 'click', kapat );
+		video.addEventListener( 'ended', kapat );
+		video.addEventListener( 'error', kapat );
 
 		video.src = kutu.getAttribute( 'data-src' ) || '';
 		var oynat = video.play();
 		if ( oynat && oynat.catch ) {
-			oynat.catch( vazgec );
+			oynat.catch( kapat );
 		}
+
+		video.addEventListener( 'loadedmetadata', function () {
+			var sure = isFinite( video.duration ) ? video.duration : 6;
+			zamanlayici = setTimeout( kapat, ( sure + 1.2 ) * 1000 );
+		} );
+		// Üst sınır: meta veri hiç gelmezse de ekran açılsın.
+		setTimeout( kapat, 12000 );
 	}
 
 	/*
@@ -629,6 +650,6 @@
 	dilekFormu();
 	paylas();
 	yukariCik();
-	perdeVideosu();
+	acilisVideosu();
 	kaydirDugmesi();
 } )();
