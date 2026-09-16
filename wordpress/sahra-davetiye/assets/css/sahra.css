@@ -56,19 +56,22 @@
             'Liberation Mono', 'Courier New', monospace;
 
   --t-hero: clamp(2.75rem, 9.5vw, 7rem);
-  --t-display: clamp(1.85rem, 4.4vw, 3.25rem);
-  --t-h2: clamp(1.5rem, 2.9vw, 2.15rem);
-  --t-lead: clamp(1.25rem, 1.8vw, 1.5rem);
+  --t-display: clamp(2.1rem, 4.6vw, 3.4rem);
+  --t-h2: clamp(1.75rem, 3vw, 2.25rem);
+  --t-lead: clamp(1.375rem, 1.9vw, 1.625rem);
   /* Taban 16px: 0.9rem (14.4px) küçük ekranda zor okunuyordu. */
-  --t-body: clamp(1.0625rem, 1.25vw, 1.1875rem);
+  --t-body: clamp(1.1875rem, 1.3vw, 1.25rem);
   /* 10px'ten yükseltildi: 0.26em harf aralıklı büyük harf o boyutta
      okunmuyordu. */
   /*
-   * Etiketler 11px'den başlıyordu: aralıklı, büyük harfli ve ince bir
-   * yazıda bu boy telefonda okunmuyor. Taban 14px.
+   * Etiketler 11px'den başlıyordu, sonra 14, sonra 15 oldu; telefonda
+   * hâlâ küçüktü. Sorun yapısaldı: `clamp`in orta terimi `vw` tabanlı
+   * ve 390px'te değeri küçük kalıyor — MOBİL her zaman ALT SINIRA
+   * yapışıyor, üst sınırı yükseltmek telefonu hiç etkilemiyor. Büyütme
+   * artık alt sınırdan yapılıyor. Taban 17px.
    */
-  --t-label: clamp(0.9375rem, 1.05vw, 1.0625rem);
-  --t-numeral: clamp(1.375rem, 2.4vw, 1.9375rem);
+  --t-label: clamp(1.0625rem, 1.1vw, 1.125rem);
+  --t-numeral: clamp(1.5rem, 2.5vw, 2rem);
 
   --ls-hero: -0.035em;
   --ls-display: -0.02em;
@@ -115,7 +118,16 @@
   display: block;
 }
 
-.sahra-page button {
+/*
+ * Sıfırlama `:where()` içinde: ÖZGÜLLÜĞÜ SIFIR olsun diye.
+ *
+ * `.sahra-page button` (0,1,1) `.cta`dan (0,1,0) daha özgüldü ve kaynak
+ * sırası ne olursa olsun kazanıyordu: bütün düğmeler `font: inherit` ile
+ * gövde puntosuna çakılıydı. Punto ölçeğini üç kez yükselttim, düğmelere
+ * hiç işlemedi — "Gönder" 16px'te kaldı. Sıfırlama tarayıcının kendi
+ * stilini temizlemeli, bileşenin seçimini değil.
+ */
+:where(.sahra-page button) {
   font: inherit;
   color: inherit;
   background: none;
@@ -348,7 +360,7 @@ html.sahra-html {
 
 .section-head .num {
   font-family: var(--f-display);
-  font-size: 0.875rem;
+  font-size: var(--t-label);
   opacity: 0.85;
 }
 
@@ -945,13 +957,13 @@ html.sahra-html {
 .letter-names {
   margin-top: var(--sp-sm);
   font-family: var(--f-display);
-  font-size: clamp(1rem, 1.7vw, 1.2rem);
+  font-size: clamp(1.1875rem, 1.9vw, 1.4rem);
   color: var(--c-on-light);
 }
 
 .letter-date {
   margin-top: 0.5rem;
-  font-size: 0.875rem;
+  font-size: var(--t-label);
   color: var(--c-on-light-faint);
 }
 
@@ -1172,7 +1184,7 @@ html.sahra-html {
 .gal-no {
   bottom: 0.75rem;
   left: 1rem;
-  font-size: 0.875rem;
+  font-size: var(--t-label);
   color: rgba(247, 241, 230, 0.9);
 }
 
@@ -1331,7 +1343,9 @@ html.sahra-html {
   width: 100%;
   padding: 0.75rem 0;
   font-family: var(--f-body);
-  font-size: 1rem;
+  /* Girdi metni de ölçeğe bağlı: sabit 1rem, ölçek yükselince yerinde
+     kalıyordu. (16px altına İNMEMELİ — iOS odakta sayfayı yakınlaştırır.) */
+  font-size: var(--t-body);
   background: transparent;
   border: 0;
   border-bottom: 1px solid rgba(226, 205, 151, 0.38);
@@ -1530,7 +1544,7 @@ html.sahra-html {
 
 .ipucu-dilek {
   margin-top: 0.6rem;
-  font-size: 0.875rem;
+  font-size: var(--t-label);
   color: var(--c-on-dark-faint);
 }
 
@@ -1620,7 +1634,7 @@ html.sahra-html {
   backdrop-filter: blur(6px);
   color: var(--c-gold-light);
   font-family: var(--f-body);
-  font-size: 0.875rem;
+  font-size: var(--t-label);
   letter-spacing: 0.12em;
   cursor: pointer;
 }
@@ -1922,7 +1936,7 @@ html.sahra-html {
 
 .giris-not {
   margin-top: var(--sp-md);
-  font-size: 0.875rem;
+  font-size: var(--t-label);
   color: var(--c-on-dark-faint);
 }
 

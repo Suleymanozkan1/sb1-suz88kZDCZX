@@ -57,7 +57,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `sosyal-punto.php` | sürüm damgası, marka hesabı, kullanıcı adından bağlantı, ekranda @kullanıcı, açılış videosu | 27/27 |
 | `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
-| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, en küçük punto 14px, uçtan uca sıkıştırma | 36/36 |
+| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, mobilde en küçük punto 17px (girdiler dahil), uçtan uca sıkıştırma | 36/36 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -298,6 +298,28 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   bambaşkaydı. Ölçüm ürünün kendi DOM'unda yapılır. Videoyu çizdirmek
   için `poster` + betiği engelleme yeterli (başsız tarayıcı H.264
   çözemiyor).
+- **`clamp`in üst sınırını yükseltmek MOBİLİ hiç etkilemez.** Orta terim
+  `vw` tabanlı ve 390px'te değeri küçük kalıyor; telefon her zaman ALT
+  SINIRA yapışıyor. Puntoyu üç kez yükselttim, kullanıcı üç kez "hâlâ
+  küçük" dedi — çünkü her seferinde tavanı büyütüyordum. Mobil için
+  büyütme alt sınırdan yapılır.
+- **Sıfırlama kuralı bileşeni EZEBİLİR.** `.sahra-page button`
+  (özgüllük 0,1,1) `.cta`dan (0,1,0) daha özgül: `font: inherit` bütün
+  düğmeleri gövde puntosuna çakılı tutuyordu ve ölçek yükselince
+  düğmeler yerinde kalıyordu ("Gönder" 16px). Kaynak sırası burada
+  kurtarmıyor, özgüllük kazanıyor. Sıfırlamalar `:where()` içine alınır
+  (özgüllük 0), tarayıcının stilini temizlesin ama bileşenin seçimini
+  değil. Hangi kuralın kazandığı tahmin edilmez: CDP ile
+  `CSS.getMatchedStylesForNode` okunur.
+- **Belirteci ATLAYAN sabit değer, ölçek değişince yerinde kalır.** Altı
+  kural `font-size: 0.875rem` diye yazılmıştı (`.num`, `.letter-date`,
+  `.gal-no`, `.ipucu-dilek`, `.intro-gec`, `.giris-not`) ve punto
+  ölçeğinden hiç etkilenmiyordu. Ölçeği yükseltmek bunlara işlemedi.
+- **Punto taraması GİRDİLERİ görmüyordu.** Tarama metin düğümü olan
+  öğeleri geziyor; `<input>`/`<textarea>` metnini `value`da taşıyor ve
+  taramanın dışında kalıyordu. Form alanları tam da orada sabit 1rem'de
+  takılı kalmıştı. Tarayıcı artık girdileri de ölçüyor — ve düzeltmeden
+  sonra gerçekten yakaladığı ayrıca sınandı.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
