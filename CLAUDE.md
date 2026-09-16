@@ -279,6 +279,25 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   boş olunca `mb_strpos` SIFIR döndürüyor, ölçüt ölçecek bir şey olmadığı
   hâlde düşüyor ve ürün suçlanıyordu. Şehir yoksa tur önkoşulu kendi
   kurar, kuramazsa çıkar.
+- **Yüzde yükseklik, otomatik boyutlanan grid satırına karşı DÖNGÜYE
+  girer.** Açılış videosuna `height: 154%` yazıldı; yüzde, içeriğe göre
+  büyüyen grid satırına karşı çözülünce kutu 900px yerine 6071px çıktı.
+  `vh` görüntü alanına karşı çözülüyor ve katman zaten `inset: 0`.
+- **Grid, kendinden BÜYÜK öğeyi ortalamaz — üste hizalar.** Taşmada veri
+  kaybını önlemek için. Videoyu büyütmek logoyu yukarı değil AŞAĞI
+  taşıdı (%28 → %43): istenenin tam tersi. Büyütmenin yanına açık bir
+  `translateY` gerekiyor ve sonuç ölçülerek doğrulanıyor.
+- **Kırpmanın güvenli olduğu ölçülür, varsayılmaz.** Geniş ekranda
+  video büyütülüp kırpılıyor; kırpılan bölgenin BOŞ olduğu kaynak
+  karesinden sayıyla doğrulandı (üstten 269px, alttan 404px; içerik
+  540–1250 arasında). Göz kararı "nasılsa boştur" demek logonun üstünü
+  kesiyordu.
+- **Mock, ürünün kendisi değildir.** Videonun yerleşimini `<img>` ile
+  taklit eden bir sayfada ölçüm `cover` gibi davrandı ve yanlış sonuç
+  verdi; gerçek sayfadaki `.intro-video` kutusu ölçülünce geometri
+  bambaşkaydı. Ölçüm ürünün kendi DOM'unda yapılır. Videoyu çizdirmek
+  için `poster` + betiği engelleme yeterli (başsız tarayıcı H.264
+  çözemiyor).
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -337,6 +356,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - Yüklenen görseller depoya yazılmadan önce küçültülüp yeniden
   sıkıştırılır (uzun kenar 2000 px, JPEG 82). Çevrilemeyen dosya
   olduğu gibi yüklenir — sıkıştırma yüzünden yükleme düşmez.
+- IBAN gibi KOPYALANAN/OKUNAN diziler süslü yazıyla yazılmaz: düz, tek
+  genişlikli yazı (`--f-mono`) ve `tabular-nums`. Süslü yazının eski
+  üslup rakamları farklı yükseklikte ve 0/O ayrımını yitiriyor; hane
+  hane okunan bir dizide bu okuma hatası demek.
 - Dilek çiftin onayından geçmeden YAYIMLANMAZ; form bunu açıkça yazar.
 - Yorumlar **neden**i anlatır, ne yaptığını değil. Kod ne yaptığını
   zaten söylüyor.

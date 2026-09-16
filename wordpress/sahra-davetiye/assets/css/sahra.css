@@ -45,21 +45,30 @@
 
   --f-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --f-body: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /*
+   * IBAN gibi KOPYALANAN ve telefondan OKUNAN diziler için düz, tek
+   * genişlikli yazı. Süslü yazının kıvrımlı rakamları (hele eski üslup
+   * rakamlarla) 0/O ve 1/l ayrımını yitiriyor; hane hane okunması
+   * gereken bir dizide bu okuma hatası demek. Sistem yazısı: indirme
+   * beklenmiyor, ilk karede doğru çiziliyor.
+   */
+  --f-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas,
+            'Liberation Mono', 'Courier New', monospace;
 
   --t-hero: clamp(2.75rem, 9.5vw, 7rem);
   --t-display: clamp(1.85rem, 4.4vw, 3.25rem);
-  --t-h2: clamp(1.35rem, 2.6vw, 1.9rem);
-  --t-lead: clamp(1.125rem, 1.6vw, 1.3125rem);
+  --t-h2: clamp(1.5rem, 2.9vw, 2.15rem);
+  --t-lead: clamp(1.25rem, 1.8vw, 1.5rem);
   /* Taban 16px: 0.9rem (14.4px) küçük ekranda zor okunuyordu. */
-  --t-body: clamp(1rem, 1.1vw, 1.0625rem);
+  --t-body: clamp(1.0625rem, 1.25vw, 1.1875rem);
   /* 10px'ten yükseltildi: 0.26em harf aralıklı büyük harf o boyutta
      okunmuyordu. */
   /*
    * Etiketler 11px'den başlıyordu: aralıklı, büyük harfli ve ince bir
    * yazıda bu boy telefonda okunmuyor. Taban 14px.
    */
-  --t-label: clamp(0.875rem, 0.95vw, 0.9375rem);
-  --t-numeral: clamp(1.25rem, 2.2vw, 1.75rem);
+  --t-label: clamp(0.9375rem, 1.05vw, 1.0625rem);
+  --t-numeral: clamp(1.375rem, 2.4vw, 1.9375rem);
 
   --ls-hero: -0.035em;
   --ls-display: -0.02em;
@@ -1430,12 +1439,37 @@ html.sahra-html {
 
 /* ══════════════════════════════════════════════ HEDİYE / DİLEK ═════ */
 
+/*
+ * IBAN okunacak bir DİZİ, süsleme değil.
+ *
+ * Süslü yazı + `oldstyle-nums`: rakamlar farklı yükseklikteydi, bazıları
+ * taban çizgisinin altına sarkıyordu. Misafir bunu ya kopyalıyor ya da
+ * telefonuyla hane hane okuyor; ikisinde de düz ve eşit yükseklikte
+ * rakam gerekiyor. `tabular-nums` haneleri aynı genişliğe getiriyor,
+ * dörtlü gruplar alt alta düşse de hizalı kalıyor.
+ */
 .iban {
-  font-family: var(--f-display);
-  font-size: clamp(1.1rem, 2.4vw, 1.5rem);
-  letter-spacing: 0.08em;
+  font-family: var(--f-mono);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  letter-spacing: 0.04em;
+  line-height: 1.6;
   color: var(--c-on-dark);
-  font-variant-numeric: oldstyle-nums;
+  font-variant-numeric: tabular-nums;
+  /* Dörtlü grupların ORTASINDAN kırılmasın: kırılma yalnızca boşlukta. */
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+/*
+ * Yer varsa tek satır: hediye metninin ölçüsü dar olduğu için IBAN iki
+ * satıra düşüyordu. Okumak ve karşılaştırmak tek satırda kolay. Eşik
+ * 44rem: 28px tek genişlikli yazıda dizi ~554px, o genişlikten sonra
+ * rahat sığıyor. Altında kırılma yine boşlukta.
+ */
+@media (min-width: 44rem) {
+  .iban {
+    white-space: nowrap;
+  }
 }
 
 .wish-card {
@@ -1510,6 +1544,9 @@ html.sahra-html {
   background: #000;
   display: grid;
   place-items: center;
+  /* Geniş ekranda video görüntü alanından taşıyor (boşluğu kırpmak
+     için); taşan kısım burada kesiliyor. */
+  overflow: hidden;
   transition: opacity 0.7s ease;
 }
 
@@ -1528,6 +1565,48 @@ html.sahra-html {
   height: 100%;
   object-fit: contain;
   background: #000;
+}
+
+/*
+ * Geniş ekranda logo küçük ve aşağıda kalıyordu.
+ *
+ * Dikey video (9:16) yatay ekrana `contain` ile sığdırılınca ortada
+ * dar bir şerit oluyor: 1440px'lik ekranda 506px. Varlığın kendi
+ * üstünde %28, altında %35 boş siyah var — yani büyütmek logoyu değil
+ * o boşluğu kırpıyor. Yükseklik ekranın %154'ü yapılıp genişlik
+ * orandan geliyor: logo yarıdan fazla büyüyor ve boşluk kırpıldığı
+ * için yukarı geliyor. Kırpılan bölge ölçüldü: varlığın ilk 337
+ * pikselinde hiçbir şey yok.
+ *
+ * Dikey ekranlarda dokunulmuyor: orada şerit zaten ekranı dolduruyor
+ * ve büyütmek logoyu yanlardan kırpma riski taşıyor.
+ */
+@media (min-aspect-ratio: 1 / 1) {
+  .intro-video {
+    /* Oran ELEMANA yazılıyor: `width:auto` videonun kendi boyutunu
+       bilmesine bağlı, dosya yüklenmeden önce kutu yanlış çıkıyordu.
+       `aspect-ratio` ile genişlik her hâlde doğru hesaplanıyor; kutunun
+       oranı videonunkiyle aynı olduğu için `cover` hiçbir yeri
+       ezmiyor, yalnızca boşluğu kırpıyor. */
+    /* `154%` DÖNGÜYE giriyordu: yüzde, otomatik boyutlanan grid satırına
+       karşı çözülüyor, satır da içeriğe göre büyüyor — kutu 6071px
+       çıkmıştı. `vh` görüntü alanına karşı çözülüyor; katman zaten
+       `inset: 0` ile görüntü alanı kadar. */
+    width: auto;
+    height: 154vh;
+    aspect-ratio: 1080 / 1920;
+    object-fit: cover;
+    /*
+     * Yukarı çekme ŞART: grid, kendinden büyük öğeyi ortalamak yerine
+     * üste hizalıyor (taşmada veri kaybını önlemek için). Büyütme tek
+     * başına logoyu %28'den %43'e İNDİRMİŞTİ — istenenin tersi.
+     *
+     * Kaydırma, öğenin kendi yüksekliğinin yüzdesi: içerik bloğu
+     * (kaynakta y 540–1250) ekranın dikey ortasına geliyor ve oran her
+     * geniş ekranda aynı çıktığı için tek değer yetiyor.
+     */
+    transform: translateY(-14%);
+  }
 }
 
 .intro-gec {
