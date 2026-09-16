@@ -613,32 +613,71 @@
 	 * olsun bir sonrakine gidiyor.
 	 */
 	function kaydirDugmesi() {
-		var dugme = kok.querySelector( '.kaydir-daveti' );
-		if ( ! dugme || 'BUTTON' !== dugme.tagName ) {
+		var bolumler = Array.prototype.slice.call(
+			kok.querySelectorAll( 'section[id], section.section-gap, section.section-gap-kisa' )
+		);
+		if ( bolumler.length < 2 ) {
 			return;
 		}
 
-		dugme.addEventListener( 'click', function () {
-			var bolumler = Array.prototype.slice.call( kok.querySelectorAll( 'section[id], section.section-gap, section.section-gap-kisa' ) );
-			var su = window.scrollY;
-			var hedef = null;
-
-			for ( var i = 0; i < bolumler.length; i++ ) {
-				var ust = bolumler[ i ].getBoundingClientRect().top + su;
-				// 8 piksellik pay: tam sınırda duran bölüm "geçilmiş" sayılmasın.
-				if ( ust > su + 8 ) {
-					hedef = ust;
-					break;
+		/*
+		 * Hedef, basılan düğmenin KENDİ bölümünden sonraki bölüm.
+		 *
+		 * Eskiden kaydırma konumundan hesaplanıyordu; tek düğme varken
+		 * çalışıyordu ama her bölümde bir düğme olunca aynı hesap, ekranın
+		 * neresinde durulduğuna göre farklı yerlere atlıyor. Sözleşme net:
+		 * bir basış, bir bölüm.
+		 */
+		function bagla( dugme, bolum ) {
+			dugme.addEventListener( 'click', function () {
+				var sonraki = bolumler[ bolumler.indexOf( bolum ) + 1 ];
+				if ( ! sonraki ) {
+					return;
 				}
+				var ust   = sonraki.getBoundingClientRect().top + window.scrollY;
+				var kisit = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+				window.scrollTo( { top: ust, behavior: kisit ? 'auto' : 'smooth' } );
+			} );
+		}
+
+		function dugmeYap() {
+			var d = document.createElement( 'button' );
+			d.type      = 'button';
+			d.className = 'kaydir-daveti kaydir-bolum';
+			d.setAttribute( 'aria-label', 'Sonraki bölüme geç' );
+
+			var yazi = document.createElement( 'span' );
+			yazi.className = 't-label';
+			yazi.textContent = 'Kaydır';
+
+			var cizgi = document.createElement( 'span' );
+			cizgi.className = 'kaydir-cizgi';
+			cizgi.setAttribute( 'aria-hidden', 'true' );
+
+			d.appendChild( yazi );
+			d.appendChild( cizgi );
+			return d;
+		}
+
+		for ( var i = 0; i < bolumler.length; i++ ) {
+			var bolum  = bolumler[ i ];
+			var mevcut = bolum.querySelector( '.kaydir-daveti' );
+
+			// Son bölümün altında gidilecek bir yer yok.
+			if ( i === bolumler.length - 1 ) {
+				if ( mevcut ) {
+					mevcut.remove();
+				}
+				continue;
 			}
 
-			if ( null === hedef ) {
-				hedef = document.body.scrollHeight;
+			if ( ! mevcut ) {
+				mevcut = dugmeYap();
+				bolum.appendChild( mevcut );
 			}
 
-			var kisit = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
-			window.scrollTo( { top: hedef, behavior: kisit ? 'auto' : 'smooth' } );
-		} );
+			bagla( mevcut, bolum );
+		}
 	}
 
 	belirmeyiKur();

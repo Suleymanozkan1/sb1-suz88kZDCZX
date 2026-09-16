@@ -1029,6 +1029,46 @@ html.sahra-html {
   50%      { transform: scaleY(1); }
 }
 
+/* Bölüm içindeki kaydır düğmesi: kahramandaki mutlak konumlu sürümün
+   aksine akışta duruyor ve bölümün sonunda ortalanıyor.
+
+   Rengi INHERIT: bölümler açık ve koyu zeminler arasında değişiyor,
+   sabit bir renk yazmak kimi bölümde okunmaz bir yazı bırakıyordu.
+   Bölümün kendi metin rengini alınca kontrastı da o bölümünkiyle aynı. */
+.kaydir-bolum {
+  position: static;
+  transform: none;
+  width: auto;
+  max-width: none;
+  margin: var(--sp-lg) auto 0;
+  padding: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: inherit;
+  opacity: 1;
+  animation: none;
+}
+
+.kaydir-bolum .kaydir-cizgi {
+  height: 26px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+/* Kahramandaki sürüm koyu zeminde duruyor; altın vurgusu orada okunuyor.
+   Bölüm içindekinde renk değiştirmek yerine çizgi belirginleşiyor: aynı
+   altın, açık zeminli bölümlerde soluk kalıyordu. */
+.kaydir-bolum:hover .t-label,
+.kaydir-bolum:focus-visible .t-label {
+  color: inherit;
+}
+
+.kaydir-bolum:hover .kaydir-cizgi,
+.kaydir-bolum:focus-visible .kaydir-cizgi {
+  opacity: 0.85;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kaydir-daveti { opacity: 1; animation: none; }
   .kaydir-cizgi  { animation: none; transform: scaleY(1); }

@@ -57,7 +57,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `sosyal-punto.php` | sürüm damgası, marka hesabı, kullanıcı adından bağlantı, ekranda @kullanıcı, açılış videosu | 27/27 |
 | `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
-| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, perde videosu, Kaydır düğmesi, en küçük punto 14px, uçtan uca sıkıştırma | 35/35 |
+| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, en küçük punto 14px, uçtan uca sıkıştırma | 36/36 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -267,6 +267,18 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   döndürdü, adres boş kaldı ve rapora bakan BEŞ ölçüt birden düştü —
   ürün suçlandı. Adres artık kullanıcı kimliğinden üretiliyor ve dönen
   hata okunuyor.
+- **İki araç AYNI hedefe bakmak zorunda.** `fark-olc.js` adresi
+  `/tmp/denetim.json`'dan okuyordu; yazmayı yapan `wp-secim.php` ise "en
+  eski yayındaki davetiye"yi seçiyor. `wp-tohum.php` yeniden koşunca
+  ikisi ayrı davetiyeye baktı: araç birine yazdı, ötekinin fotoğrafını
+  çekti ve beş tasarımın ONU DA "%0.00 aynı" çıktı — ürün suçlandı.
+  Ölçen araç, adresi YAZAN araçtan okur (`wp-secim.php` yazdığı slug'ı
+  basıyor) ve hedef ortasında değişirse yüksek sesle düşer.
+- **Boş iğne ölçüm değildir.** `musteri2.php` "şehir sızmıyor" ölçütünü
+  `false === mb_strpos( $metin, $sehir )` diye kuruyordu; salonun şehri
+  boş olunca `mb_strpos` SIFIR döndürüyor, ölçüt ölçecek bir şey olmadığı
+  hâlde düşüyor ve ürün suçlanıyordu. Şehir yoksa tur önkoşulu kendi
+  kurar, kuramazsa çıkar.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -315,8 +327,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   logosu ve telefonu çiftin adlarıyla çakışıyor. Video dosyası
   `+faststart` ile kodlanır — `moov` atomu sonda kalırsa tarayıcı
   oynatmadan önce dosyanın tamamını indiriyor.
-- "Kaydır" bir düğmedir: her dokunuş bir sonraki BÖLÜMÜN tepesine
-  götürür.
+- "Kaydır" HER bölümde bir düğmedir (son bölüm hariç: altında
+  gidilecek yer yok). Her düğme KENDİ bölümünden sonrakinin tepesine
+  götürür — hedef kaydırma konumundan değil, düğmenin bölümünden
+  hesaplanır. Sayfa dibe dayandığında son basış oraya iner.
 - Sosyal hesap etiketinde adres değil `@kullanıcıadı` görünür.
 - Çift kendi Instagram'ını kullanıcı adıyla yazabilir (`@perihan`);
   adres üründe tamamlanır.
