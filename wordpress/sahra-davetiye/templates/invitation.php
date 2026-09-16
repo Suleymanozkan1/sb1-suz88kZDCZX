@@ -665,23 +665,43 @@ $geri_sayim = $d['weddingDate']
 
 					<?php
 					/*
-					 * Gömülü harita KALDIRILDI.
+					 * Gömülü harita KALDIRILDI, yerine DURAĞAN görsel kondu.
 					 *
 					 * Google'ın embed'i gezilebilir bir haritaydı: misafir
 					 * içinde dolaşıp başka bir yer seçebiliyor, hatta yol
-					 * tarifini yanlış noktadan alabiliyordu. Konum artık
-					 * yalnızca GÖSTERİLİYOR — salonun adı, adresi ve
-					 * yukarıdaki harita uygulaması bağlantıları. Bağlantılar
-					 * telefonun kendi haritasını doğru noktada açıyor.
+					 * tarifini yanlış noktadan alabiliyordu. Görsel üzerinde
+					 * gezilemiyor; dokunuş salonu telefonun kendi harita
+					 * uygulamasında doğru noktada açıyor. Böylece hem konum
+					 * görünüyor hem de seçim yapılamıyor.
+					 *
+					 * Görsel yoksa eski panel olduğu gibi kalıyor: yüklenmemiş
+					 * bir salon yüzünden bölüm boşalmasın.
 					 */
+					$harita_hedef = $d['mapUrl'] ? $d['mapUrl'] : 'https://www.google.com/maps/search/?api=1&query=' . $konum_sorgu;
 					?>
-					<div class="map-frame reveal">
-						<div class="map-fallback">
-							<p class="t-label" style="color:var(--c-gold-deep)">Konum</p>
-							<p class="t-h2"><?php echo esc_html( $d['venueName'] ); ?></p>
-							<p class="t-body" style="color:var(--c-on-light-faint)"><?php echo esc_html( $adres_satiri ); ?></p>
+					<?php if ( $d['venueMapImage'] ) : ?>
+						<a class="map-frame map-gorsel reveal"
+							href="<?php echo esc_url( $harita_hedef ); ?>"
+							target="_blank" rel="noopener"
+							aria-label="<?php echo esc_attr( sprintf( __( '%s konumunu haritada aç', 'sahra-davetiye' ), $d['venueName'] ) ); ?>">
+							<img src="<?php echo esc_url( $d['venueMapImage'] ); ?>" alt="" loading="lazy" decoding="async">
+							<span class="map-rozet">
+								<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<path d="M20 10c0 5.5-8 12-8 12s-8-6.5-8-12a8 8 0 1 1 16 0z"/>
+									<circle cx="12" cy="10" r="2.8"/>
+								</svg>
+								<?php esc_html_e( 'Haritada Aç', 'sahra-davetiye' ); ?>
+							</span>
+						</a>
+					<?php else : ?>
+						<div class="map-frame reveal">
+							<div class="map-fallback">
+								<p class="t-label" style="color:var(--c-gold-deep)">Konum</p>
+								<p class="t-h2"><?php echo esc_html( $d['venueName'] ); ?></p>
+								<p class="t-body" style="color:var(--c-on-light-faint)"><?php echo esc_html( $adres_satiri ); ?></p>
+							</div>
 						</div>
-					</div>
+					<?php endif; ?>
 				</div>
 			</div>
 		</section>

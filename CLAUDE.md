@@ -19,7 +19,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | Tur | Ne ölçer | Beklenen |
 |---|---|---|
 | `wp-audit-alan.php` → `wp-fixture.php` → `wp-audit-calistir.mjs` | her davetiye alanının sayfada etkisi | 42/42 |
-| `salon-alan.mjs` | her salon alanı + marka eşleşmesi | 14/14 |
+| `salon-alan.mjs` | her salon alanı + marka eşleşmesi + harita görseli | 19/19 |
 | `audit-uyari.js` | 15 sayfada PHP uyarısı / JS hatası | 15 temiz |
 | `audit-wp-rest.mjs` | her REST ucu, her rol | 13/13 |
 | `wp-guvenlik.mjs` | XSS, yetki, dizin aşımı, yükleme, nonce | 18/18 |
@@ -248,6 +248,25 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   tam üstüne düşüyor. İki ortalanmış altın kompozisyon birbiriyle
   çakışıyor. Karar ekran görüntüsünden verildi, koddan değil: video
   perdenin ÖNÜNDE bağımsız bir açılış katmanı olarak duruyor.
+- **Saydam zemin kontrast turundan GEÇER.** Harita rozetine
+  `var(--c-paper)` yazılmıştı; öyle bir belirteç yok, geçersiz değer
+  zemini saydam bırakıyor ve krem yazı açık renkli haritanın üstünde
+  okunmuyordu. Tarayıcı bunu göremez: saydam zeminde bir ÜST katmanın
+  (koyu bölüm) rengini okuyup "temiz" diyor. Görselin üstünde duran her
+  öğe için ölçüt ayrıca yazılır: kendi zemini var mı? Belirteç adları da
+  uydurulmaz, dosyadan okunur.
+- **Şema dışı anahtarla kurulan önkoşul da sessiz bir hiçliktir.**
+  `gorsel-punto.js`'in müzik önkoşulunu `showMusic`/`musicTrack` diye
+  yazdım; ikisi de şemada yok (doğrusu `soundEnabled` +
+  `backgroundMusicUrl`). Önkoşul kurulmadı, düğme çizilmedi ve dört
+  ölçüt ölçülmeden kaldı. Önkoşul kurulduktan sonra GERÇEKTEN kurulduğu
+  doğrulanır, yoksa tur yüksek sesle düşer.
+- **Sabit yazılmış e-posta çakışınca WordPress sessizce reddeder.**
+  `istek10.php` çiftin adresini `cift@ornek.test` diye kuruyordu; aynı
+  adres başka bir kullanıcıda kayıtlıydı, `wp_update_user` WP_Error
+  döndürdü, adres boş kaldı ve rapora bakan BEŞ ölçüt birden düştü —
+  ürün suçlandı. Adres artık kullanıcı kimliğinden üretiliyor ve dönen
+  hata okunuyor.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -278,6 +297,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - Misafir ya da çift konum/harita üzerinde seçim yapamaz. Gömülü
   gezilebilir harita kaldırıldı; konum yalnızca gösterilir, harita
   uygulaması bağlantıları salonu doğru noktada açar.
+- Konumda DURAĞAN harita görseli var: yöneticinin salona bir kez
+  yüklediği ekran görüntüsü. Üzerinde gezilemez (seçim de yapılamaz),
+  dokunuş salonu telefonun harita uygulamasında açar. Görsel yoksa eski
+  adres paneli kalır — yüklenmemiş salon yüzünden bölüm boşalmaz.
 - **Her yayında `SAHRA_VERSION` yükseltilir.** Stil ve betik adresleri
   `?v=SAHRA_VERSION` taşıyor; sürüm sabit kalınca tarayıcı eski dosyayı
   önbellekten veriyor ve yeni özellik "gelmemiş" görünüyor. Yukarı çık

@@ -1228,6 +1228,54 @@ html.sahra-html {
   padding: var(--sp-lg) var(--sp-md);
 }
 
+/* Harita GÖRSELİ: gezilemeyen, dokununca harita uygulamasını açan bir
+   bağlantı. Görsel bağlantının içinde olduğu için tıklama alanı haritanın
+   tamamı; misafirin küçük bir düğme aramasına gerek yok. */
+.map-gorsel {
+  display: block;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.map-gorsel img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Ekran görüntüsünün en-boy oranı salondan salona değişiyor; sabit
+     yükseklik kimi haritayı eziyordu. Oran korunuyor, taşan kırpılıyor. */
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.map-rozet {
+  position: absolute;
+  right: var(--sp-sm);
+  bottom: var(--sp-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-rule);
+  /* Rozet haritanın ÜSTÜNDE duruyor: altındaki renk salondan salona
+     değiştiği için kendi zeminini taşıyor, yoksa kontrast rastlantıya
+     kalıyordu. Belirteç adı `--c-paper` yazılmıştı; öyle bir belirteç
+     yok, geçersiz değer zemini SAYDAM bırakıyor ve krem yazı açık
+     haritanın üstünde okunmaz oluyordu. Kontrast turu da bunu göremez:
+     saydam zeminde bir üst katmanın (koyu bölüm) rengini okuyor. */
+  background: var(--c-paper-hi);
+  color: var(--c-on-light);
+  font-size: var(--t-label);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.map-gorsel:hover .map-rozet,
+.map-gorsel:focus-visible .map-rozet {
+  border-color: var(--c-gold-deep);
+  color: var(--c-gold-deep);
+}
+
 /* ══════════════════════════════════════════════ FORMLAR ════════════ */
 
 .field {

@@ -88,6 +88,17 @@ class Sahra_Settings {
 			 */
 			'appleMapUrl'         => '',
 			/*
+			 * Konum bölümündeki harita GÖRSELİ.
+			 *
+			 * Gezilebilir gömülü harita kaldırılmıştı: misafir onun
+			 * üzerinde seçim yapabiliyordu. Yerine konan düz panel ise
+			 * salonun nerede olduğunu göstermiyordu. Görsel yöneticinin
+			 * bir kez yüklediği harita ekran görüntüsü; misafir dokununca
+			 * kendi harita uygulaması doğru noktada açılıyor. Üzerinde
+			 * gezilemediği için seçim de yapılamıyor.
+			 */
+			'venueMapImage'       => '',
+			/*
 			 * Çocuklu düğünde salonun sunduğu hizmet (oyun alanı, palyaço).
 			 * Çiftin değil salonun bilgisi: her davetiyeye ayrı yazdırmak,
 			 * birinin yanlış yazması demekti.
@@ -208,6 +219,8 @@ class Sahra_Settings {
 		$temiz['venueDirections'] = isset( $input['venueDirections'] )
 			? sanitize_textarea_field( (string) $input['venueDirections'] )
 			: '';
+
+		$temiz['venueMapImage'] = isset( $input['venueMapImage'] ) ? Sahra_Fields::safe_url( $input['venueMapImage'] ) : '';
 
 		$temiz['mapUrl']      = isset( $input['mapUrl'] ) ? Sahra_Fields::safe_url( $input['mapUrl'] ) : '';
 		$temiz['appleMapUrl'] = isset( $input['appleMapUrl'] ) ? Sahra_Fields::safe_url( $input['appleMapUrl'] ) : '';

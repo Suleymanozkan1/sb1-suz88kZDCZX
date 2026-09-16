@@ -112,6 +112,20 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 
 			<?php
 			/*
+			 * Harita görseli salonun bilgisi: bir kez yüklenir, o salonu
+			 * seçen bütün davetiyelerde çıkar ve salon taşınınca hepsi
+			 * birden düzelir.
+			 */
+			Sahra_Form::gorsel(
+				__( 'Harita Görseli', 'sahra-davetiye' ),
+				'venue[venueMapImage]',
+				$venue['venueMapImage'],
+				__( 'Google Maps\'te salonu ortalayıp ekran görüntüsü alın ve buraya yükleyin. Davetiyede konum bölümünde çıkar; misafir dokununca kendi harita uygulaması salonda açılır. Boş bırakılırsa yalnızca adres yazısı görünür.', 'sahra-davetiye' )
+			);
+			?>
+
+			<?php
+			/*
 			 * Instagram hesabı da MARKADAN geliyor; ayrıca sorulmuyor.
 			 * Elle yazılırken bir salona öteki markanın hesabı
 			 * bağlanabiliyordu.

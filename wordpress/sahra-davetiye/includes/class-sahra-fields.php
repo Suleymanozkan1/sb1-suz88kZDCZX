@@ -23,7 +23,7 @@ class Sahra_Fields {
 	 */
 	const CONJUNCTION = '&';
 
-	const VENUE_KEYS = array( 'venueName', 'address', 'district', 'city', 'mapUrl', 'appleMapUrl', 'venueDirections', 'venueInstagram', 'venueInstagramLabel', 'venueChildrenNote' );
+	const VENUE_KEYS = array( 'venueName', 'address', 'district', 'city', 'mapUrl', 'appleMapUrl', 'venueMapImage', 'venueDirections', 'venueInstagram', 'venueInstagramLabel', 'venueChildrenNote' );
 
 	/**
 	 * Yalnızca YÖNETİCİNİN değiştirebildiği alanlar.
