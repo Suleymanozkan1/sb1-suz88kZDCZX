@@ -137,6 +137,22 @@ $geri_sayim = $d['weddingDate']
 <div class="scroll-progress" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
+<?php
+/*
+ * Açılış videosu — perdenin ÖNÜNDE, her davetiyede.
+ *
+ * Sessiz başlıyor: tarayıcılar sesli otomatik oynatmayı engelliyor ve
+ * engellenen video hiç açılmıyor, misafir de boş bir kareye bakıyor.
+ * Bitince (ya da oynatılamazsa) kendini kapatıp perdeye bırakıyor —
+ * video yüklenmese bile davetiye açılıyor. Hareket azaltma isteği
+ * varsa hiç çizilmiyor.
+ */
+?>
+<div class="intro" data-src="<?php echo esc_url( SAHRA_URL . 'assets/video/sahra-intro.mp4?v=' . SAHRA_VERSION ); ?>">
+	<video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
+	<button type="button" class="intro-gec"><?php esc_html_e( 'Geç →', 'sahra-davetiye' ); ?></button>
+</div>
+
 <?php /* ─────────────────────────────────────────────── perde ve mühür */ ?>
 <div class="curtain"
 	<?php
@@ -327,24 +343,18 @@ $geri_sayim = $d['weddingDate']
 
 				<?php
 				/*
-				 * Düğmeler var olan bölümlere bakıyor.
+				 * Kahramanda katılım düğmesi YOK.
 				 *
-				 * "Katılım Durumunu Belirt" sabit yazılıydı: katılım formu
-				 * kapatıldığında misafiri olmayan bir bölüme yolluyordu.
-				 * Katılım kapalıysa asıl eylem "Detayları Gör" oluyor,
-				 * kahraman düğmesiz kalmıyor.
+				 * Açılışta misafirden istenen ilk şey karar vermek
+				 * olmamalı; davetiyeyi okumadan "katılıyor musunuz?"
+				 * diye sormak aceleye getiriyordu. Katılım bölümü
+				 * sayfada duruyor, misafir okuyup oraya iniyor.
 				 */
-				$sahra_rsvp    = ! empty( $d['showRsvp'] );
-				$sahra_detay   = ! empty( $d['showDetails'] );
+				$sahra_detay = ! empty( $d['showDetails'] );
 				?>
-				<?php if ( $sahra_rsvp || $sahra_detay ) : ?>
+				<?php if ( $sahra_detay ) : ?>
 					<div class="hero-actions reveal">
-						<?php if ( $sahra_rsvp ) : ?>
-							<a href="#rsvp" class="cta">Katılım Durumunu Belirt</a>
-						<?php endif; ?>
-						<?php if ( $sahra_detay ) : ?>
-							<a href="#details" class="<?php echo $sahra_rsvp ? 'link-underline' : 'cta'; ?>"<?php echo $sahra_rsvp ? ' style="color:var(--c-on-dark-soft)"' : ''; ?>>Detayları Gör</a>
-						<?php endif; ?>
+						<a href="#details" class="cta">Detayları Gör</a>
 					</div>
 				<?php endif; ?>
 			</div>
@@ -835,6 +845,23 @@ $geri_sayim = $d['weddingDate']
 						</div>
 					<?php endif; ?>
 
+					<?php
+					/*
+					 * Ne isteniyor ve ne olacağı AÇIKÇA yazıyor.
+					 *
+					 * Form başlıksızdı: misafir ne yazacağını da, yazdığının
+					 * hemen görünüp görünmeyeceğini de bilmiyordu. Dilek
+					 * çiftin onayından geçmeden yayımlanmıyor; bunu
+					 * söylememek, yazdığını sayfada göremeyen misafire
+					 * "gitmedi" dedirtiyordu.
+					 */
+					?>
+					<p class="t-body reveal wrap-narrow dilek-davet" style="padding:0;color:var(--c-on-dark-soft)">
+						İyi dileklerinizi buradan iletebilirsiniz. Bir cümle, bir anı, bir temenni —
+						ne yazarsanız yazın çifte ulaşır. Dileğiniz <strong>çift onayladıktan sonra</strong>
+						bu bölümde yayımlanır.
+					</p>
+
 					<form id="wish-form" class="reveal wrap-narrow" style="padding:0">
 						<div class="field-row">
 							<label class="field-label" for="wish-name">Adınız (İsteğe Bağlı)</label>
@@ -848,7 +875,8 @@ $geri_sayim = $d['weddingDate']
 						<p class="form-note" role="alert"></p>
 						<p class="form-ok" role="status"></p>
 
-						<button type="submit" class="cta" style="margin-top:var(--sp-sm)">Dileğimi Bırak</button>
+						<button type="submit" class="cta" style="margin-top:var(--sp-sm)">Dileğimi Gönder</button>
+						<p class="ipucu-dilek">Dileğiniz çifte iletilir; onaylandığında burada görünür.</p>
 					</form>
 				</div>
 			</section>

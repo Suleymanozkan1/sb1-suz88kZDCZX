@@ -31,8 +31,8 @@ class Sahra_Settings {
 			'sahra' => array(
 				'label'               => __( 'Sahra', 'sahra-davetiye' ),
 				'venueName'           => 'Sahra Davet Salonları',
-				'venueInstagram'      => 'https://instagram.com/sahradavet',
-				'venueInstagramLabel' => '@sahradavet',
+				'venueInstagram'      => 'https://instagram.com/sahradavetsalonu',
+				'venueInstagramLabel' => '@sahradavetsalonu',
 			),
 			'grand' => array(
 				'label'               => __( 'Grand', 'sahra-davetiye' ),

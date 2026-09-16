@@ -396,8 +396,14 @@ class Sahra_Rest {
 			return $mime;
 		}
 
-		$ad     = Sahra_Storage::new_name( $mime );
-		$sonuc  = Sahra_Storage::put( $dosyalar['file']['tmp_name'], $ad, $mime );
+		/* Depoya yazmadan önce küçült ve sıkıştır. */
+		$sik   = Sahra_Storage::compress( $dosyalar['file']['tmp_name'], $mime );
+		$mime  = $sik['mime'];
+		$ad    = Sahra_Storage::new_name( $mime );
+		$sonuc = Sahra_Storage::put( $sik['yol'], $ad, $mime );
+		if ( $sik['gecici'] && file_exists( $sik['yol'] ) ) {
+			wp_delete_file( $sik['yol'] );
+		}
 		if ( is_wp_error( $sonuc ) ) {
 			return $sonuc;
 		}
@@ -480,8 +486,14 @@ class Sahra_Rest {
 			return $mime;
 		}
 
+		/* Ses dosyasına dokunulmuyor; görsel küçültülüp sıkıştırılıyor. */
+		$sik   = Sahra_Storage::compress( $dosyalar['file']['tmp_name'], $mime );
+		$mime  = $sik['mime'];
 		$ad    = Sahra_Storage::new_name( $mime );
-		$sonuc = Sahra_Storage::put( $dosyalar['file']['tmp_name'], $ad, $mime );
+		$sonuc = Sahra_Storage::put( $sik['yol'], $ad, $mime );
+		if ( $sik['gecici'] && file_exists( $sik['yol'] ) ) {
+			wp_delete_file( $sik['yol'] );
+		}
 		if ( is_wp_error( $sonuc ) ) {
 			return $sonuc;
 		}

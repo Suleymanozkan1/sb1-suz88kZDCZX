@@ -49,11 +49,16 @@
   --t-hero: clamp(2.75rem, 9.5vw, 7rem);
   --t-display: clamp(1.85rem, 4.4vw, 3.25rem);
   --t-h2: clamp(1.35rem, 2.6vw, 1.9rem);
-  --t-lead: clamp(1.05rem, 1.6vw, 1.25rem);
-  --t-body: clamp(0.9rem, 1.05vw, 1rem);
+  --t-lead: clamp(1.125rem, 1.6vw, 1.3125rem);
+  /* Taban 16px: 0.9rem (14.4px) küçük ekranda zor okunuyordu. */
+  --t-body: clamp(1rem, 1.1vw, 1.0625rem);
   /* 10px'ten yükseltildi: 0.26em harf aralıklı büyük harf o boyutta
      okunmuyordu. */
-  --t-label: clamp(0.6875rem, 0.85vw, 0.8125rem);
+  /*
+   * Etiketler 11px'den başlıyordu: aralıklı, büyük harfli ve ince bir
+   * yazıda bu boy telefonda okunmuyor. Taban 14px.
+   */
+  --t-label: clamp(0.875rem, 0.95vw, 0.9375rem);
   --t-numeral: clamp(1.25rem, 2.2vw, 1.75rem);
 
   --ls-hero: -0.035em;
@@ -334,7 +339,7 @@ html.sahra-html {
 
 .section-head .num {
   font-family: var(--f-display);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   opacity: 0.85;
 }
 
@@ -1375,6 +1380,65 @@ html.sahra-html {
   color: var(--c-gold-light);
 }
 
+/* Dilek formunun açıklaması: ne yazılacağı ve ne olacağı. */
+.dilek-davet {
+  margin-bottom: var(--sp-md);
+  line-height: 1.7;
+}
+
+.ipucu-dilek {
+  margin-top: 0.6rem;
+  font-size: 0.875rem;
+  color: var(--c-on-dark-faint);
+}
+
+/* ══════════════════════════════════════════════ AÇILIŞ VİDEOSU ════ */
+
+/* Perdenin de üstünde: davetiyenin ilk karesi bu. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--c-night);
+  display: grid;
+  place-items: center;
+  transition: opacity 0.6s ease;
+}
+
+.intro.kapaniyor {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Dikey video; ekranı kırpmadan, tamamı görünecek biçimde oturuyor. */
+.intro-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--c-night);
+}
+
+.intro-gec {
+  position: absolute;
+  right: var(--sp-sm);
+  bottom: var(--sp-sm);
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(176, 141, 63, 0.45);
+  border-radius: 999px;
+  background: rgba(13, 8, 5, 0.45);
+  backdrop-filter: blur(6px);
+  color: var(--c-gold-light);
+  font-family: var(--f-body);
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    transition: none;
+  }
+}
+
 /* ═════════════════════════════════════════════ YUKARI ÇIK ════════ */
 
 /* Müzik düğmesiyle aynı cam görünüm; davetiye uzun, başa dönmek gerekiyor. */
@@ -1666,7 +1730,7 @@ html.sahra-html {
 
 .giris-not {
   margin-top: var(--sp-md);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--c-on-dark-faint);
 }
 

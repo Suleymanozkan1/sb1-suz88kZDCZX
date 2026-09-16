@@ -76,22 +76,34 @@ class Sahra_Form {
 	public static function gorsel( $label, $name, $value, $ipucu = '', $coklu = false ) {
 		$id = self::id( $name );
 		?>
+		<?php
+		/*
+		 * Adres GİZLİ bir alanda.
+		 *
+		 * Açık bir metin kutusuydu: çiftin ekranında
+		 * "https://.../sahra-dosya/059872f5-....jpg" yazıyordu. Çiftin
+		 * gördüğü ekranda dosya yolunun işi yok; üstelik elle
+		 * düzenlenebildiği için tek harf değişince görsel sessizce
+		 * ölüyordu. Ekranda artık yalnızca önizleme ve durum var.
+		 *
+		 * "Medya Kütüphanesi" düğmesi de kalktı: oradan seçilen dosya
+		 * WordPress'in kendi klasöründen geliyor ve seçilen depoya
+		 * (Drive) HİÇ uğramıyordu. Tek yol var, o da depoya yazıyor.
+		 */
+		?>
 		<div class="alan">
-			<label class="field-label" for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $label ); ?></label>
+			<span class="field-label"><?php echo esc_html( $label ); ?></span>
 
 			<?php if ( $coklu ) : ?>
-				<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5"><?php echo esc_textarea( $value ); ?></textarea>
+				<textarea id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" rows="5" hidden><?php echo esc_textarea( $value ); ?></textarea>
 			<?php else : ?>
-				<input id="<?php echo esc_attr( $id ); ?>" type="text" name="<?php echo esc_attr( $name ); ?>"
-					value="<?php echo esc_attr( $value ); ?>" placeholder="https://...">
+				<input id="<?php echo esc_attr( $id ); ?>" type="hidden" name="<?php echo esc_attr( $name ); ?>"
+					value="<?php echo esc_attr( $value ); ?>">
 			<?php endif; ?>
 
 			<div class="sahra-yukleyici">
 				<button type="button" class="cta sahra-yukle" data-hedef="<?php echo esc_attr( $id ); ?>" <?php echo $coklu ? 'data-coklu="1"' : ''; ?>>
-					<?php esc_html_e( 'Bilgisayardan Yükle', 'sahra-davetiye' ); ?>
-				</button>
-				<button type="button" class="eylem-link sahra-media" data-hedef="<?php echo esc_attr( $id ); ?>">
-					<?php esc_html_e( 'Medya Kütüphanesi', 'sahra-davetiye' ); ?>
+					<?php echo $coklu ? esc_html__( 'Fotoğraf Yükle', 'sahra-davetiye' ) : esc_html__( 'Fotoğraf Seç', 'sahra-davetiye' ); ?>
 				</button>
 				<span class="sahra-durum"></span>
 			</div>

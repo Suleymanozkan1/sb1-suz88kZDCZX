@@ -357,9 +357,20 @@ include SAHRA_DIR . 'templates/admin-header.php';
 						<button type="button" class="cta sahra-yukle" data-hedef="f-gallery" data-coklu="1"><?php esc_html_e( 'Fotoğraf Yükle', 'sahra-davetiye' ); ?></button>
 						<span class="sahra-durum"></span>
 					</div>
-					<textarea id="f-gallery" name="sahra[galleryImagesText]" rows="5" class="sahra-galeri-metin"><?php echo esc_textarea( $metinler['gallery'] ); ?></textarea>
+					<?php
+					/*
+					 * Adres listesi GİZLİ.
+					 *
+					 * Beş fotoğrafın adresi ekranda alt alta yazıyordu;
+					 * çiftin gördüğü ekranda dosya yolunun işi yok ve elle
+					 * düzenlenebildiği için tek harf değişince galeri
+					 * sessizce boşalıyordu. Fotoğraflar önizlemeden
+					 * kaldırılıyor, adresler görünmüyor.
+					 */
+					?>
+					<textarea id="f-gallery" name="sahra[galleryImagesText]" rows="5" class="sahra-galeri-metin" hidden><?php echo esc_textarea( $metinler['gallery'] ); ?></textarea>
 					<div class="sahra-onizleme" data-kaynak="f-gallery"></div>
-					<p class="ipucu"><?php esc_html_e( 'Her satıra bir görsel adresi. Fotoğraflar galeride aynı boyutta gösterilir.', 'sahra-davetiye' ); ?></p>
+					<p class="ipucu"><?php esc_html_e( 'Fotoğraflar galeride aynı boyutta gösterilir. Kaldırmak için köşedeki × işaretine dokunun.', 'sahra-davetiye' ); ?></p>
 				</div>
 
 			</div>
@@ -442,14 +453,27 @@ include SAHRA_DIR . 'templates/admin-header.php';
 				</div>
 
 				<?php
-				Sahra_Form::alan( array( 'label' => __( 'Hediye Notu', 'sahra-davetiye' ), 'name' => 'sahra[giftNote]', 'value' => $d['giftNote'], 'type' => 'textarea', 'rows' => 2, 'ph' => 'Varlığınız en büyük hediye...' ) );
-				Sahra_Form::alan( array( 'label' => __( 'IBAN', 'sahra-davetiye' ), 'name' => 'sahra[giftIban]', 'value' => $d['giftIban'], 'ph' => 'TR33 0006 1005 1978 6457 8413 26' ) );
+				/*
+				 * Hediye ayrıntıları seçime BAĞLI.
+				 *
+				 * "Yok" seçiliyken de IBAN ve hesap alanları ekranda
+				 * duruyordu: çift doldurmanın bir işe yarayıp yaramadığını
+				 * bilmiyor, doldurup sonra davetiyede göremiyordu.
+				 * Alanlar gizlenirken DEĞERLERİ silinmiyor — "Var"a geri
+				 * dönünce yazdıkları yerinde duruyor.
+				 */
 				?>
-				<div class="ikili">
+				<div class="sahra-kosullu" data-anahtar="sahra[giftEnabled]" data-deger="1" <?php echo $d['giftEnabled'] ? '' : 'hidden'; ?>>
 					<?php
-					Sahra_Form::alan( array( 'label' => __( 'Hesap Sahibi', 'sahra-davetiye' ), 'name' => 'sahra[giftAccountName]', 'value' => $d['giftAccountName'] ) );
-					Sahra_Form::alan( array( 'label' => __( 'Banka', 'sahra-davetiye' ), 'name' => 'sahra[giftBankName]', 'value' => $d['giftBankName'] ) );
+					Sahra_Form::alan( array( 'label' => __( 'Hediye Notu', 'sahra-davetiye' ), 'name' => 'sahra[giftNote]', 'value' => $d['giftNote'], 'type' => 'textarea', 'rows' => 2, 'ph' => 'Varlığınız en büyük hediye...' ) );
+					Sahra_Form::alan( array( 'label' => __( 'IBAN', 'sahra-davetiye' ), 'name' => 'sahra[giftIban]', 'value' => $d['giftIban'], 'ph' => 'TR33 0006 1005 1978 6457 8413 26' ) );
 					?>
+					<div class="ikili">
+						<?php
+						Sahra_Form::alan( array( 'label' => __( 'Hesap Sahibi', 'sahra-davetiye' ), 'name' => 'sahra[giftAccountName]', 'value' => $d['giftAccountName'] ) );
+						Sahra_Form::alan( array( 'label' => __( 'Banka', 'sahra-davetiye' ), 'name' => 'sahra[giftBankName]', 'value' => $d['giftBankName'] ) );
+						?>
+					</div>
 				</div>
 
 				<label class="anahtar">
@@ -627,8 +651,8 @@ include SAHRA_DIR . 'templates/admin-header.php';
 
 				<div class="alan">
 					<label class="field-label" for="f-social"><?php esc_html_e( 'Sosyal Hesaplarınız', 'sahra-davetiye' ); ?></label>
-					<textarea id="f-social" name="sahra[socialText]" rows="3" placeholder="Instagram | https://instagram.com/..."><?php echo esc_textarea( $metinler['social'] ); ?></textarea>
-					<p class="ipucu"><?php esc_html_e( 'Her satır bir madde: ad | adres', 'sahra-davetiye' ); ?></p>
+					<textarea id="f-social" name="sahra[socialText]" rows="3" placeholder="@perihan&#10;@ahmetarif"><?php echo esc_textarea( $metinler['social'] ); ?></textarea>
+					<p class="ipucu"><?php esc_html_e( 'Her satır bir hesap. Instagram kullanıcı adınızı yazmanız yeter — "@perihan" gibi. İsterseniz tam adresi de yapıştırabilirsiniz.', 'sahra-davetiye' ); ?></p>
 				</div>
 
 				<?php if ( $marka['instagram'] ) : ?>

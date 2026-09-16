@@ -99,9 +99,22 @@ class Sahra_Invitation {
 	}
 
 	public static function get_by_slug( $slug ) {
+		/*
+		 * BOŞ adres hiçbir davetiye değildir.
+		 *
+		 * WordPress boş bir `name` ölçütünü yok sayıyor ve en yeni
+		 * gönderiyi döndürüyor: adres göndermeyen bir istek, o an en yeni
+		 * olan davetiyeye düşüyordu. Misafirin dileği ve katılım bildirimi
+		 * başka bir çiftin davetiyesine yazılabiliyordu.
+		 */
+		$slug = sanitize_title( $slug );
+		if ( '' === $slug ) {
+			return null;
+		}
+
 		$posts = get_posts(
 			array(
-				'name'             => sanitize_title( $slug ),
+				'name'             => $slug,
 				'post_type'        => self::POST_TYPE,
 				'post_status'      => array( 'publish', 'draft' ),
 				'numberposts'      => 1,

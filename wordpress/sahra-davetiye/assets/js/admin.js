@@ -446,29 +446,6 @@
 		calan = { ses: ses, dugme: dugme };
 	} );
 
-	/* ----------------------------------------------------- medya kütüphanesi */
-
-	document.addEventListener( 'click', function ( e ) {
-		var dugme = e.target.closest( '.sahra-media' );
-		if ( ! dugme || ! window.wp || ! window.wp.media ) {
-			return;
-		}
-
-		e.preventDefault();
-
-		var alan = document.getElementById( dugme.getAttribute( 'data-hedef' ) );
-		var secici = window.wp.media( { multiple: false } );
-
-		secici.on( 'select', function () {
-			var secim = secici.state().get( 'selection' ).first().toJSON();
-			alan.value = secim.url;
-			alan.dispatchEvent( new Event( 'input', { bubbles: true } ) );
-			sesAdiniYaz( alan, secim.title || '' );
-		} );
-
-		secici.open();
-	} );
-
 	/* --------------------------------------------------- doğrudan yükleme */
 
 	/*
@@ -556,6 +533,43 @@
 
 		girdi.click();
 	} );
+
+	/* ------------------------------------------------------ koşullu alan */
+
+	/*
+	 * Bir seçime bağlı alan kümesi: seçim tutmuyorsa gizleniyor.
+	 *
+	 * Gizlerken değer SİLİNMİYOR; "Yok"tan "Var"a dönen çift yazdığını
+	 * kaybetmesin. Gizli alan yine de gönderiliyor — kaydedilen veri
+	 * değişmiyor, yalnızca ekran sadeleşiyor.
+	 */
+	function kosulluAlanlar() {
+		Array.prototype.forEach.call( document.querySelectorAll( '.sahra-kosullu' ), function ( kutu ) {
+			var ad = kutu.getAttribute( 'data-anahtar' );
+			var bekleyen = kutu.getAttribute( 'data-deger' );
+			var girdiler = document.querySelectorAll( '[name="' + ad + '"]' );
+			if ( ! girdiler.length ) {
+				return;
+			}
+
+			function tazele() {
+				var deger = '';
+				Array.prototype.forEach.call( girdiler, function ( g ) {
+					if ( 'radio' === g.type || 'checkbox' === g.type ) {
+						if ( g.checked ) { deger = g.value; }
+					} else {
+						deger = g.value;
+					}
+				} );
+				kutu.hidden = deger !== bekleyen;
+			}
+
+			Array.prototype.forEach.call( girdiler, function ( g ) {
+				g.addEventListener( 'change', tazele );
+			} );
+			tazele();
+		} );
+	}
 
 	/* ---------------------------------------------------------- önizleme */
 
@@ -855,6 +869,7 @@
 	sihirbaz();
 	onizleme();
 	gorselOnizleme();
+	kosulluAlanlar();
 	qr();
 	tarihAlanlari();
 	kaydedilmemis();

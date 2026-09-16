@@ -66,6 +66,78 @@ class Sahra_Storage {
 		return self::driver()->delete( $id );
 	}
 
+	/** Sıkıştırmadan sonra uzun kenarın en fazla kaç piksel olacağı. */
+	const MAX_EDGE = 2000;
+
+	/** JPEG kalitesi: 82 gözle fark edilmiyor, dosyayı yarıya indiriyor. */
+	const QUALITY = 82;
+
+	/**
+	 * Görseli depoya yazmadan önce küçültür ve yeniden sıkıştırır.
+	 *
+	 * Telefondan gelen kare 4–8 MB ve 4000 piksel geniş; davetiyede en
+	 * fazla 1000 piksel görünüyor. Sıkıştırmadan yüklemek Drive'ı
+	 * gereksiz dolduruyor, misafirin mobil verisini yiyor ve galeriyi
+	 * yavaşlatıyordu.
+	 *
+	 * Başarısızlık sessiz: dönüştürülemeyen dosya (HEIC desteği yoksa,
+	 * bellek yetmezse) OLDUĞU GİBİ yükleniyor — yükleme sıkıştırma
+	 * yüzünden hiç başarısız olmamalı.
+	 *
+	 * @param string $path Geçici dosya yolu.
+	 * @param string $mime Doğrulanmış tür.
+	 * @return array yol, mime, gecici (silinecek mi).
+	 */
+	public static function compress( $path, $mime ) {
+		$oldugu_gibi = array( 'yol' => $path, 'mime' => $mime, 'gecici' => false );
+
+		if ( ! in_array( $mime, self::IMAGE_TYPES, true ) ) {
+			return $oldugu_gibi;
+		}
+
+		$editor = wp_get_image_editor( $path );
+		if ( is_wp_error( $editor ) ) {
+			return $oldugu_gibi;
+		}
+
+		$boyut = $editor->get_size();
+		if ( ! empty( $boyut['width'] ) && ! empty( $boyut['height'] )
+			&& ( $boyut['width'] > self::MAX_EDGE || $boyut['height'] > self::MAX_EDGE ) ) {
+			// Oran korunuyor; kırpma yok.
+			$editor->resize( self::MAX_EDGE, self::MAX_EDGE, false );
+		}
+
+		$editor->set_quality( self::QUALITY );
+
+		/*
+		 * Çıktı JPEG: PNG'ye kaydedilen bir fotoğraf sıkışmıyor ve
+		 * kalitesi de artmıyor. Saydamlık davetiye görsellerinde
+		 * kullanılmıyor.
+		 */
+		/*
+		 * wp_tempnam() wp-admin/includes/file.php'de; REST ve ön yüzde
+		 * yüklü değil ve çağrı ölümcül hata veriyordu. get_temp_dir()
+		 * her bağlamda var.
+		 */
+		$hedef = trailingslashit( get_temp_dir() ) . 'sahra-' . wp_generate_password( 12, false ) . '.jpg';
+		$sonuc = $editor->save( $hedef, 'image/jpeg' );
+
+		if ( is_wp_error( $sonuc ) || empty( $sonuc['path'] ) || ! file_exists( $sonuc['path'] ) ) {
+			if ( file_exists( $hedef ) ) {
+				wp_delete_file( $hedef );
+			}
+			return $oldugu_gibi;
+		}
+
+		// Sıkıştırma büyüttüyse özgün dosya kalıyor.
+		if ( filesize( $sonuc['path'] ) >= filesize( $path ) ) {
+			wp_delete_file( $sonuc['path'] );
+			return $oldugu_gibi;
+		}
+
+		return array( 'yol' => $sonuc['path'], 'mime' => 'image/jpeg', 'gecici' => true );
+	}
+
 	/** Yüklenen dosyanın gerçekten kabul edilebilir olup olmadığı. */
 	public static function validate_upload( $file, $allowed ) {
 		if ( empty( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {

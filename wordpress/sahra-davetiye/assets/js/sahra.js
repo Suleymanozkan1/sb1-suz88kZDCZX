@@ -171,12 +171,14 @@
 			window.setTimeout( function () {
 				perdeEl.parentNode && perdeEl.parentNode.removeChild( perdeEl );
 				/*
-				 * Müzik ancak buradan başlatılabilir: tarayıcılar sesi
-				 * yalnızca gerçek bir dokunuş/tıklamadan sonra açıyor.
-				 * Sayfa yüklenirken başlatmayı denemek "Tarayıcı sesi
-				 * engelledi" uyarısından başka bir şey üretmiyordu.
+				 * Müzik AÇILIŞTA ÇALMIYOR.
+				 *
+				 * Davetiye toplantıda, otobüste, yanında biri varken
+				 * açılıyor; kendiliğinden başlayan müzik misafiri
+				 * telaşlandırıp sayfayı kapattırıyordu. Sağ alttaki ses
+				 * düğmesi duruyor: isteyen dokunup başlatıyor.
 				 */
-				baslatMuzik( sesli );
+				baslatMuzik( false );
 			}, 2600 );
 		}
 
@@ -545,6 +547,66 @@
 		} );
 	}
 
+	/*
+	 * Açılış videosu.
+	 *
+	 * Video KAYNAĞI JS ile veriliyor: hareket azaltma isteği olan
+	 * ziyaretçiye 2,4 MB indirtmemek için. Oynatma reddedilirse ya da
+	 * dosya gelmezse perde hemen açılıyor — davetiye videoya bağlı
+	 * kalmıyor. Güvenlik ağı olarak süreyi aşan bir zamanlayıcı var:
+	 * 'ended' hiç gelmeyen tarayıcıda misafir siyah ekranda kalmasın.
+	 */
+	function acilisVideosu() {
+		var kutu = document.querySelector( '.intro' );
+		if ( ! kutu ) {
+			return;
+		}
+
+		var video = kutu.querySelector( '.intro-video' );
+		var gec = kutu.querySelector( '.intro-gec' );
+		var kapandi = false;
+		var zamanlayici = null;
+
+		function kapat() {
+			if ( kapandi ) {
+				return;
+			}
+			kapandi = true;
+			if ( zamanlayici ) {
+				clearTimeout( zamanlayici );
+			}
+			kutu.classList.add( 'kapaniyor' );
+			if ( video ) {
+				video.pause();
+			}
+			setTimeout( function () {
+				kutu.parentNode && kutu.parentNode.removeChild( kutu );
+			}, 700 );
+		}
+
+		if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches || ! video ) {
+			kutu.parentNode && kutu.parentNode.removeChild( kutu );
+			return;
+		}
+
+		gec && gec.addEventListener( 'click', kapat );
+		video.addEventListener( 'ended', kapat );
+		video.addEventListener( 'error', kapat );
+
+		video.src = kutu.getAttribute( 'data-src' ) || '';
+		var oynat = video.play();
+		if ( oynat && oynat.catch ) {
+			oynat.catch( kapat );
+		}
+
+		video.addEventListener( 'loadedmetadata', function () {
+			var sure = isFinite( video.duration ) ? video.duration : 6;
+			zamanlayici = setTimeout( kapat, ( sure + 1.5 ) * 1000 );
+		} );
+		// Üst sınır: meta veri hiç gelmezse de ekran açılsın.
+		setTimeout( kapat, 12000 );
+	}
+
 	belirmeyiKur();
 	ilerlemeCubugu();
 	geriSayim();
@@ -554,4 +616,5 @@
 	dilekFormu();
 	paylas();
 	yukariCik();
+	acilisVideosu();
 } )();

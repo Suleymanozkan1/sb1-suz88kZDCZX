@@ -341,6 +341,73 @@ class Sahra_Fields {
 	}
 
 	/** Listedeki belirtilen alanlarda yazım onarımı. */
+	/**
+	 * Sosyal hesapları kullanılabilir bağlantıya çevirir.
+	 *
+	 * Çift "Perihan | https://instagram.com/..." yazmıyor; "@perihan"
+	 * yazıyor. Adres boş kalınca satır sessizce düşüyordu ve çift kendi
+	 * hesabını yazdığı hâlde davetiyede hiçbir şey görünmüyordu.
+	 * Kullanıcı adından Instagram adresi üretiliyor.
+	 *
+	 * @param array $liste socialLinks satırları.
+	 * @return array Adresi tamamlanmış satırlar.
+	 */
+	private static function sosyal_baglanti( $liste ) {
+		if ( ! is_array( $liste ) ) {
+			return $liste;
+		}
+
+		foreach ( $liste as $i => $satir ) {
+			if ( ! is_array( $satir ) ) {
+				continue;
+			}
+
+			$ad   = isset( $satir['name'] ) ? trim( (string) $satir['name'] ) : '';
+			$adres = isset( $satir['href'] ) ? trim( (string) $satir['href'] ) : '';
+
+			// Adres yoksa adın kendisi kullanıcı adı olabilir.
+			if ( '' === $adres ) {
+				$adres = $ad;
+			}
+
+			if ( '' === $adres ) {
+				continue;
+			}
+
+			/*
+			 * Alan temizleyicisi kullanıcı adının başına şema ekliyor:
+			 * "@perihan" kayda "http://@perihan" olarak giriyor ve
+			 * hiçbir yere gitmeyen bir bağlantı oluyordu. Şema, arkasında
+			 * gerçek bir alan adı yoksa sökülüyor.
+			 */
+			$govde = preg_replace( '#^https?://#i', '', $adres );
+			if ( $govde !== $adres && ( 0 === strpos( $govde, '@' ) || false === strpos( $govde, '.' ) ) ) {
+				$adres = $govde;
+			}
+
+			// "instagram.com/x" — şeması unutulmuş tam adres.
+			if ( preg_match( '#^(www\.)?[a-z0-9.-]+\.[a-z]{2,}/#i', $adres ) ) {
+				$adres = 'https://' . ltrim( $adres, '/' );
+			}
+
+			/*
+			 * Kullanıcı adı: "@perihan" ya da "perihan". Instagram'ın
+			 * izin verdiği karakterler harf, rakam, nokta ve alt çizgi.
+			 */
+			if ( 0 !== strpos( $adres, 'http' ) && preg_match( '/^@?[A-Za-z0-9._]{1,30}$/', $adres ) ) {
+				$adres = 'https://instagram.com/' . ltrim( $adres, '@' );
+			}
+
+			$liste[ $i ]['href'] = $adres;
+			// Etiket boşsa kullanıcı adı gösteriliyor, çıplak adres değil.
+			if ( '' === $ad ) {
+				$liste[ $i ]['name'] = '@' . rtrim( basename( wp_parse_url( $adres, PHP_URL_PATH ) ? wp_parse_url( $adres, PHP_URL_PATH ) : '' ), '/' );
+			}
+		}
+
+		return $liste;
+	}
+
 	private static function liste_yazim( $liste, $alanlar ) {
 		if ( ! is_array( $liste ) ) {
 			return $liste;
@@ -431,7 +498,7 @@ class Sahra_Fields {
 			$veri['storyItems'] = self::liste_yazim( $veri['storyItems'], array( 'title', 'desc' ) );
 		}
 		if ( isset( $veri['socialLinks'] ) ) {
-			$veri['socialLinks'] = self::liste_yazim( $veri['socialLinks'], array( 'name' ) );
+			$veri['socialLinks'] = self::sosyal_baglanti( self::liste_yazim( $veri['socialLinks'], array( 'name' ) ) );
 		}
 		if ( isset( $veri['menuGroups'] ) ) {
 			$veri['menuGroups'] = self::menu_yazim( $veri['menuGroups'] );

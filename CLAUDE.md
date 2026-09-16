@@ -27,7 +27,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~1750 metin, 0 sorun |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~1970 metin, 0 sorun |
 | `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
@@ -54,6 +54,10 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `form-qa.js` | panelin GERÇEK form POST'u: katılım anahtarı yöneticide, çift kurcalayamıyor, çelişen iki denetim yok | 18/18 |
 | `davetli.php` | davetli listesi: eşleştirme (ad/telefon), sayılar, rapor, gizlilik, kademeli silme | 43/43 |
 | `davetli-ekran.js` | davetli ekranı: form kaydediyor, durum tablosu modelle uyuşuyor, başkasının listesi sızmıyor | 17/17 |
+| `sosyal-punto.php` | sürüm damgası, marka hesabı, çiftin kullanıcı adından bağlantı, açılış videosu | 18/18 |
+| `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
+| `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
+| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, en küçük punto 14px, uçtan uca sıkıştırma | 28/28 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -183,6 +187,20 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   davetiyeye düştü ve tur kendi kurduğu veriyi hiç görmedi. Üstelik o
   bozuk koşu listeyi YANLIŞ davetiyeye yazdı ve arkasından koşan
   `istek10.php`'yi düşürdü.
+- **`innerText` GİRDİ DEĞERLERİNİ görmüyor.** Kapak ve galeri adresleri
+  görünür bir `<input>`/`<textarea>` içinde duruyordu: ekranda apaçık
+  yazıyor ama metin düğümü olmadığı için `yol-tara.js` "çift: hiç" dedi.
+  Ekran görüntüsü aracı yalanladı. Tarayıcı artık görünür girdilerin
+  değerlerini de okuyor — ve düzeltmeden sonra aracın gerçekten
+  yakaladığı ayrıca sınandı.
+- **Ürünün hatası, aracın "çalışıyor" görünmesini sağlayabilir.**
+  `get_by_slug('')` WordPress'in "en yeni gönderi"sine düşüyordu; hesap
+  silme tohumu ucu `invitationId` ile çağırıyor ve dileği şans eseri
+  doğru davetiyeye yazıyordu. Hata düzeltilince tohum 404 aldı ve asıl
+  yanlış görünür oldu.
+- **Kabuk süzgeci çıktının tamamını yutabilir.** `php -S` tek süreçli:
+  2,4 MB'lık video isteği sunucuyu kilitleyip bütün turları zaman
+  aşımına düşürdü. `PHP_CLI_SERVER_WORKERS` ile koşuluyor.
 - **Ürün sözleşmesi değişince TURUN ÖLÇÜTÜ de değişir.** Salon adı ve
   Instagram hesabı markadan türetilmeye başlayınca `salon-alan.mjs` ve
   `wp-audit-calistir.mjs` o alanlara damga basmaya devam etti: damga
@@ -220,5 +238,18 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - Misafir ya da çift konum/harita üzerinde seçim yapamaz. Gömülü
   gezilebilir harita kaldırıldı; konum yalnızca gösterilir, harita
   uygulaması bağlantıları salonu doğru noktada açar.
+- **Her yayında `SAHRA_VERSION` yükseltilir.** Stil ve betik adresleri
+  `?v=SAHRA_VERSION` taşıyor; sürüm sabit kalınca tarayıcı eski dosyayı
+  önbellekten veriyor ve yeni özellik "gelmemiş" görünüyor. Yukarı çık
+  butonu tam olarak bu yüzden görünmedi.
+- Davetiye açılışta SESSİZ: müzik kendiliğinden çalmaz, misafir sağ
+  alttaki düğmeye dokununca başlar. Kahramanda katılım düğmesi yok;
+  katılım bölümü sayfada durur.
+- Çift kendi Instagram'ını kullanıcı adıyla yazabilir (`@perihan`);
+  adres üründe tamamlanır.
+- Yüklenen görseller depoya yazılmadan önce küçültülüp yeniden
+  sıkıştırılır (uzun kenar 2000 px, JPEG 82). Çevrilemeyen dosya
+  olduğu gibi yüklenir — sıkıştırma yüzünden yükleme düşmez.
+- Dilek çiftin onayından geçmeden YAYIMLANMAZ; form bunu açıkça yazar.
 - Yorumlar **neden**i anlatır, ne yaptığını değil. Kod ne yaptığını
   zaten söylüyor.
