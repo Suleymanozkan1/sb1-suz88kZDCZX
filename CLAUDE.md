@@ -46,7 +46,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `musteri-istekleri.php` | çocuk varsayılanı, salon alanları, paylaşım açıklaması, tarih koruması | 16/16 |
 | `musteri-ekran.js` | tarih yalnızca takvimden, adımlar veri kaybetmiyor, çıkış uyarısı | 10/10 |
 | `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 58/58 |
-| `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç | 24/24 |
+| `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç, işletme imzası | 28/28 |
 | `tarih-takvim.js` | dokununca takvim açılıyor; takvimsiz tarayıcıda alan kullanılabilir | 5/5 |
 | `yazim-okuma.php` | güncellemeden önce girilmiş davetiyenin yazımı ekranda düzeliyor mu | 24/24 |
 | `istek10.php` | kalkan alanlar, hediye Yok/Var, otomatik program, marka, katılım raporu (listesiz kip) | 63/63 |
@@ -331,6 +331,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   ekranda bakıldığında rahat görünüyor, aynı düzen telefonda fiziksel
   boyutta çok daha küçük. Ekran görüntüsü düzeni gösterir, PUNTOYU
   göstermez; punto sayıyla ölçülür.
+- **Etiket sınıfı CÜMLE taşımaz.** Kapanış imzası `.t-label` ile
+  yazılıydı: o sınıf BÜYÜK HARF ve 0.26em harf aralığı veriyor — iki
+  kelimelik bir etikette doğru, tam bir cümlede telefonda dört satıra
+  yayılıp okunmuyor. Uzun metin kendi ölçüsünü ister.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -342,6 +346,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - Bölüm başlıkları sabit; çift değiştiremez. İstisna: dilek defteri
   başlığı, yönetici işletme sayfasından bir kez yazar, bütün
   davetiyelerde aynı görünür.
+- Davetiyenin en altında işletmenin imzası durur: "Bu eşsiz dijital
+  deneyim, Sahra Davet tarafından çiftimize armağan edilmiştir." Sabit
+  metin — davetiyeyi armağan eden işletme imzasını da kendisi atar, çift
+  değiştiremez.
 - Çiftin ekranında dosya yolu görünmez. Depolama sayfası istisna:
   ayarın kendisi orada ve çift giremiyor.
 - Salon bilgisi (adres, yol tarifi, özellikler) yöneticinin; çift seçer,

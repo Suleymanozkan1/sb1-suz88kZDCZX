@@ -1002,7 +1002,14 @@ $geri_sayim = $d['weddingDate']
 					<button type="button" class="cta" data-copy="<?php echo esc_attr( $adres ); ?>">Bağlantıyı Kopyala</button>
 				</p>
 
-				<p class="t-label reveal" style="color:var(--c-on-dark-faint);margin-top:var(--sp-lg)">Sevgiyle hazırlandı</p>
+				<?php
+				/*
+				 * İşletmenin imzası. Sabit metin: çift değiştiremez —
+				 * davetiyeyi armağan eden işletme, imzasını da kendisi
+				 * atar.
+				 */
+				?>
+				<p class="imza-armagan reveal">Bu eşsiz dijital deneyim, Sahra Davet tarafından çiftimize armağan edilmiştir.</p>
 			</div>
 		</section>
 		<?php endif; ?>

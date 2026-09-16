@@ -1338,6 +1338,25 @@ html.sahra-html {
   color: var(--c-gold-deep);
 }
 
+/*
+ * İşletmenin kapanış imzası.
+ *
+ * Eskiden `.t-label` ile yazılıyordu: o sınıf BÜYÜK HARF ve 0.26em harf
+ * aralığı veriyor — iki kelimelik bir etiket için doğru, tam bir cümle
+ * için değil. Cümle orada telefonda dört satıra yayılıp okunmuyordu.
+ * Kendi ölçüsü var: normal yazım, rahat satır aralığı ve 46ch'te
+ * tutulan bir satır genişliği.
+ */
+.imza-armagan {
+  margin: var(--sp-lg) auto 0;
+  max-width: 46ch;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--c-on-dark-faint);
+}
+
 /* ══════════════════════════════════════════════ FORMLAR ════════════ */
 
 .field {
