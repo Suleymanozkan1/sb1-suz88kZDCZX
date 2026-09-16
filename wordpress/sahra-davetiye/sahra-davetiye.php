@@ -3,7 +3,7 @@
  * Plugin Name:       Sahra Davetiye
  * Plugin URI:        https://github.com/Suleymanozkan1/sb1-suz88kZDCZX
  * Description:       Perde açılışı ve balmumu mühür girişiyle açılan, panelden yönetilen dijital düğün davetiyesi. Next.js sürümünün WordPress karşılığı.
- * Version:           1.3.6
+ * Version:           1.4.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Sahra Davetiye
@@ -15,9 +15,25 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SAHRA_VERSION', '1.3.6' );
+define( 'SAHRA_VERSION', '1.4.0' );
 define( 'SAHRA_FILE', __FILE__ );
 define( 'SAHRA_DIR', plugin_dir_path( __FILE__ ) );
+
+/**
+ * Varlık adresine DOSYANIN kendi zaman damgasını ekler.
+ *
+ * Adresler `?v=SAHRA_VERSION` taşıyordu ve sürüm elle yükseltiliyordu:
+ * bir kez unutulduğunda tarayıcı eski dosyayı önbellekten verdi ve yeni
+ * özellik "gelmemiş" göründü (yukarı çık butonu tam bu yüzden
+ * görünmedi). Sunucu tarafındaki önbellek eklentileri de aynı adresi
+ * saklıyor. Damga dosya değiştiğinde KENDİLİĞİNDEN değişiyor; sürüm
+ * numarası yine adreste kalıyor ki hangi yayın olduğu okunabilsin.
+ */
+function sahra_varlik( $yol ) {
+	$tam    = SAHRA_DIR . $yol;
+	$damga  = file_exists( $tam ) ? filemtime( $tam ) : 0;
+	return SAHRA_URL . $yol . '?v=' . SAHRA_VERSION . ( $damga ? '.' . $damga : '' );
+}
 define( 'SAHRA_URL', plugin_dir_url( __FILE__ ) );
 
 /*

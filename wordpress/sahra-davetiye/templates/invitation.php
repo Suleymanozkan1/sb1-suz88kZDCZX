@@ -127,7 +127,7 @@ $geri_sayim = $d['weddingDate']
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap&subset=latin,latin-ext" rel="stylesheet">
-	<link rel="stylesheet" href="<?php echo esc_url( SAHRA_URL . 'assets/css/sahra.css?v=' . SAHRA_VERSION ); ?>">
+	<link rel="stylesheet" href="<?php echo esc_url( sahra_varlik( 'assets/css/sahra.css' ) ); ?>">
 
 	<?php /* Tema simgeleri en dışta: mühür perdesi ve müzik düğmesi de bu kapsamda kalmalı. */ ?>
 	<style><?php echo '.sahra-page{' . esc_html( Sahra_Theme::style( $d['theme'] ) ) . '}'; ?></style>
@@ -1051,6 +1051,6 @@ window.SahraVeri = {
 	slug: <?php echo wp_json_encode( $d['slug'] ); ?>
 };
 </script>
-<script src="<?php echo esc_url( SAHRA_URL . 'assets/js/sahra.js?v=' . SAHRA_VERSION ); ?>"></script>
+<script src="<?php echo esc_url( sahra_varlik( 'assets/js/sahra.js' ) ); ?>"></script>
 </body>
 </html>

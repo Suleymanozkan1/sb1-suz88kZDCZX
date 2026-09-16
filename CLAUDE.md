@@ -57,7 +57,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `sosyal-punto.php` | sürüm damgası, marka hesabı, kullanıcı adından bağlantı, ekranda @kullanıcı, açılış videosu | 27/27 |
 | `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
-| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, mobilde en küçük punto 17px (girdiler dahil), uçtan uca sıkıştırma | 36/36 |
+| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, mobilde en küçük punto 21px (girdiler dahil), uçtan uca sıkıştırma | 36/36 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -320,6 +320,17 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   taramanın dışında kalıyordu. Form alanları tam da orada sabit 1rem'de
   takılı kalmıştı. Tarayıcı artık girdileri de ölçüyor — ve düzeltmeden
   sonra gerçekten yakaladığı ayrıca sınandı.
+- **Kullanıcının ekranı ile ölçümün ayrışıyorsa önce SÜRÜMÜ doğrula.**
+  "Bende hâlâ küçük" dendiğinde dört tur punto büyüttüm; sorun ölçüde
+  değil canlıda hangi dosyanın servis edildiğindeydi. Davetiye sayfası
+  `wp_head()` çağırmıyor (yalnızca Google Fonts ve kendi stili yükleniyor),
+  yani tema da eklenti de puntoya karışamıyor — ayrışmanın kodda bir
+  açıklaması yoktu. Böyle bir durumda tahmin etmek yerine kurulu sürüm
+  sorulur.
+- **Kendi ekran görüntün kanıt olmayabilir.** 390px'lik bir PNG büyük bir
+  ekranda bakıldığında rahat görünüyor, aynı düzen telefonda fiziksel
+  boyutta çok daha küçük. Ekran görüntüsü düzeni gösterir, PUNTOYU
+  göstermez; punto sayıyla ölçülür.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -354,10 +365,15 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   yüklediği ekran görüntüsü. Üzerinde gezilemez (seçim de yapılamaz),
   dokunuş salonu telefonun harita uygulamasında açar. Görsel yoksa eski
   adres paneli kalır — yüklenmemiş salon yüzünden bölüm boşalmaz.
-- **Her yayında `SAHRA_VERSION` yükseltilir.** Stil ve betik adresleri
-  `?v=SAHRA_VERSION` taşıyor; sürüm sabit kalınca tarayıcı eski dosyayı
-  önbellekten veriyor ve yeni özellik "gelmemiş" görünüyor. Yukarı çık
-  butonu tam olarak bu yüzden görünmedi.
+- **Her yayında `SAHRA_VERSION` yükseltilir**, ama artık tek güvence o
+  değil: varlık adresleri `sahra_varlik()` ile üretiliyor ve dosyanın
+  `filemtime` damgasını da taşıyor (`?v=1.4.0.1789586199`). Sürüm
+  yükseltmeyi unutmak ya da sunucuda önbellek eklentisi bulunmak yeni
+  dosyanın gelmemesine yol açıyordu; damga dosya değişince kendiliğinden
+  değişiyor.
+- **Punto ölçüsü okunabilirliğe göre kuruldu, beğeniye göre değil:**
+  mobilde hiçbir metin 21px'in altında değil (girdiler dahil). Davetiyeyi
+  yaşlı misafirler de okuyor.
 - Davetiye açılışta SESSİZ: müzik kendiliğinden çalmaz, misafir sağ
   alttaki düğmeye dokununca başlar. Kahramanda katılım düğmesi yok;
   katılım bölümü sayfada durur.

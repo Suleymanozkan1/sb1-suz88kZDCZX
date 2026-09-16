@@ -55,23 +55,24 @@
   --f-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas,
             'Liberation Mono', 'Courier New', monospace;
 
-  --t-hero: clamp(2.75rem, 9.5vw, 7rem);
-  --t-display: clamp(2.1rem, 4.6vw, 3.4rem);
-  --t-h2: clamp(1.75rem, 3vw, 2.25rem);
-  --t-lead: clamp(1.375rem, 1.9vw, 1.625rem);
+  --t-hero: clamp(3.25rem, 10vw, 7.5rem);
+  --t-display: clamp(2.5rem, 5vw, 3.75rem);
+  --t-h2: clamp(2.125rem, 3.4vw, 2.625rem);
+  --t-lead: clamp(1.625rem, 2.1vw, 1.875rem);
   /* Taban 16px: 0.9rem (14.4px) küçük ekranda zor okunuyordu. */
-  --t-body: clamp(1.1875rem, 1.3vw, 1.25rem);
+  --t-body: clamp(1.4375rem, 1.5vw, 1.5rem);
   /* 10px'ten yükseltildi: 0.26em harf aralıklı büyük harf o boyutta
      okunmuyordu. */
   /*
-   * Etiketler 11px'den başlıyordu, sonra 14, sonra 15 oldu; telefonda
-   * hâlâ küçüktü. Sorun yapısaldı: `clamp`in orta terimi `vw` tabanlı
+   * Etiketler 11px'den başlıyordu; 14, 15, 17 derken telefonda hâlâ
+   * küçük bulundu. Sorun yapısaldı: `clamp`in orta terimi `vw` tabanlı
    * ve 390px'te değeri küçük kalıyor — MOBİL her zaman ALT SINIRA
    * yapışıyor, üst sınırı yükseltmek telefonu hiç etkilemiyor. Büyütme
-   * artık alt sınırdan yapılıyor. Taban 17px.
+   * alt sınırdan yapılıyor. Taban 21px: davetiyeyi yaşlı misafirler de
+   * okuyor, ölçü beğeniye göre değil okunabilirliğe göre kuruldu.
    */
-  --t-label: clamp(1.0625rem, 1.1vw, 1.125rem);
-  --t-numeral: clamp(1.5rem, 2.5vw, 2rem);
+  --t-label: clamp(1.3125rem, 1.3vw, 1.375rem);
+  --t-numeral: clamp(1.75rem, 2.8vw, 2.25rem);
 
   --ls-hero: -0.035em;
   --ls-display: -0.02em;
@@ -725,7 +726,7 @@ html.sahra-html {
   gap: 0.6rem 1.6rem;
   color: var(--c-on-dark-soft);
   margin-top: var(--sp-sm);
-  font-size: clamp(1.15rem, 1.9vw, 1.45rem);
+  font-size: clamp(1.4375rem, 2.1vw, 1.75rem);
   line-height: 1.5;
 }
 
@@ -937,7 +938,7 @@ html.sahra-html {
   max-width: 26em;
   font-family: var(--f-display);
   font-style: italic;
-  font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+  font-size: clamp(1.4375rem, 2.4vw, 1.875rem);
   line-height: 1.55;
   color: var(--c-on-light);
 }
@@ -957,7 +958,7 @@ html.sahra-html {
 .letter-names {
   margin-top: var(--sp-sm);
   font-family: var(--f-display);
-  font-size: clamp(1.1875rem, 1.9vw, 1.4rem);
+  font-size: clamp(1.4375rem, 2.1vw, 1.625rem);
   color: var(--c-on-light);
 }
 
@@ -1464,7 +1465,7 @@ html.sahra-html {
  */
 .iban {
   font-family: var(--f-mono);
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-size: clamp(1.375rem, 2.6vw, 1.875rem);
   letter-spacing: 0.04em;
   line-height: 1.6;
   color: var(--c-on-dark);
