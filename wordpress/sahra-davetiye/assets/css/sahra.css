@@ -696,12 +696,16 @@ html.sahra-html {
   margin: 0.1em 0;
 }
 
+/* Tarih–gün–saat–salon satırı: davetiyenin en çok okunan bilgisi.
+   Gövde puntosuyla aynıydı ve isimlerin altında kaybolyordu. */
 .hero-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem 1.4rem;
+  gap: 0.6rem 1.6rem;
   color: var(--c-on-dark-soft);
   margin-top: var(--sp-sm);
+  font-size: clamp(1.15rem, 1.9vw, 1.45rem);
+  line-height: 1.5;
 }
 
 .countdown {
@@ -974,6 +978,22 @@ html.sahra-html {
 
 /* Kaydırma daveti: sayfanın devam ettiğini söyleyen tek satır. Sessiz
    olsun diye ince; fark edilsin diye çizgisi yavaşça nefes alıyor. */
+/* Düğme oldu: tarayıcının kendi düğme görünümü sıfırlanıyor. */
+.kaydir-daveti {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+}
+
+.kaydir-daveti:hover .t-label,
+.kaydir-daveti:focus-visible .t-label {
+  color: var(--c-gold-light);
+}
+
 .kaydir-daveti {
   position: absolute;
   bottom: var(--sp-sm);
@@ -1394,47 +1414,34 @@ html.sahra-html {
 
 /* ══════════════════════════════════════════════ AÇILIŞ VİDEOSU ════ */
 
-/* Perdenin de üstünde: davetiyenin ilk karesi bu. */
-.intro {
-  position: fixed;
+/* Perdenin ARKA PLANI: sahneyi engellemiyor, ona zemin oluyor. */
+.curtain-video {
+  position: absolute;
   inset: 0;
-  z-index: 200;
+  z-index: 0;
+  overflow: hidden;
   background: var(--c-night);
-  display: grid;
-  place-items: center;
-  transition: opacity 0.6s ease;
-}
-
-.intro.kapaniyor {
+  /* Yüklenene kadar görünmüyor: yarım kare bir titreme olmuyor. */
   opacity: 0;
+  transition: opacity 1.2s ease;
   pointer-events: none;
 }
 
-/* Dikey video; ekranı kırpmadan, tamamı görünecek biçimde oturuyor. */
-.intro-video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: var(--c-night);
+.curtain-video.hazir {
+  opacity: 0.55;
 }
 
-.intro-gec {
-  position: absolute;
-  right: var(--sp-sm);
-  bottom: var(--sp-sm);
-  padding: 0.5rem 1rem;
-  border: 1px solid rgba(176, 141, 63, 0.45);
-  border-radius: 999px;
-  background: rgba(13, 8, 5, 0.45);
-  backdrop-filter: blur(6px);
-  color: var(--c-gold-light);
-  font-family: var(--f-body);
-  font-size: 0.875rem;
-  letter-spacing: 0.12em;
+/* Dikey video geniş ekranda da boşluk bırakmadan doluyor; kırpılan
+   kenarlar zaten metnin arkasında kalan alan. */
+.curtain-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro {
+  .curtain-video {
     transition: none;
   }
 }

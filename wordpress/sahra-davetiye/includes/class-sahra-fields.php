@@ -399,9 +399,22 @@ class Sahra_Fields {
 			}
 
 			$liste[ $i ]['href'] = $adres;
-			// Etiket boşsa kullanıcı adı gösteriliyor, çıplak adres değil.
-			if ( '' === $ad ) {
-				$liste[ $i ]['name'] = '@' . rtrim( basename( wp_parse_url( $adres, PHP_URL_PATH ) ? wp_parse_url( $adres, PHP_URL_PATH ) : '' ), '/' );
+
+			/*
+			 * Ekranda ADRES değil KULLANICI ADI görünür.
+			 *
+			 * Çift tam adresi yapıştırdığında etiket de o adres oluyor ve
+			 * davetiyede "HTTPS://İNSTAGRAM.COM/GRANDSAHRADAVET" diye
+			 * uzayıp satırı taşıran bir yazı çıkıyordu. Ad boşsa ya da
+			 * adresin kendisiyse, kullanıcı adına indirgeniyor.
+			 */
+			$ad_adres_mi = ( '' === $ad ) || preg_match( '#^https?://#i', $ad ) || false !== strpos( self::tr_lower( $ad ), 'instagram.com/' );
+			if ( $ad_adres_mi ) {
+				$yol = trim( (string) wp_parse_url( $adres, PHP_URL_PATH ), '/' );
+				// Alt klasörlü adreste son parça kullanıcı adı.
+				$parcalar  = $yol ? explode( '/', $yol ) : array();
+				$kullanici = $parcalar ? end( $parcalar ) : '';
+				$liste[ $i ]['name'] = $kullanici ? '@' . $kullanici : $ad;
 			}
 		}
 

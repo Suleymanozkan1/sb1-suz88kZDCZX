@@ -27,7 +27,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `kart-qa.mjs` | og etiketleri, bot erişimi, monogram sığması | 26/26 |
 | `sihirbaz-qa.js` | sihirbazın davranışları | 8/8 |
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
-| `panel-kontrast.js` | panelin her metninin kontrastı | ~1970 metin, 0 sorun |
+| `panel-kontrast.js` | panelin her metninin kontrastı | ~2200 metin, 0 sorun |
 | `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
 | `mobil.js` | 390px'te yatay taşma | taşma yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
@@ -54,10 +54,10 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `form-qa.js` | panelin GERÇEK form POST'u: katılım anahtarı yöneticide, çift kurcalayamıyor, çelişen iki denetim yok | 18/18 |
 | `davetli.php` | davetli listesi: eşleştirme (ad/telefon), sayılar, rapor, gizlilik, kademeli silme | 43/43 |
 | `davetli-ekran.js` | davetli ekranı: form kaydediyor, durum tablosu modelle uyuşuyor, başkasının listesi sızmıyor | 17/17 |
-| `sosyal-punto.php` | sürüm damgası, marka hesabı, çiftin kullanıcı adından bağlantı, açılış videosu | 18/18 |
+| `sosyal-punto.php` | sürüm damgası, marka hesabı, kullanıcı adından bağlantı, ekranda @kullanıcı, perde videosu | 27/27 |
 | `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
-| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, en küçük punto 14px, uçtan uca sıkıştırma | 28/28 |
+| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, perde videosu, Kaydır düğmesi, en küçük punto 14px, uçtan uca sıkıştırma | 35/35 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -201,6 +201,16 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - **Kabuk süzgeci çıktının tamamını yutabilir.** `php -S` tek süreçli:
   2,4 MB'lık video isteği sunucuyu kilitleyip bütün turları zaman
   aşımına düşürdü. `PHP_CLI_SERVER_WORKERS` ile koşuluyor.
+- **Video "kötü açılıyor"un nedeni kodda değil DOSYADA olabilir.**
+  `moov` atomu dosyanın sonundaydı: tarayıcı oynatmaya başlamadan önce
+  2,4 MB'ın tamamını indirmek zorundaydı. `-movflags +faststart` ile
+  yeniden kodlandı (465 KB). Medya sorunlarında önce atom sırası ve bit
+  hızı ölçülür.
+- **Aracın kendi hareketi ölçümü bozabilir.** "Kaydır" düğmesi
+  kahramanda duruyor; Playwright tıklamak için sayfayı oraya geri
+  kaydırıyor ve ikinci dokunuş hep aynı yere gidiyordu. Ölçüt "iki kez
+  basınca iki kat" değil, "tam bölüm sınırına iniyor mu" olarak
+  değiştirildi; art arda dokunuş sayfanın içinden ölçülüyor.
 - **Ürün sözleşmesi değişince TURUN ÖLÇÜTÜ de değişir.** Salon adı ve
   Instagram hesabı markadan türetilmeye başlayınca `salon-alan.mjs` ve
   `wp-audit-calistir.mjs` o alanlara damga basmaya devam etti: damga
@@ -245,6 +255,12 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - Davetiye açılışta SESSİZ: müzik kendiliğinden çalmaz, misafir sağ
   alttaki düğmeye dokununca başlar. Kahramanda katılım düğmesi yok;
   katılım bölümü sayfada durur.
+- Açılış videosu PERDENİN ARKA PLANI, tam ekran engel değil: sessiz,
+  döngüde, ilk kare çizilene kadar görünmez. Yüklenmezse sahne olduğu
+  gibi çalışır. Video dosyası `+faststart` ile kodlanır.
+- "Kaydır" bir düğmedir: her dokunuş bir sonraki BÖLÜMÜN tepesine
+  götürür.
+- Sosyal hesap etiketinde adres değil `@kullanıcıadı` görünür.
 - Çift kendi Instagram'ını kullanıcı adıyla yazabilir (`@perihan`);
   adres üründe tamamlanır.
 - Yüklenen görseller depoya yazılmadan önce küçültülüp yeniden

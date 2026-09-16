@@ -137,22 +137,6 @@ $geri_sayim = $d['weddingDate']
 <div class="scroll-progress" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
-<?php
-/*
- * Açılış videosu — perdenin ÖNÜNDE, her davetiyede.
- *
- * Sessiz başlıyor: tarayıcılar sesli otomatik oynatmayı engelliyor ve
- * engellenen video hiç açılmıyor, misafir de boş bir kareye bakıyor.
- * Bitince (ya da oynatılamazsa) kendini kapatıp perdeye bırakıyor —
- * video yüklenmese bile davetiye açılıyor. Hareket azaltma isteği
- * varsa hiç çizilmiyor.
- */
-?>
-<div class="intro" data-src="<?php echo esc_url( SAHRA_URL . 'assets/video/sahra-intro.mp4?v=' . SAHRA_VERSION ); ?>">
-	<video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
-	<button type="button" class="intro-gec"><?php esc_html_e( 'Geç →', 'sahra-davetiye' ); ?></button>
-</div>
-
 <?php /* ─────────────────────────────────────────────── perde ve mühür */ ?>
 <div class="curtain"
 	<?php
@@ -169,6 +153,22 @@ $geri_sayim = $d['weddingDate']
 	data-envelope-sound="<?php echo esc_url( SAHRA_URL . 'assets/muzik/zarf-acilma.mp3' ); ?>"
 	data-volume="<?php echo esc_attr( (int) $d['soundVolume'] ); ?>"
 	data-sound="<?php echo $d['soundEnabled'] ? '1' : '0'; ?>">
+	<?php
+	/*
+	 * Açılış videosu perdenin ARKA PLANI.
+	 *
+	 * Önce tam ekran, her şeyi engelleyen bir açılıştı: dosya 2,4 MB'tı,
+	 * moov atomu da sonundaydı — tarayıcı oynatmaya başlamadan önce
+	 * tamamını indirmek zorunda kalıyor ve misafir siyah ekrana bakıyordu.
+	 * Artık perdenin arkasında dönüyor: yüklenmezse sahne olduğu gibi
+	 * çalışır, yüklendiğinde de kimseyi bekletmez.
+	 */
+	?>
+	<div class="curtain-video" aria-hidden="true"
+		data-src="<?php echo esc_url( SAHRA_URL . 'assets/video/sahra-intro.mp4?v=' . SAHRA_VERSION ); ?>">
+		<video muted loop playsinline preload="none"></video>
+	</div>
+
 	<?php if ( $d['coverImage'] ) : ?>
 		<?php
 		/*
@@ -359,11 +359,19 @@ $geri_sayim = $d['weddingDate']
 				<?php endif; ?>
 			</div>
 
-			<?php /* Kaydırma daveti — kompozisyonla aynı sol kenara hizalı. */ ?>
-			<div class="kaydir-daveti">
+			<?php
+			/*
+			 * Kaydırma daveti artık bir DÜĞME.
+			 *
+			 * Yalnızca "kaydır" yazan bir yazıydı ve dokunulunca hiçbir şey
+			 * olmuyordu; misafir tıklayıp bekliyordu. Her dokunuş bir
+			 * sonraki bölüme götürüyor.
+			 */
+			?>
+			<button type="button" class="kaydir-daveti" aria-label="Sonraki bölüme geç">
 				<span class="t-label">Kaydır</span>
 				<span class="kaydir-cizgi" aria-hidden="true"></span>
-			</div>
+			</button>
 		</section>
 
 		<?php /* ───────────────────────────────────────────────── mektup */ ?>
@@ -857,9 +865,7 @@ $geri_sayim = $d['weddingDate']
 					 */
 					?>
 					<p class="t-body reveal wrap-narrow dilek-davet" style="padding:0;color:var(--c-on-dark-soft)">
-						İyi dileklerinizi buradan iletebilirsiniz. Bir cümle, bir anı, bir temenni —
-						ne yazarsanız yazın çifte ulaşır. Dileğiniz <strong>çift onayladıktan sonra</strong>
-						bu bölümde yayımlanır.
+						İyi dileklerinizi buradan iletebilirsiniz. Bir cümle, bir anı, bir temenni.
 					</p>
 
 					<form id="wish-form" class="reveal wrap-narrow" style="padding:0">

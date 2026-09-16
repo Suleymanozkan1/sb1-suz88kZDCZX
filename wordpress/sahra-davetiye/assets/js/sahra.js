@@ -548,63 +548,76 @@
 	}
 
 	/*
-	 * Açılış videosu.
+	 * Perdenin arka plan videosu.
 	 *
-	 * Video KAYNAĞI JS ile veriliyor: hareket azaltma isteği olan
-	 * ziyaretçiye 2,4 MB indirtmemek için. Oynatma reddedilirse ya da
-	 * dosya gelmezse perde hemen açılıyor — davetiye videoya bağlı
-	 * kalmıyor. Güvenlik ağı olarak süreyi aşan bir zamanlayıcı var:
-	 * 'ended' hiç gelmeyen tarayıcıda misafir siyah ekranda kalmasın.
+	 * `preload="none"` ve kaynak JS ile veriliyor: hareket azaltma isteği
+	 * olan ziyaretçi dosyayı hiç indirmiyor. Oynatma reddedilirse ya da
+	 * dosya gelmezse katman görünmüyor ve sahne olduğu gibi çalışıyor —
+	 * video hiçbir zaman açılışın önkoşulu değil.
 	 */
-	function acilisVideosu() {
-		var kutu = document.querySelector( '.intro' );
+	function perdeVideosu() {
+		var kutu = kok.querySelector( '.curtain-video' );
 		if ( ! kutu ) {
 			return;
 		}
 
-		var video = kutu.querySelector( '.intro-video' );
-		var gec = kutu.querySelector( '.intro-gec' );
-		var kapandi = false;
-		var zamanlayici = null;
-
-		function kapat() {
-			if ( kapandi ) {
-				return;
-			}
-			kapandi = true;
-			if ( zamanlayici ) {
-				clearTimeout( zamanlayici );
-			}
-			kutu.classList.add( 'kapaniyor' );
-			if ( video ) {
-				video.pause();
-			}
-			setTimeout( function () {
-				kutu.parentNode && kutu.parentNode.removeChild( kutu );
-			}, 700 );
-		}
-
-		if ( window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches || ! video ) {
+		var video = kutu.querySelector( 'video' );
+		if ( ! video || window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) {
 			kutu.parentNode && kutu.parentNode.removeChild( kutu );
 			return;
 		}
 
-		gec && gec.addEventListener( 'click', kapat );
-		video.addEventListener( 'ended', kapat );
-		video.addEventListener( 'error', kapat );
+		function vazgec() {
+			kutu.classList.remove( 'hazir' );
+		}
+
+		video.addEventListener( 'error', vazgec );
+		// Görünürlük ilk kare ÇİZİLDİĞİNDE: boş bir katman belirmesin.
+		video.addEventListener( 'playing', function () {
+			kutu.classList.add( 'hazir' );
+		} );
 
 		video.src = kutu.getAttribute( 'data-src' ) || '';
 		var oynat = video.play();
 		if ( oynat && oynat.catch ) {
-			oynat.catch( kapat );
+			oynat.catch( vazgec );
+		}
+	}
+
+	/*
+	 * "Kaydır" bir sonraki bölüme götürür.
+	 *
+	 * Yalnızca yazıydı; dokunulunca hiçbir şey olmuyordu. Hedef, o an
+	 * görünen alanın ALTINDA kalan ilk bölüm: sayfanın neresinde olursa
+	 * olsun bir sonrakine gidiyor.
+	 */
+	function kaydirDugmesi() {
+		var dugme = kok.querySelector( '.kaydir-daveti' );
+		if ( ! dugme || 'BUTTON' !== dugme.tagName ) {
+			return;
 		}
 
-		video.addEventListener( 'loadedmetadata', function () {
-			var sure = isFinite( video.duration ) ? video.duration : 6;
-			zamanlayici = setTimeout( kapat, ( sure + 1.5 ) * 1000 );
+		dugme.addEventListener( 'click', function () {
+			var bolumler = Array.prototype.slice.call( kok.querySelectorAll( 'section[id], section.section-gap, section.section-gap-kisa' ) );
+			var su = window.scrollY;
+			var hedef = null;
+
+			for ( var i = 0; i < bolumler.length; i++ ) {
+				var ust = bolumler[ i ].getBoundingClientRect().top + su;
+				// 8 piksellik pay: tam sınırda duran bölüm "geçilmiş" sayılmasın.
+				if ( ust > su + 8 ) {
+					hedef = ust;
+					break;
+				}
+			}
+
+			if ( null === hedef ) {
+				hedef = document.body.scrollHeight;
+			}
+
+			var kisit = window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+			window.scrollTo( { top: hedef, behavior: kisit ? 'auto' : 'smooth' } );
 		} );
-		// Üst sınır: meta veri hiç gelmezse de ekran açılsın.
-		setTimeout( kapat, 12000 );
 	}
 
 	belirmeyiKur();
@@ -616,5 +629,6 @@
 	dilekFormu();
 	paylas();
 	yukariCik();
-	acilisVideosu();
+	perdeVideosu();
+	kaydirDugmesi();
 } )();
