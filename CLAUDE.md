@@ -29,7 +29,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
 | `panel-kontrast.js` | panelin her metninin kontrastı | ~2200 metin, 0 sorun |
 | `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
-| `mobil.js` | 390px'te yatay taşma | taşma yok |
+| `mobil.js` | 390px'te yatay taşma **ve punto tabanı** (misafir + panel, girdiler dahil) | taşma yok, 21px altı metin yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
 | `ayirt.js <etiket> <url> seal <mühürler>` | 9 mühür ayrı mı | 9/9 |
 | `yol-tara.js` | panelde dosya yolu görünüyor mu | çift: hiç |
@@ -335,6 +335,23 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   yazılıydı: o sınıf BÜYÜK HARF ve 0.26em harf aralığı veriyor — iki
   kelimelik bir etikette doğru, tam bir cümlede telefonda dört satıra
   yayılıp okunmuyor. Uzun metin kendi ölçüsünü ister.
+- **İKİ stil dosyası var ve ikisi de kendi belirteçlerini tanımlıyor.**
+  Punto ölçeğini `sahra.css`te DÖRT sürüm boyunca yükselttim; `admin.css`
+  kendi `--t-label`/`--t-body` değerlerini tanımladığı için panel eski
+  ölçekte kaldı — çiftin davetiyeyi DOLDURDUĞU ekranda etiketler
+  telefonda 11px, gövde 14px'ti. Kullanıcı "mobilde hâlâ küçük" derken
+  bu ekranı görüyordu; ben her seferinde davetiyeyi ölçüp "21px, temiz"
+  diyordum. Önbelleği, cihazı, sürümü kovaladım — sorun ölçtüğüm YERDE
+  değildi. Bir ölçek değişikliği iki dosyada birden yapılır.
+- **Hiçbir tur panelin PUNTOSUNU ölçmüyordu.** `gorsel-punto.js` yalnızca
+  misafir davetiyesine bakıyor; `panel-kontrast.js` kontrast ölçüyor, boy
+  değil. Kör noktanın maliyeti dört sürüm oldu. Ölçüt 390px'i zaten gezen
+  tura (`mobil.js`) eklendi: her sayfada taşmanın YANINDA punto tabanı da
+  ölçülüyor, misafir ve panel birlikte.
+- **Metin göstermeyen denetimin puntosu ölçülmez.** Yeni punto ölçütü ilk
+  koşuda `venue[brand]` (radyo) ve `sahra[isActive]` (kutucuk) için
+  "16px" diye YANLIŞ ALARM verdi: ikisi de kendi çizimine sahip, metin
+  taşımıyor. Kutucuk/radyo/kaydırıcı/renk/dosya taramadan dışlanır.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -380,8 +397,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   dosyanın gelmemesine yol açıyordu; damga dosya değişince kendiliğinden
   değişiyor.
 - **Punto ölçüsü okunabilirliğe göre kuruldu, beğeniye göre değil:**
-  mobilde hiçbir metin 21px'in altında değil (girdiler dahil). Davetiyeyi
-  yaşlı misafirler de okuyor.
+  mobilde hiçbir metin 21px'in altında değil (girdiler dahil) — hem
+  davetiyede hem PANELDE. Davetiyeyi yaşlı misafirler de okuyor, paneli
+  de çift telefonundan dolduruyor. İki dosya (`sahra.css`, `admin.css`)
+  ayrı belirteç tanımlıyor; biri değişince ÖTEKİ DE değişir.
 - Davetiye açılışta SESSİZ: müzik kendiliğinden çalmaz, misafir sağ
   alttaki düğmeye dokununca başlar. Kahramanda katılım düğmesi yok;
   katılım bölümü sayfada durur.

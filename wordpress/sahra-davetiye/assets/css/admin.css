@@ -26,11 +26,21 @@ body.sahra-ekran {
   --f-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --f-body: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  --t-display: clamp(1.85rem, 4.4vw, 3.25rem);
-  --t-h2: clamp(1.35rem, 2.6vw, 1.9rem);
-  --t-lead: clamp(1.05rem, 1.6vw, 1.25rem);
-  --t-body: clamp(0.9rem, 1.05vw, 1rem);
-  --t-label: clamp(0.6875rem, 0.85vw, 0.8125rem);
+  /*
+   * Panelin ölçeği DAVETİYEYLE aynı olmak zorunda.
+   *
+   * Bu dosya kendi belirteçlerini tanımlıyor ve eski (küçük) değerlerde
+   * kalmıştı: `sahra.css`te puntoyu dört kez yükselttim, çiftin
+   * davetiyeyi DOLDURDUĞU ekran hiç etkilenmedi — etiketler telefonda
+   * 11px, gövde 14px kalıyordu. Kullanıcı "mobilde hâlâ küçük" derken
+   * bu ekranı görüyordu; önbellekle ilgisi yoktu. Değerler artık
+   * `sahra.css` ile birebir aynı.
+   */
+  --t-display: clamp(2.5rem, 5vw, 3.75rem);
+  --t-h2: clamp(2.125rem, 3.4vw, 2.625rem);
+  --t-lead: clamp(1.625rem, 2.1vw, 1.875rem);
+  --t-body: clamp(1.4375rem, 1.5vw, 1.5rem);
+  --t-label: clamp(1.3125rem, 1.3vw, 1.375rem);
   --ls-label: 0.26em;
 
   --sp-xs: clamp(0.5rem, 1vw, 0.75rem);
@@ -257,7 +267,7 @@ body.sahra-ekran #wpwrap::before {
 
 .sahra-sec .ust .num {
   font-family: var(--f-display);
-  font-size: 0.8rem;
+  font-size: var(--t-label);
   opacity: 0.85;
   font-variant-numeric: oldstyle-nums;
 }
@@ -292,7 +302,7 @@ body.sahra-ekran #wpwrap::before {
   gap: 0.4rem 1.2rem;
   margin-top: 0.5rem;
   color: var(--c-on-dark-faint);
-  font-size: 0.8125rem;
+  font-size: var(--t-label);
 }
 
 .sahra-row .eylem {
@@ -311,7 +321,7 @@ body.sahra-ekran #wpwrap::before {
   padding: 0.15rem 0.6rem;
   border-radius: 999px;
   font-family: var(--f-body);
-  font-size: 0.625rem;
+  font-size: var(--t-label);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   border: 1px solid currentColor;
@@ -462,7 +472,7 @@ body.sahra-ekran #wpwrap::before {
   box-sizing: border-box;
   padding: 0.75rem 0;
   font-family: var(--f-body);
-  font-size: 1rem;
+  font-size: var(--t-body);
   line-height: 1.5;
   background: transparent;
   border: 0;
@@ -573,7 +583,7 @@ body.sahra-ekran #wpwrap::before {
 
 .sahra-panel .ipucu {
   margin-top: 0.4rem;
-  font-size: 0.8125rem;
+  font-size: var(--t-label);
   color: var(--c-on-dark-faint);
 }
 
@@ -696,7 +706,7 @@ body.sahra-ekran #wpwrap::before {
   background: transparent;
   color: var(--c-on-dark-faint);
   font-family: var(--f-body);
-  font-size: 0.6875rem;
+  font-size: var(--t-label);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
@@ -814,7 +824,7 @@ body.sahra-ekran #wpwrap::before {
 
 .sahra-fotograflar figcaption {
   margin-top: 0.4rem;
-  font-size: 0.75rem;
+  font-size: var(--t-label);
   color: var(--c-on-dark-faint);
 }
 
@@ -852,7 +862,7 @@ body.sahra-ekran #wpwrap::before {
   border-radius: 50%;
   background: var(--c-gold);
   color: var(--c-night);
-  font-size: 0.8rem;
+  font-size: var(--t-label);
   font-weight: 700;
   line-height: 1.25rem;
   text-align: center;
@@ -863,7 +873,7 @@ body.sahra-ekran #wpwrap::before {
 .sahra-silme-tarihi {
   margin: -0.35rem 0 0.75rem;
   color: var(--c-on-dark-faint);
-  font-size: 0.82rem;
+  font-size: var(--t-label);
 }
 
 .sahra-bos {
@@ -1006,7 +1016,7 @@ body.sahra-ekran .notice-success {
 }
 
 .sahra-durum {
-  font-size: 0.8125rem;
+  font-size: var(--t-label);
   color: var(--c-on-dark-faint);
 }
 
@@ -1058,7 +1068,7 @@ body.sahra-ekran .notice-success {
 .sahra-mektup-onizleme .mo-metin {
   margin-top: 0.9rem;
   font-family: var(--f-display);
-  font-size: 0.95rem;
+  font-size: var(--t-body);
   line-height: 1.7;
 }
 
@@ -1072,7 +1082,7 @@ body.sahra-ekran .notice-success {
 
 .sahra-mektup-onizleme .mo-ad {
   font-family: var(--f-display);
-  font-size: 0.95rem;
+  font-size: var(--t-body);
 }
 
 /* Tasarımlar — davetiyedeki .letter varyantlarının küçük karşılıkları.
@@ -1176,7 +1186,7 @@ body.sahra-ekran .notice-success {
 }
 
 .sahra-tema-onizleme .to-etiket {
-  font-size: 0.62rem;
+  font-size: var(--t-label);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--to-gold);
@@ -1190,7 +1200,7 @@ body.sahra-ekran .notice-success {
 }
 
 .sahra-tema-onizleme .to-tarih {
-  font-size: 0.72rem;
+  font-size: var(--t-label);
   color: var(--to-goldlight);
 }
 
