@@ -29,7 +29,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
 | `panel-kontrast.js` | panelin her metninin kontrastı | ~2200 metin, 0 sorun |
 | `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
-| `mobil.js` | 390px'te yatay taşma **ve punto tabanı** (misafir + panel, girdiler dahil) | taşma yok, 21px altı metin yok |
+| `mobil.js` | 390px'te yatay taşma (misafir + panel) **ve punto tabanı — yalnızca MİSAFİR sayfaları**, girdiler dahil | taşma yok, misafirde 21px altı metin yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
 | `ayirt.js <etiket> <url> seal <mühürler>` | 9 mühür ayrı mı | 9/9 |
 | `yol-tara.js` | panelde dosya yolu görünüyor mu | çift: hiç |
@@ -336,18 +336,17 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   kelimelik bir etikette doğru, tam bir cümlede telefonda dört satıra
   yayılıp okunmuyor. Uzun metin kendi ölçüsünü ister.
 - **İKİ stil dosyası var ve ikisi de kendi belirteçlerini tanımlıyor.**
-  Punto ölçeğini `sahra.css`te DÖRT sürüm boyunca yükselttim; `admin.css`
-  kendi `--t-label`/`--t-body` değerlerini tanımladığı için panel eski
-  ölçekte kaldı — çiftin davetiyeyi DOLDURDUĞU ekranda etiketler
-  telefonda 11px, gövde 14px'ti. Kullanıcı "mobilde hâlâ küçük" derken
-  bu ekranı görüyordu; ben her seferinde davetiyeyi ölçüp "21px, temiz"
-  diyordum. Önbelleği, cihazı, sürümü kovaladım — sorun ölçtüğüm YERDE
-  değildi. Bir ölçek değişikliği iki dosyada birden yapılır.
-- **Hiçbir tur panelin PUNTOSUNU ölçmüyordu.** `gorsel-punto.js` yalnızca
-  misafir davetiyesine bakıyor; `panel-kontrast.js` kontrast ölçüyor, boy
-  değil. Kör noktanın maliyeti dört sürüm oldu. Ölçüt 390px'i zaten gezen
-  tura (`mobil.js`) eklendi: her sayfada taşmanın YANINDA punto tabanı da
-  ölçülüyor, misafir ve panel birlikte.
+  `sahra.css` davetiyenin, `admin.css` panelin. Bu ayrım BİLEREK var:
+  büyük punto yalnızca davetiye için istendi. "Mobilde hâlâ küçük"
+  şikâyetini panelin de büyütülmesi gerektiği diye okudum, ikisini
+  birden büyüttüm ve paneli şişirdim — kullanıcı geri aldırdı. Bir
+  şikâyet hangi EKRAN için söylendiği doğrulanmadan iki yere birden
+  uygulanmaz; belirsizse sorulur.
+- **Ölçüt, ürün sözleşmesinin geçtiği yere yazılır.** Punto tabanını
+  `mobil.js`e eklerken panel sayfalarına da uyguladım; oysa taban yalnızca
+  misafir sayfalarının sözleşmesi. Tur artık tabanı yalnızca misafir
+  sayfalarında ölçüyor, panelde yalnızca taşmaya bakıyor — yoksa
+  denetim, üründe olmayan bir kuralı dayatıyor.
 - **Metin göstermeyen denetimin puntosu ölçülmez.** Yeni punto ölçütü ilk
   koşuda `venue[brand]` (radyo) ve `sahra[isActive]` (kutucuk) için
   "16px" diye YANLIŞ ALARM verdi: ikisi de kendi çizimine sahip, metin
@@ -396,11 +395,12 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   yükseltmeyi unutmak ya da sunucuda önbellek eklentisi bulunmak yeni
   dosyanın gelmemesine yol açıyordu; damga dosya değişince kendiliğinden
   değişiyor.
-- **Punto ölçüsü okunabilirliğe göre kuruldu, beğeniye göre değil:**
-  mobilde hiçbir metin 21px'in altında değil (girdiler dahil) — hem
-  davetiyede hem PANELDE. Davetiyeyi yaşlı misafirler de okuyor, paneli
-  de çift telefonundan dolduruyor. İki dosya (`sahra.css`, `admin.css`)
-  ayrı belirteç tanımlıyor; biri değişince ÖTEKİ DE değişir.
+- **Büyük punto YALNIZCA davetiye sayfasında.** Misafirin gördüğü
+  davetiyede mobilde hiçbir metin 21px'in altında değil (girdiler
+  dahil) — davetiyeyi yaşlı misafirler de okuyor. PANEL kendi ölçeğinde
+  kalır (`admin.css`): orası çiftin doldurduğu bir form ekranı, davetiye
+  değil. İki dosya ayrı belirteç tanımlıyor ve bu BİLEREK böyle; birini
+  büyütürken ötekine dokunulmaz.
 - Davetiye açılışta SESSİZ: müzik kendiliğinden çalmaz, misafir sağ
   alttaki düğmeye dokununca başlar. Kahramanda katılım düğmesi yok;
   katılım bölümü sayfada durur.
