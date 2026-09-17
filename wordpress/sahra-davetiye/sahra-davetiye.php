@@ -3,7 +3,7 @@
  * Plugin Name:       Sahra Davetiye
  * Plugin URI:        https://github.com/Suleymanozkan1/sb1-suz88kZDCZX
  * Description:       Perde açılışı ve balmumu mühür girişiyle açılan, panelden yönetilen dijital düğün davetiyesi. Next.js sürümünün WordPress karşılığı.
- * Version:           1.4.3
+ * Version:           1.4.4
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Sahra Davetiye
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SAHRA_VERSION', '1.4.3' );
+define( 'SAHRA_VERSION', '1.4.4' );
 define( 'SAHRA_FILE', __FILE__ );
 define( 'SAHRA_DIR', plugin_dir_path( __FILE__ ) );
 

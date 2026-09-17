@@ -153,7 +153,7 @@ $geri_sayim = $d['weddingDate']
  * ziyaretçi geçerse perde hemen açılıyor.
  */
 ?>
-<div class="intro" data-src="<?php echo esc_url( SAHRA_URL . 'assets/video/sahra-intro.mp4?v=' . SAHRA_VERSION ); ?>">
+<div class="intro" data-src="<?php echo esc_url( sahra_varlik( 'assets/video/sahra-intro.mp4' ) ); ?>">
 	<video class="intro-video" muted playsinline preload="auto" aria-hidden="true"></video>
 	<button type="button" class="intro-gec"><?php esc_html_e( 'Geç →', 'sahra-davetiye' ); ?></button>
 </div>

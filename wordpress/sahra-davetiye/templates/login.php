@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@200;300;400&display=swap&subset=latin,latin-ext" rel="stylesheet">
-	<link rel="stylesheet" href="<?php echo esc_url( SAHRA_URL . 'assets/css/sahra.css?v=' . SAHRA_VERSION ); ?>">
+	<link rel="stylesheet" href="<?php echo esc_url( sahra_varlik( 'assets/css/sahra.css' ) ); ?>">
 	<style><?php echo '.sahra-page{' . esc_html( Sahra_Theme::style( 'cream-gold' ) ) . '}'; ?></style>
 </head>
 <body class="sahra-page giris-page">

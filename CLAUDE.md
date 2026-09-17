@@ -351,6 +351,18 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   koşuda `venue[brand]` (radyo) ve `sahra[isActive]` (kutucuk) için
   "16px" diye YANLIŞ ALARM verdi: ikisi de kendi çizimine sahip, metin
   taşımıyor. Kutucuk/radyo/kaydırıcı/renk/dosya taramadan dışlanır.
+- **Sütun oranı PUNTOYLA birlikte değişir.** Konum bölümü `4fr 8fr` idi;
+  punto 16→23px olunca aynı sütun 285px'te kaldı, satır başına ~13
+  karakter düştü ve yol tarifi 19 satıra çıkıp sol sütunu 1429px yaptı
+  (sağdaki panel 357px). Punto ölçeği değişince ona bağlı DÜZENLER de
+  gözden geçirilir; ölçü, satır sayısı ve bölüm yüksekliğiyle doğrulanır.
+- **Videodaki "artefakt" içerik çıkabilir.** Alt kısımdaki gri dikdörtgeni
+  bir kodlama artefaktı sandım; kareyi büyütünce "BAŞAKŞEHİR" şube
+  etiketi olduğu görüldü. Kaldırmadan önce NE olduğu okunur — ve bandın
+  sınırları bütün karelerde ölçülür: sabit değil, soldan açılıyor
+  (x 328→750, y 1325→1428, t≥2sn). Açılış parlamasında bütün kare aydınlık
+  olduğu için kutu ancak t≥2sn'den sonra açılır; sürekli açık bir siyah
+  kutu parlamanın üstünde görünürdü.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -385,12 +397,18 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - Misafir ya da çift konum/harita üzerinde seçim yapamaz. Gömülü
   gezilebilir harita kaldırıldı; konum yalnızca gösterilir, harita
   uygulaması bağlantıları salonu doğru noktada açar.
+- Açılış videosunda ŞUBE ETİKETİ yoktur: kaynakta alt kısımda
+  "BAŞAKŞEHİR" bandı vardı, aynı video her salonun davetiyesinde
+  oynadığı için yanlış şubeyi gösteriyordu. Siyahla kapatıldı
+  (x 315–765, y 1315–1445, yalnızca t≥2sn — açılış parlaması
+  dokunulmadan kalsın diye).
 - Konumda DURAĞAN harita görseli var: yöneticinin salona bir kez
   yüklediği ekran görüntüsü. Üzerinde gezilemez (seçim de yapılamaz),
   dokunuş salonu telefonun harita uygulamasında açar. Görsel yoksa eski
   adres paneli kalır — yüklenmemiş salon yüzünden bölüm boşalmaz.
 - **Her yayında `SAHRA_VERSION` yükseltilir**, ama artık tek güvence o
-  değil: varlık adresleri `sahra_varlik()` ile üretiliyor ve dosyanın
+  değil: varlık adresleri (stil, betik, VİDEO — üç şablonda da)
+  `sahra_varlik()` ile üretiliyor ve dosyanın
   `filemtime` damgasını da taşıyor (`?v=1.4.0.1789586199`). Sürüm
   yükseltmeyi unutmak ya da sunucuda önbellek eklentisi bulunmak yeni
   dosyanın gelmemesine yol açıyordu; damga dosya değişince kendiliğinden

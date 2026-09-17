@@ -1240,9 +1240,28 @@ html.sahra-html {
 }
 
 @media (min-width: 1024px) {
+  /*
+   * Sütun oranı PUNTOYLA birlikte değişir.
+   *
+   * `4fr 8fr` punto 16px'ken doğruydu; gövde 23px'e çıkınca aynı sütun
+   * 285px'te kaldı ve satır başına ~13 karakter düştü: yol tarifi 19
+   * satıra çıkıp sol sütunu 1429px yaptı, sağdaki panel ise 357px'te
+   * kaldı. Metin sütunu artık en az 24rem ve payı büyüdü.
+   */
   .konum-duzen {
-    grid-template-columns: 4fr 8fr;
+    grid-template-columns: minmax(26rem, 7fr) 5fr;
     align-items: start;
+  }
+
+  /*
+   * Bu sütunda ölçü bir tık küçülüyor: iki sütunlu düzende satır
+   * genişliği sınırlı ve uzun bir paragraf okunuyor. MOBİLDE
+   * değişmiyor — orada bölüm tek sütun ve tam genişlikte.
+   */
+  .konum-bilgi .konum-tarif,
+  .konum-bilgi .t-body,
+  .konum-bilgi .ozellik-listesi {
+    font-size: clamp(1.3125rem, 1.25vw, 1.375rem);
   }
 }
 
