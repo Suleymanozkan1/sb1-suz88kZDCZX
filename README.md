@@ -16,7 +16,7 @@ premium dijital düğün davetiyesi.
 - **Düğün Bilgileri** — lokasyon/tarih/saat/adres kartları, Google Takvim + `.ics` indirme
 - **Program** — saatli akış listesi
 - **Fotoğraf Galerisi** — klavye ile gezilebilen (`←` `→` `Esc`) lightbox
-- **Konum** — gömülü harita, yol tarifi, Google Maps ve Yandex bağlantıları
+- **Konum** — salonun koordinatından üretilen durağan harita görünümü (gezilemez, dokununca telefonun harita uygulamasını açar), yol tarifi, Google Maps / Apple Haritalar / Yandex bağlantıları
 - **Katılım Formu** — ad/telefon/katılım durumu/kişi sayısı/not, API'ye kaydedilir
 - **SSS** — akordeon
 - **İletişim** — sosyal hesaplar ve hashtag

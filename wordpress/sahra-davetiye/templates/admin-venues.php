@@ -25,6 +25,20 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 		</div>
 	<?php endif; ?>
 
+	<?php if ( ! empty( $_GET['harita_yenilendi'] ) ) : // phpcs:ignore ?>
+		<div class="bildirim">
+			<p class="t-label"><?php esc_html_e( 'Harita yenilendi', 'sahra-davetiye' ); ?></p>
+			<p class="t-body" style="margin-top:0.3rem"><?php esc_html_e( 'Bu salonu kullanan tüm davetiyelerde yeni harita görünür.', 'sahra-davetiye' ); ?></p>
+		</div>
+	<?php endif; ?>
+
+	<?php if ( ! empty( $_GET['harita'] ) ) : // phpcs:ignore ?>
+		<div class="bildirim">
+			<p class="t-label"><?php esc_html_e( 'Salon kaydedildi, harita üretilemedi', 'sahra-davetiye' ); ?></p>
+			<p class="t-body" style="margin-top:0.3rem;color:var(--c-danger)"><?php echo esc_html( sanitize_text_field( wp_unslash( $_GET['harita'] ) ) ); // phpcs:ignore ?></p>
+		</div>
+	<?php endif; ?>
+
 	<?php if ( ! empty( $_GET['hata'] ) ) : // phpcs:ignore ?>
 		<div class="bildirim">
 			<p class="t-body" style="color:var(--c-danger)"><?php echo esc_html( sanitize_text_field( wp_unslash( $_GET['hata'] ) ) ); // phpcs:ignore ?></p>
@@ -112,15 +126,63 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 
 			<?php
 			/*
-			 * Harita görseli salonun bilgisi: bir kez yüklenir, o salonu
-			 * seçen bütün davetiyelerde çıkar ve salon taşınınca hepsi
-			 * birden düzelir.
+			 * Konum bölümündeki harita GÖRÜNÜMÜ.
+			 *
+			 * Koordinat yukarıdaki Google Maps linkinden (olmazsa
+			 * adresten) kendiliğinden çözülüyor; bu blok çoğu zaman
+			 * yalnızca sonucu GÖSTERİYOR. Elle yazma, adresten çözülen
+			 * nokta komşu binaya düştüğünde tek çıkış yolu.
+			 */
+			$sahra_harita_hazir = Sahra_Harita::hazir( $venue );
+			$sahra_harita_url   = Sahra_Harita::url( $venue );
+			$sahra_harita_hata  = $sahra_duzenliyor ? Sahra_Harita::son_hata( $venue ) : '';
+			?>
+			<div class="alan">
+				<span class="field-label"><?php esc_html_e( 'Harita Görünümü', 'sahra-davetiye' ); ?></span>
+
+				<?php if ( $sahra_harita_hazir ) : ?>
+					<p class="ipucu" style="margin-bottom:0.6rem"><?php esc_html_e( 'Davetiyenin konum bölümünde bu harita görünüyor.', 'sahra-davetiye' ); ?></p>
+					<img src="<?php echo esc_url( $sahra_harita_url ); ?>" alt="" style="width:100%;max-width:30rem;border-radius:0.5rem;display:block">
+				<?php elseif ( $sahra_duzenliyor ) : ?>
+					<p class="ipucu" style="color:var(--c-danger)">
+						<?php
+						echo esc_html(
+							$sahra_harita_hata
+								? $sahra_harita_hata
+								: __( 'Harita görseli henüz üretilmedi. Google Maps linkini girip kaydedin.', 'sahra-davetiye' )
+						);
+						?>
+					</p>
+				<?php else : ?>
+					<p class="ipucu"><?php esc_html_e( 'Salonu kaydettiğinizde Google Maps linkinden (ya da adresten) üretilir.', 'sahra-davetiye' ); ?></p>
+				<?php endif; ?>
+
+				<div class="ikili" style="margin-top:0.9rem">
+					<div class="alan">
+						<label class="field-label" for="v-lat"><?php esc_html_e( 'Enlem', 'sahra-davetiye' ); ?></label>
+						<input id="v-lat" type="text" inputmode="decimal" name="venue[venueLat]" value="<?php echo esc_attr( $venue['venueLat'] ); ?>" placeholder="41.043100">
+					</div>
+					<div class="alan">
+						<label class="field-label" for="v-lng"><?php esc_html_e( 'Boylam', 'sahra-davetiye' ); ?></label>
+						<input id="v-lng" type="text" inputmode="decimal" name="venue[venueLng]" value="<?php echo esc_attr( $venue['venueLng'] ); ?>" placeholder="29.008900">
+					</div>
+				</div>
+				<p class="ipucu"><?php esc_html_e( 'Boş bırakın: linkten çözülür. Elle yazarsanız o nokta kullanılır — adresten çözülen konum bazen komşu binaya düşüyor.', 'sahra-davetiye' ); ?></p>
+			</div>
+
+			<?php
+			/*
+			 * Elle yüklenen harita EKRAN GÖRÜNTÜSÜ, üretilen görünümün
+			 * yerine geçiyor: üretilen harita yanlış yeri gösteriyorsa
+			 * ya da işletme kendi işaretlediği bir görseli kullanmak
+			 * istiyorsa. Bir kez yüklenir, o salonu seçen bütün
+			 * davetiyelerde çıkar.
 			 */
 			Sahra_Form::gorsel(
-				__( 'Harita Görseli', 'sahra-davetiye' ),
+				__( 'Harita Görseli (elle)', 'sahra-davetiye' ),
 				'venue[venueMapImage]',
 				$venue['venueMapImage'],
-				__( 'Google Maps\'te salonu ortalayıp ekran görüntüsü alın ve buraya yükleyin. Davetiyede konum bölümünde çıkar; misafir dokununca kendi harita uygulaması salonda açılır. Boş bırakılırsa yalnızca adres yazısı görünür.', 'sahra-davetiye' )
+				__( 'Gerekmiyor: harita yukarıda kendiliğinden üretiliyor. Yalnızca kendi ekran görüntünüzü kullanmak isterseniz yükleyin — yüklediğiniz görsel üretilen haritanın yerine geçer.', 'sahra-davetiye' )
 			);
 			?>
 
@@ -218,6 +280,22 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 						</div>
 						<div class="eylem">
 							<a class="eylem-link" href="<?php echo esc_url( admin_url( 'admin.php?page=sahra-salonlar&salon=' . rawurlencode( $sahra_salon['id'] ) ) ); ?>"><?php esc_html_e( 'Düzenle', 'sahra-davetiye' ); ?></a>
+							<?php
+							/*
+							 * Haritayı yenileme AYRI bir düğme: salon
+							 * taşınmadığı hâlde harita yanlış yeri
+							 * gösteriyorsa (link düzeltildi, koordinat
+							 * elle yazıldı) kaydet düğmesine basmak
+							 * yetmiyor — koordinat duruyorsa yeniden
+							 * çözülmüyor.
+							 */
+							?>
+							<form method="post">
+								<?php wp_nonce_field( 'sahra_refresh_venue_map' ); ?>
+								<input type="hidden" name="sahra_action" value="refresh_venue_map">
+								<input type="hidden" name="venue_id" value="<?php echo esc_attr( $sahra_salon['id'] ); ?>">
+								<button class="eylem-link"><?php esc_html_e( 'Haritayı Yenile', 'sahra-davetiye' ); ?></button>
+							</form>
 							<form method="post" onsubmit="return confirm('<?php echo esc_js( __( 'Salon silinecek. Bu salonu seçmiş davetiyeler ilk salona düşer. Emin misiniz?', 'sahra-davetiye' ) ); ?>')">
 								<?php wp_nonce_field( 'sahra_delete_venue' ); ?>
 								<input type="hidden" name="sahra_action" value="delete_venue">

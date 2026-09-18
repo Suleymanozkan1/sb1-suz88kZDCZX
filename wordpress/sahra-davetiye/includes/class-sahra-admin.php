@@ -188,6 +188,9 @@ class Sahra_Admin {
 			case 'save_venue':
 				self::save_venue();
 				break;
+			case 'refresh_venue_map':
+				self::refresh_venue_map();
+				break;
 			case 'delete_venue':
 				self::delete_venue();
 				break;
@@ -336,7 +339,43 @@ class Sahra_Admin {
 		if ( is_wp_error( $sonuc ) ) {
 			self::redirect( array( 'page' => 'sahra-salonlar', 'hata' => rawurlencode( $sonuc->get_error_message() ) ) );
 		}
-		self::redirect( array( 'page' => 'sahra-salonlar', 'kaydedildi' => 1 ) );
+
+		/*
+		 * Harita görseli kayıtla birlikte üretiliyor: yönetici sonucu
+		 * hemen görmeli. Üretim başarısızsa KAYIT düşmüyor — salonun
+		 * adresi ve özellikleri haritadan bağımsız çalışıyor; bölüm
+		 * eski adres paneline düşüyor ve sayfa nedenini yazıyor.
+		 */
+		$harita = Sahra_Harita::yenile( $sonuc, false );
+
+		self::redirect(
+			array(
+				'page'       => 'sahra-salonlar',
+				'kaydedildi' => 1,
+				// false: anahtar adrese hiç yazılmıyor (add_query_arg).
+				'harita'     => is_wp_error( $harita ) ? rawurlencode( $harita->get_error_message() ) : false,
+			)
+		);
+	}
+
+	/**
+	 * Salonun harita görselini yeniden üretir.
+	 *
+	 * Koordinat da yeniden çözülüyor: yönetici linki düzeltip bu
+	 * düğmeye basıyor. Elle yazılmış koordinat da bu yolla ezilebiliyor
+	 * — düğmenin yanındaki not bunu söylüyor.
+	 */
+	private static function refresh_venue_map() {
+		if ( ! Sahra_Roles::is_manager() ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+		$id     = sanitize_key( wp_unslash( $_POST['venue_id'] ?? '' ) ); // phpcs:ignore
+		$sonuc  = Sahra_Harita::yenile( $id, true );
+
+		if ( is_wp_error( $sonuc ) ) {
+			self::redirect( array( 'page' => 'sahra-salonlar', 'salon' => $id, 'hata' => rawurlencode( $sonuc->get_error_message() ) ) );
+		}
+		self::redirect( array( 'page' => 'sahra-salonlar', 'salon' => $id, 'harita_yenilendi' => 1 ) );
 	}
 
 	private static function delete_venue() {
@@ -653,6 +692,16 @@ class Sahra_Admin {
 	}
 
 	public static function page_venues() {
+		/*
+		 * Harita görseli BURADA ÜRETİLMİYOR.
+		 *
+		 * İlk hâlinde sayfa açılırken eksik haritalar tamamlanıyordu;
+		 * her salon iki ağ isteği demek ve denetim ortamındaki 96 salon
+		 * sayfayı dakikalarca açtırmadı. Üretim üç yerden koşuyor:
+		 * salon kaydedilirken, "Haritayı Yenile" düğmesiyle ve günlük
+		 * bakımda (Sahra_Harita::bakim). Sayfa yalnızca SONUCU
+		 * gösteriyor.
+		 */
 		$salonlar = Sahra_Settings::venues();
 		$duzenle  = isset( $_GET['salon'] ) ? Sahra_Settings::venue_by_id( sanitize_key( wp_unslash( $_GET['salon'] ) ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification
 		$venue    = $duzenle ? $duzenle : Sahra_Settings::empty_venue();

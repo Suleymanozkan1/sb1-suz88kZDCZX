@@ -674,17 +674,33 @@ $geri_sayim = $d['weddingDate']
 					 * uygulamasında doğru noktada açıyor. Böylece hem konum
 					 * görünüyor hem de seçim yapılamıyor.
 					 *
-					 * Görsel yoksa eski panel olduğu gibi kalıyor: yüklenmemiş
-					 * bir salon yüzünden bölüm boşalmasın.
+					 * Görsel iki kaynaktan gelebiliyor. Yöneticinin ELLE
+					 * yüklediği ekran görüntüsü öndedir: üretilen harita
+					 * yanlış yeri gösteriyorsa yöneticinin elinde kalan tek
+					 * çıkış yolu o. Yoksa salonun koordinatından ÜRETİLEN
+					 * harita (bkz. Sahra_Harita) çiziliyor — pratikte hiç
+					 * ekran görüntüsü yüklenmiyordu ve bölüm, konumu hiç
+					 * göstermeyen düz bir adres paneline düşüyordu.
+					 *
+					 * İkisi de yoksa o panel yine yedek: koordinatı
+					 * çözülemeyen bir salon yüzünden bölüm boşalmasın.
 					 */
-					$harita_hedef = $d['mapUrl'] ? $d['mapUrl'] : 'https://www.google.com/maps/search/?api=1&query=' . $konum_sorgu;
+					$harita_hedef  = $d['mapUrl'] ? $d['mapUrl'] : 'https://www.google.com/maps/search/?api=1&query=' . $konum_sorgu;
+					$harita_uretilen = '';
+					$harita_gorsel   = $d['venueMapImage'];
+
+					if ( ! $harita_gorsel ) {
+						$harita_uretilen = Sahra_Harita::url( Sahra_Settings::venue_for( $d['venueId'] ) );
+						$harita_gorsel   = $harita_uretilen;
+					}
 					?>
-					<?php if ( $d['venueMapImage'] ) : ?>
+					<?php if ( $harita_gorsel ) : ?>
+					<div class="map-sutun">
 						<a class="map-frame map-gorsel reveal"
 							href="<?php echo esc_url( $harita_hedef ); ?>"
 							target="_blank" rel="noopener"
 							aria-label="<?php echo esc_attr( sprintf( __( '%s konumunu haritada aç', 'sahra-davetiye' ), $d['venueName'] ) ); ?>">
-							<img src="<?php echo esc_url( $d['venueMapImage'] ); ?>" alt="" loading="lazy" decoding="async">
+							<img src="<?php echo esc_url( $harita_gorsel ); ?>" alt="" loading="lazy" decoding="async">
 							<span class="map-rozet">
 								<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 									<path d="M20 10c0 5.5-8 12-8 12s-8-6.5-8-12a8 8 0 1 1 16 0z"/>
@@ -693,6 +709,29 @@ $geri_sayim = $d['weddingDate']
 								<?php esc_html_e( 'Haritada Aç', 'sahra-davetiye' ); ?>
 							</span>
 						</a>
+						<?php if ( $harita_uretilen ) : ?>
+							<?php
+							/*
+							 * Atıf, üretilen harita için ZORUNLU: karolar
+							 * OpenStreetMap'ten geliyor. Görselin İÇİNE
+							 * basılmıyordu — 1024px'lik görsel telefonda
+							 * 358px'e inince yazı 6px'e düşüyor ve atıf
+							 * okunmaz oluyor. Bağlantı da ancak burada
+							 * olabiliyor: görselin kendisi bir bağlantının
+							 * içinde ve iç içe bağlantı kurulamıyor.
+							 */
+							?>
+							<p class="map-atif">
+								<?php
+								printf(
+									/* translators: %s: OpenStreetMap bağlantısı. */
+									esc_html__( '%s katkıcıları', 'sahra-davetiye' ),
+									'<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a>'
+								);
+								?>
+							</p>
+						<?php endif; ?>
+					</div>
 					<?php else : ?>
 						<div class="map-frame reveal">
 							<div class="map-fallback">

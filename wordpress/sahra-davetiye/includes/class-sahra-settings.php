@@ -99,6 +99,26 @@ class Sahra_Settings {
 			 */
 			'venueMapImage'       => '',
 			/*
+			 * Salonun koordinatı: konum bölümündeki GERÇEK harita
+			 * görünümü buradan üretiliyor (bkz. Sahra_Harita).
+			 *
+			 * Yöneticiden istenen tek şey Google Maps linki; enlem ve
+			 * boylam ondan (olmazsa adresten) çözülüyor. Alanlar yine
+			 * elle yazılabilir: adresi bulunamayan ya da yanlış noktaya
+			 * düşen salonlar için tek çıkış yolu bu.
+			 */
+			'venueLat'            => '',
+			'venueLng'            => '',
+			/*
+			 * Koordinat ELLE mi yazıldı?
+			 *
+			 * Ayrım gerekiyor: adres değişince türetilmiş koordinat
+			 * ARTIK YANLIŞ YERİ gösteriyor ve silinmesi gerekiyor, ama
+			 * yöneticinin elle düzelttiği nokta korunmalı — düzeltmenin
+			 * bir sonraki kayıtta silinmesi düzeltmeyi anlamsız kılar.
+			 */
+			'venueGeoElle'        => '',
+			/*
 			 * Çocuklu düğünde salonun sunduğu hizmet (oyun alanı, palyaço).
 			 * Çiftin değil salonun bilgisi: her davetiyeye ayrı yazdırmak,
 			 * birinin yanlış yazması demekti.
@@ -231,6 +251,8 @@ class Sahra_Settings {
 
 		$temiz['features'] = self::satirlar( isset( $input['features'] ) ? $input['features'] : '' );
 
+		$temiz = self::koordinati_belirle( $temiz, $input, $id );
+
 		/* Ad markadan geliyor; yönetici yanlış eşleştiremiyor. */
 		$temiz = self::markadan_tamamla( $temiz );
 
@@ -258,7 +280,87 @@ class Sahra_Settings {
 		return $temiz['id'];
 	}
 
+	/**
+	 * Salonun koordinatını belirler — AĞA ÇIKMADAN.
+	 *
+	 * Çözüm (link/adresten koordinat bulmak) bilerek burada değil:
+	 * kayıt katmanına ağ isteği koymak, salon kaydeden HER yolu (tohum
+	 * betikleri, turlar, ileride bir içe aktarma) saniyelerce
+	 * bekletiyordu. Çözüm yönetici yolunda, kayıttan sonra koşuyor
+	 * (bkz. Sahra_Admin::save_venue → Sahra_Harita::yenile).
+	 *
+	 * Üç durum var ve karıştırılması yanlış haritaya yol açıyor:
+	 *
+	 * - Yönetici alana ELLE bir şey yazdıysa o kazanır ve "elle"
+	 *   damgası düşer; adres sonradan değişse de korunur.
+	 * - Adres ya da link değişip koordinat TÜRETİLMİŞSE koordinat
+	 *   siliniyor: eski nokta artık başka bir yeri gösteriyor ve
+	 *   misafiri yanlış adrese götüren bir harita, hiç harita
+	 *   olmamasından kötüdür. Arkasından çözüm koşuyor.
+	 * - Başka her durumda duran koordinat korunuyor.
+	 */
+	private static function koordinati_belirle( $temiz, $input, $id ) {
+		$eski = $id ? self::venue_by_id( $id ) : null;
+		$eski = $eski ? $eski : self::empty_venue();
+
+		$gelen_lat = isset( $input['venueLat'] ) ? self::koordinat_metni( $input['venueLat'] ) : '';
+		$gelen_lng = isset( $input['venueLng'] ) ? self::koordinat_metni( $input['venueLng'] ) : '';
+
+		$elle = ( '' !== $gelen_lat && '' !== $gelen_lng )
+			&& ( $gelen_lat !== (string) $eski['venueLat'] || $gelen_lng !== (string) $eski['venueLng'] );
+
+		if ( $elle ) {
+			$temiz['venueLat']     = $gelen_lat;
+			$temiz['venueLng']     = $gelen_lng;
+			$temiz['venueGeoElle'] = '1';
+			return $temiz;
+		}
+
+		$temiz['venueLat']     = (string) $eski['venueLat'];
+		$temiz['venueLng']     = (string) $eski['venueLng'];
+		$temiz['venueGeoElle'] = (string) $eski['venueGeoElle'];
+
+		$degisti = Sahra_Harita::adres_imzasi( $temiz ) !== Sahra_Harita::adres_imzasi( $eski );
+
+		if ( $degisti && ! $temiz['venueGeoElle'] ) {
+			$temiz['venueLat'] = '';
+			$temiz['venueLng'] = '';
+		}
+
+		return $temiz;
+	}
+
+	/** Ondalık ayırıcı virgülle de yazılıyor; kayıtta nokta duruyor. */
+	private static function koordinat_metni( $ham ) {
+		$ham = trim( str_replace( ',', '.', (string) $ham ) );
+		return is_numeric( $ham ) ? $ham : '';
+	}
+
+	/**
+	 * Çözülen koordinatı salona yazar (harita yenileme yolundan).
+	 *
+	 * Yazdığı koordinat TÜRETİLMİŞ sayılıyor: "elle" damgası kalkıyor,
+	 * yoksa adres değişince silinmez ve yanlış yeri göstermeye devam
+	 * ederdi.
+	 */
+	public static function set_venue_coords( $id, $lat, $lng ) {
+		$liste = self::venues();
+		foreach ( $liste as $i => $salon ) {
+			if ( (string) $salon['id'] === (string) $id ) {
+				$liste[ $i ]['venueLat']     = (string) $lat;
+				$liste[ $i ]['venueLng']     = (string) $lng;
+				$liste[ $i ]['venueGeoElle'] = '';
+				update_option( self::VENUES_OPTION, array_values( $liste ) );
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static function delete_venue( $id ) {
+		// Salon silinince harita görseli de gitsin; öksüz dosya kalmasın.
+		Sahra_Harita::temizle( $id );
+
 		$liste = array_values(
 			array_filter( self::venues(), static function ( $salon ) use ( $id ) {
 				return (string) $salon['id'] !== (string) $id;

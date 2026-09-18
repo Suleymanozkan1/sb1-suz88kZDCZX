@@ -23,6 +23,7 @@ class Sahra_Render {
 	 * `/davet/{slug}`      davetiye
 	 * `/yukle/{slug}`      masadaki QR — misafir fotoğraf yükleme
 	 * `/sahra-kart/{slug}` paylaşım kartı (og:image)
+	 * `/sahra-harita/{id}` salonun üretilmiş harita görseli
 	 * `/sahra-dosya/{ad}`  çiftin görselleri (herkese açık)
 	 * `/sahra-foto/{id}`   misafir fotoğrafı (yetki ister)
 	 */
@@ -37,6 +38,7 @@ class Sahra_Render {
 		add_rewrite_rule( '^davet/([^/]+)/?$', 'index.php?sahra_view=invitation&sahra_slug=$matches[1]', 'top' );
 		add_rewrite_rule( '^yukle/([^/]+)/?$', 'index.php?sahra_view=upload&sahra_slug=$matches[1]', 'top' );
 		add_rewrite_rule( '^sahra-kart/([^/]+)\.png$', 'index.php?sahra_view=card&sahra_slug=$matches[1]', 'top' );
+		add_rewrite_rule( '^sahra-harita/([^/]+)\.jpg$', 'index.php?sahra_view=map&sahra_venue=$matches[1]', 'top' );
 		add_rewrite_rule( '^sahra-dosya/([^/]+)/?$', 'index.php?sahra_view=file&sahra_file=$matches[1]', 'top' );
 		add_rewrite_rule( '^sahra-foto/([0-9]+)/?$', 'index.php?sahra_view=photo&sahra_photo=$matches[1]', 'top' );
 		add_rewrite_rule( '^sahra-album/([0-9]+)\.zip$', 'index.php?sahra_view=zip&sahra_album=$matches[1]', 'top' );
@@ -48,6 +50,7 @@ class Sahra_Render {
 		$vars[] = 'sahra_file';
 		$vars[] = 'sahra_photo';
 		$vars[] = 'sahra_album';
+		$vars[] = 'sahra_venue';
 		return $vars;
 	}
 
@@ -73,6 +76,16 @@ class Sahra_Render {
 		return home_url( '/sahra-kart/' . rawurlencode( $slug ) . '.png' );
 	}
 
+	/**
+	 * Salonun harita görseli.
+	 *
+	 * Yükleme dizininin adresi verilmiyor: sunucudaki dosya yolu
+	 * dışarıya sızıyor ve dizin herkese açık olmayabiliyor.
+	 */
+	public static function harita_url( $venue_id ) {
+		return home_url( '/sahra-harita/' . rawurlencode( $venue_id ) . '.jpg' );
+	}
+
 	public static function zip_url( $invitation_id ) {
 		return home_url( '/sahra-album/' . (int) $invitation_id . '.zip' );
 	}
@@ -96,6 +109,9 @@ class Sahra_Render {
 				break;
 			case 'card':
 				self::render_card();
+				break;
+			case 'map':
+				Sahra_Harita::output( sanitize_key( get_query_var( 'sahra_venue' ) ) );
 				break;
 			case 'file':
 				self::stream_file();

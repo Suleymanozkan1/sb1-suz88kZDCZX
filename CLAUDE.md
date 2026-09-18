@@ -59,6 +59,8 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
 | `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, mobilde en küçük punto 16px (girdiler dahil), uçtan uca sıkıştırma | 36/36 |
+| `harita.php` | koordinat çözümü (iğne/görüntü/query/kısa link/adres), karo birleştirme, imleç, önbellek, elle/türetilmiş koordinat, ağ yokken, bakım kuyruğu, rota, silme | 50/50 |
+| `harita-ekran.js` | konumda gerçek harita çiziliyor, yükleniyor, gezilebilir harita sızmıyor, atıf okunuyor, elle yüklenen görsel eziyor, haritasız salonda panel, panelden yenileme | 30/30 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -399,6 +401,39 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
 - **403 "engellendi" demektir.** Aynı turda WordPress ekranlarının kapalı
   olduğunu ölçerken 403'ü başarısız saymıştım; engel üç biçimde geliyor:
   HTTP 403, bekçinin yönlendirmesi, ya da WordPress'in kendi yetki metni.
+- **Açılış animasyonu bitmeden YERLEŞİM ölçülmez.** `.reveal` 1,45 sn
+  boyunca `translateY(22px)`'den geliyor; 700 ms sonra okunan kutu hâlâ
+  yolda ve harita atfı "haritanın 2px İÇİNDE" görünüyordu — tur ürünü
+  suçladı, oysa yerleşim doğruydu. Ölçümden önce ilgili öğenin
+  `transform`ı `none` olana kadar beklenir.
+- **Görselin İÇİNE basılan yazı ölçekle küçülür.** Harita atfı 17
+  puntoyla görselin köşesine yazılmıştı: 768px'lik görsel telefonda
+  360px'e inince yazı 8px oluyor, yani atıf yapılmamış sayılır. Üstelik
+  punto tabanı turu bir görselin içindeki yazıyı HİÇ ölçmüyor: kural
+  sessizce delinirdi. Okunması gereken yazı HTML'de durur.
+- **Kayıt katmanına AĞ isteği konmaz.** Koordinat çözümü ilk hâlinde
+  `Sahra_Settings::save_venue` içindeydi: salon kaydeden HER yol (tohum
+  betikleri, salon alanı yamalayan turlar, panelin kendisi) her kayıtta
+  saniyelerce bekliyordu — `salon-alan.mjs`'in 19 yaması 19 ağ isteği
+  demekti. Ağ işi yönetici yolunda, kayıttan SONRA koşar.
+- **Panel açılışına AĞ işi bağlanmaz.** Eksik haritalar salonlar sayfası
+  açılırken tamamlanıyordu; her salon iki ağ isteği demek ve denetim
+  ortamındaki 96 salon sayfayı dakikalarca açtırmadı. Toplu iş kuyruğa
+  (cron) girer, sınırlı sayıda koşar ve sayfa yalnızca SONUCU gösterir.
+- **"Sayı düşmedi" ölçütü kimliği ölçmez.** Bakım turunun ikinci koşusu,
+  ilk koşunun dokunmadığı BAŞKA beş salonu işliyor: sayı yine 5 çıkıyor
+  ve "aynı salon iki kez denendi" sanılıyordu. Ölçülecek şey sayı değil
+  hangi KİMLİKLERİN işlendiği — ve ikinci koşu ağ kapalıyken yapılıp
+  işlenen her salonun kayda geçmesi sağlanıyor.
+- **Tur DÜŞERKEN de bıraktığını toplar.** Gerileme sınamasında
+  ÖLÇÜLEMEDİ yolundan çıkıldı ve turun açtığı salon ortada kaldı; dört
+  öksüz salon birikti ve arkasından koşan turlar onları ölçerdi.
+  Temizlik hem başarı hem hata yolunda koşar.
+- **Yeniden yazma kuralları SÜRÜME bağlı yazılıyor.** Harita rotasını
+  `.png`'den `.jpg`'ye çevirdim; `sahra_rewrite_version` zaten
+  SAHRA_VERSION'a eşit olduğu için kurallar yenilenmedi ve rota 404
+  döndü — ürün değil ortam hatası, ama aynı şey sürüm yükseltmeyi
+  unutunca CANLIDA olur. Rota kalıbı değiştiğinde sürüm de yükselir.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -447,10 +482,36 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   oynadığı için yanlış şubeyi gösteriyordu. Siyahla kapatıldı
   (x 315–765, y 1315–1445, yalnızca t≥2sn — açılış parlaması
   dokunulmadan kalsın diye).
-- Konumda DURAĞAN harita görseli var: yöneticinin salona bir kez
-  yüklediği ekran görüntüsü. Üzerinde gezilemez (seçim de yapılamaz),
-  dokunuş salonu telefonun harita uygulamasında açar. Görsel yoksa eski
-  adres paneli kalır — yüklenmemiş salon yüzünden bölüm boşalmaz.
+- Konumda GERÇEK ama DURAĞAN bir harita var: salonun koordinatından
+  OpenStreetMap karoları birleştirilip üretilen bir görsel
+  (`Sahra_Harita`). Üzerinde gezilemez (seçim de yapılamaz), dokunuş
+  salonu telefonun harita uygulamasında açar. Önce elle yüklenmiş ekran
+  görüntüsü kullanılır (yöneticinin çıkış yolu), yoksa üretilen harita,
+  o da yoksa eski adres paneli — koordinatı çözülemeyen salon yüzünden
+  bölüm boşalmaz.
+  - Koordinat yöneticiden İSTENMEZ: Google Maps linkinden çözülür
+    (`!3d/!4d` iğne, `@lat,lng` görüntü merkezi, `q/query/ll/destination`,
+    kısa linkin yönlendirmesi), olmazsa adresten (Nominatim). Enlem/boylam
+    alanları yine elle yazılabilir ve elle yazılan kazanır: adresten
+    çözülen nokta komşu binaya düşebiliyor. Elle yazılan koordinat adres
+    değişse de korunur; TÜRETİLMİŞ koordinat adres değişince silinir
+    (eski nokta artık başka bir yeri gösteriyor) ve yeniden çözülür.
+  - Kayıt katmanı AĞA ÇIKMAZ: çözüm yönetici yolunda, kayıttan sonra
+    koşar.
+  - Görsel 768x480 (16/10) ve yakınlık 17. Ölçü keyfi değil: kutu
+    telefonda ~360px, yani görsel 2,1 kat küçülüyor ve iki kat küçülme
+    bir yakınlık basamağı demek. 1024x640/z16 ile başlandı ve harita
+    ekranda z14,5 gibi uzak görünüyordu.
+  - Dosya JPEG 82 (~90 KB): aynı harita PNG olarak 526 KB ve davetiyenin
+    en pahalı isteği olurdu.
+  - Atıf (`© OpenStreetMap katkıcıları`) karoların kullanım koşulu ve
+    HTML metni olarak haritanın altında durur — görselin İÇİNE basılınca
+    telefonda 6px'e düşüyor, hem okunmuyor hem punto tabanı onu hiç
+    ölçmüyor.
+  - Üretim MİSAFİR yolunda hiç koşmaz: salon kaydedilirken, "Haritayı
+    Yenile" düğmesiyle ve günlük bakımda (tur başına en çok 5 salon)
+    koşar. Çözülemeyen salon kayda geçer ve aynı adresle bir daha
+    denenmez; panelde nedeni yazar.
 - **Her yayında `SAHRA_VERSION` yükseltilir**, ama artık tek güvence o
   değil: varlık adresleri (stil, betik, VİDEO — üç şablonda da)
   `sahra_varlik()` ile üretiliyor ve dosyanın

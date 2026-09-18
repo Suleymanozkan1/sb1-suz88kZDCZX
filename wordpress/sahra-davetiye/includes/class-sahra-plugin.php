@@ -49,6 +49,13 @@ class Sahra_Plugin {
 		// Düğünden sonra davetiyeyi yayından kaldıran günlük bakım.
 		add_action( Sahra_Lifecycle::HOOK, array( 'Sahra_Lifecycle', 'run' ) );
 
+		/*
+		 * Eksik harita görselleri ARKA PLANDA üretiliyor: her salon iki
+		 * ağ isteği demek, panelin açılışını buna bağlamak sayfayı
+		 * dakikalarca bekletiyordu.
+		 */
+		add_action( Sahra_Harita::BAKIM_HOOK, array( 'Sahra_Harita', 'bakim' ) );
+
 		// Davetiye silinince katılım/dilek/fotoğrafları da gitsin.
 		add_action( 'before_delete_post', array( $this, 'on_delete_post' ) );
 		add_action( 'deleted_user', array( $this, 'on_delete_user' ) );
@@ -62,6 +69,8 @@ class Sahra_Plugin {
 		// Yeni rol, zip üzerine yazıldığında da oluşsun.
 		Sahra_Roles::maybe_upgrade();
 		Sahra_Lifecycle::schedule();
+		// Güncellemeden sonra var olan salonların haritası bir kez üretilsin.
+		Sahra_Harita::maybe_schedule_backfill();
 	}
 
 	public function login_redirect( $redirect_to, $requested, $user ) {

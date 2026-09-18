@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SAHRA_VERSION', '1.5.1' );
+define( 'SAHRA_VERSION', '1.6.0' );
 define( 'SAHRA_FILE', __FILE__ );
 define( 'SAHRA_DIR', plugin_dir_path( __FILE__ ) );
 
@@ -52,6 +52,7 @@ require_once SAHRA_DIR . 'includes/class-sahra-invitation.php';
 require_once SAHRA_DIR . 'includes/class-sahra-theme.php';
 require_once SAHRA_DIR . 'includes/class-sahra-rest.php';
 require_once SAHRA_DIR . 'includes/class-sahra-og-image.php';
+require_once SAHRA_DIR . 'includes/class-sahra-harita.php';
 require_once SAHRA_DIR . 'includes/class-sahra-lifecycle.php';
 require_once SAHRA_DIR . 'includes/class-sahra-guests.php';
 require_once SAHRA_DIR . 'includes/class-sahra-report.php';
