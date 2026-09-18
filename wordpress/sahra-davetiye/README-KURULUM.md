@@ -41,6 +41,22 @@ linki. Çift, davetiyesini hazırlarken bu salonlardan birini **seçer** —
 adresi kendisi yazmaz. Adres değişirse tek yerden düzeltirsiniz, o salonu
 kullanan tüm davetiyeler aynı anda güncellenir.
 
+**Harita kendiliğinden çıkar.** Google Maps linkini yapıştırıp
+kaydettiğinizde salonun koordinatı o linkten (link koordinat taşımıyorsa
+adresten) bulunuyor ve davetiyenin konum bölümündeki harita görüntüsü
+üretiliyor. Salon ekranında hemen altında önizlemesini görürsünüz.
+Misafir harita üzerinde gezinemez — dokununca kendi telefonunun harita
+uygulaması salonda açılır.
+
+- Harita yanlış yeri gösteriyorsa: linki düzeltip **Haritayı Yenile**
+  deyin, ya da **Enlem/Boylam** alanlarına doğru noktayı yazın. Elle
+  yazdığınız nokta adresi sonradan değiştirseniz de korunur.
+- "Harita görseli üretilemedi" yazıyorsa sunucunuz dışarıya
+  çıkamıyordur; o salonda eski adres paneli görünür, davetiyenin geri
+  kalanı etkilenmez.
+- Kendi ekran görüntünüzü kullanmak isterseniz **Harita Görseli (elle)**
+  alanına yükleyin; o görsel üretilenin yerine geçer.
+
 **"Misafirin işine yarayacak bilgiler"** alanına her satıra bir madde
 yazın: `Kapalı otopark (ücretsiz)`, `Metroya 5 dk yürüme`, `Engelli
 erişimi`, `Çocuk oyun alanı ve palyaço`. Bunlar davetiyenin harita
