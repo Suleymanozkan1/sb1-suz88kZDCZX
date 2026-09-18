@@ -50,6 +50,41 @@ class Sahra_Health {
 			);
 		}
 
+		/*
+		 * Harita görseli üretilmemiş salon.
+		 *
+		 * Sessizce eski adres paneline düşüyor: davetiye açılıyor, hata
+		 * yok, kuran kişi yalnızca "harita gelmedi" görüyor. Üretim
+		 * arka planda koştuğu için nedeni de ortada durmuyor — bulgu
+		 * salonu ve saklanan nedeni birlikte yazıyor.
+		 */
+		$haritasiz = array();
+		foreach ( Sahra_Settings::venues() as $sahra_salon ) {
+			if ( Sahra_Harita::hazir( $sahra_salon ) || $sahra_salon['venueMapImage'] ) {
+				continue;
+			}
+			/*
+			 * Salon ADI markadan geliyor ve bütün salonlarda aynı:
+			 * "Sahra Davet Salonları" yazmak hangi salon olduğunu
+			 * söylemiyor. Yönetici salonu ADRESİNDEN tanıyor.
+			 */
+			$neden  = Sahra_Harita::son_hata( $sahra_salon );
+			$adres  = implode( ', ', array_filter( array( $sahra_salon['address'], $sahra_salon['district'] ) ) );
+			$haritasiz[] = ( $adres ? $adres : $sahra_salon['venueName'] ) . ( $neden ? ' (' . $neden . ')' : '' );
+		}
+
+		if ( $haritasiz ) {
+			$bulgu[] = array(
+				'seviye' => 'oneri',
+				'baslik' => sprintf(
+					/* translators: %s: salon adları ve varsa nedenleri. */
+					__( 'Konum haritası üretilmemiş salon var: %s', 'sahra-davetiye' ),
+					implode( '; ', $haritasiz )
+				),
+				'cozum'  => __( 'Salonlar sayfasında o salonun "Haritayı Yenile" düğmesine basın. Sunucu dışarıya çıkamıyorsa harita üretilemez; o durumda "Harita Görseli (elle)" alanına kendi ekran görüntünüzü yükleyin.', 'sahra-davetiye' ),
+			);
+		}
+
 		foreach ( self::missing_tables() as $eksik ) {
 			$bulgu[] = array(
 				'seviye' => 'engel',

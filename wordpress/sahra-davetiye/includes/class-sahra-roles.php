@@ -110,6 +110,27 @@ class Sahra_Roles {
 		return user_can( $user_id, self::MANAGE ) || user_can( $user_id, 'manage_options' );
 	}
 
+	/**
+	 * Çift hesaplarını yönetebilir mi?
+	 *
+	 * Eklentinin YÖNETİCİSİ olmak yetiyor. Ayrı bir yetki (`ACCOUNTS`)
+	 * hâlâ duruyor ve eklentinin kendi rolü onu taşıyor; ama elle
+	 * kurulmuş bir rol (User Role Editor ile açılan "Davetiye" rolü
+	 * gibi) `sahra_manage_invitations` taşıyıp bunu taşımıyordu: menü
+	 * görünüyor, ekran açılıyor, hesap açmaya kalkınca "Yetkiniz yok"
+	 * diyordu. Ayrım, kimsenin bilmediği bir yetkinin eksikliğine
+	 * takılan bir panel demekti.
+	 *
+	 * Yetki yükseltmesine kapı açmıyor: asıl koruma HEDEFİN çift olduğu
+	 * denetimi (bkz. Sahra_Admin::reset_password / delete_user) ve o
+	 * yerinde duruyor — WordPress'in `edit_users` yetkisi burada hiç
+	 * kullanılmıyor.
+	 */
+	public static function can_accounts( $user_id = null ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		return user_can( $user_id, self::ACCOUNTS ) || self::is_manager( $user_id );
+	}
+
 	/** Çift hesabı mı? */
 	public static function is_couple( $user_id = null ) {
 		$user_id = $user_id ? (int) $user_id : get_current_user_id();

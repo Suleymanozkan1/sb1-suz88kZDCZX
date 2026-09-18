@@ -321,8 +321,13 @@ class Sahra_Harita {
 	 * @return string|WP_Error Dosya yolu ya da hata.
 	 */
 	public static function uret( $salon ) {
-		if ( ! function_exists( 'imagecreatetruecolor' ) ) {
-			return new WP_Error( 'sahra_harita_gd', __( 'Sunucuda GD görsel kütüphanesi yok; harita görseli üretilemiyor.', 'sahra-davetiye' ) );
+		/*
+		 * JPEG desteği AYRICA soruluyor: GD bazı derlemelerde JPEG'siz
+		 * geliyor ve `imagejpeg` tanımsız kalıyordu — üretim ölümcül
+		 * hatayla düşer, kuran kişi yalnızca "harita gelmedi" görürdü.
+		 */
+		if ( ! function_exists( 'imagecreatetruecolor' ) || ! function_exists( 'imagejpeg' ) || ! function_exists( 'imagecreatefromstring' ) ) {
+			return new WP_Error( 'sahra_harita_gd', __( 'Sunucuda GD görsel kütüphanesi (ya da JPEG desteği) yok; harita görseli üretilemiyor.', 'sahra-davetiye' ) );
 		}
 
 		$k = self::koordinat( $salon );
@@ -354,8 +359,16 @@ class Sahra_Harita {
 		$yol = self::onbellek_yolu( $salon );
 		wp_mkdir_p( dirname( $yol ) );
 
-		if ( false === file_put_contents( $yol, $veri ) ) { // phpcs:ignore
-			return new WP_Error( 'sahra_harita_yazma', __( 'Harita görseli diske yazılamadı.', 'sahra-davetiye' ) );
+		if ( ! wp_is_writable( dirname( $yol ) ) || false === file_put_contents( $yol, $veri ) ) { // phpcs:ignore
+			/*
+			 * Mesajda DOSYA YOLU yok: bu metin kurulum denetiminde de
+			 * görünüyor ve bulguların hiçbiri sunucudaki yolu
+			 * yazmamalı (denetim bunu ayrıca ölçüyor).
+			 */
+			return new WP_Error(
+				'sahra_harita_yazma',
+				__( 'Harita görseli diske yazılamadı — yükleme klasörüne yazma izni yok.', 'sahra-davetiye' )
+			);
 		}
 
 		// Aynı salonun eski koordinatına ait görsel artık kimseye lazım değil.
@@ -583,8 +596,17 @@ class Sahra_Harita {
 		 * İki uzantı da süpürülüyor: görsel bir dönem PNG yazılıyordu
 		 * ve biçim değişince eski dosyalar öksüz kaldı — imzada yalnızca
 		 * SÜRÜM var, uzantı yok.
+		 *
+		 * GLOB_BRACE KULLANILMIYOR: bazı PHP derlemelerinde (musl/Alpine)
+		 * o sabit hiç tanımlı değil ve tanımsız sabit PHP 8'de ölümcül
+		 * hata veriyor — harita üretimi o sunucularda hiç çalışmazdı.
 		 */
-		foreach ( (array) glob( $dizin . $venue_id . '-*.{jpg,png}', GLOB_BRACE ) as $dosya ) {
+		$dosyalar = array_merge(
+			(array) glob( $dizin . $venue_id . '-*.jpg' ),
+			(array) glob( $dizin . $venue_id . '-*.png' )
+		);
+
+		foreach ( $dosyalar as $dosya ) {
 			if ( $koru && basename( $dosya ) === $koru ) {
 				continue;
 			}
@@ -673,6 +695,20 @@ class Sahra_Harita {
 
 		if ( ! wp_next_scheduled( self::BAKIM_HOOK ) ) {
 			wp_schedule_single_event( time() + 30, self::BAKIM_HOOK );
+		}
+	}
+
+	/**
+	 * Bakım işini kuyruğa alır.
+	 *
+	 * Sürüm değişince bir kez kuruluyordu; kullanıcının kurulumunda o
+	 * tek deneme (zamanlayıcı geç koştuğu için) yetmedi ve harita hiç
+	 * gelmedi. Salonlar sayfası eksik harita gördüğünde işi yeniden
+	 * kuyruğa alıyor: sayfa beklemiyor, iş bir sonraki istekte koşuyor.
+	 */
+	public static function kuyruga_al() {
+		if ( ! wp_next_scheduled( self::BAKIM_HOOK ) ) {
+			wp_schedule_single_event( time(), self::BAKIM_HOOK );
 		}
 	}
 

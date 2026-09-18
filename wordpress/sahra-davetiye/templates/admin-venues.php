@@ -25,6 +25,29 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 		</div>
 	<?php endif; ?>
 
+	<?php if ( ! empty( $harita_eksik ) ) : ?>
+		<?php
+		/*
+		 * Harita gelmeyince davetiye sessizce eski adres paneline
+		 * düşüyor ve kuran kişi nedenini göremiyordu. Eksik varsa
+		 * burada yazıyor: üretim arka planda kuyruğa alındı, olmazsa
+		 * düğme elde.
+		 */
+		?>
+		<div class="bildirim">
+			<p class="t-label"><?php esc_html_e( 'Harita bekleniyor', 'sahra-davetiye' ); ?></p>
+			<p class="t-body" style="margin-top:0.3rem">
+				<?php
+				printf(
+					/* translators: %d: salon sayısı. */
+					esc_html__( '%d salonun konum haritası henüz üretilmedi; davetiyede onun yerine adres yazısı görünüyor. Üretim arka planda sıraya alındı — sayfayı birkaç saniye sonra yenileyin. Gelmezse aşağıdaki listeden "Haritayı Yenile" deyin.', 'sahra-davetiye' ),
+					count( $harita_eksik )
+				);
+				?>
+			</p>
+		</div>
+	<?php endif; ?>
+
 	<?php if ( ! empty( $_GET['harita_yenilendi'] ) ) : // phpcs:ignore ?>
 		<div class="bildirim">
 			<p class="t-label"><?php esc_html_e( 'Harita yenilendi', 'sahra-davetiye' ); ?></p>
@@ -271,6 +294,28 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 						</div>
 						<div class="meta">
 							<span><?php echo esc_html( implode( ', ', array_filter( array( $sahra_salon['address'], $sahra_salon['district'], $sahra_salon['city'] ) ) ) ); ?></span>
+							<?php
+							/*
+							 * Haritanın durumu LİSTEDE duruyor: eksikse
+							 * hangi salonda eksik olduğu ve nedeni
+							 * görünmeden, kuran kişi yalnızca
+							 * davetiyede harita olmadığını fark
+							 * ediyordu.
+							 */
+							$sahra_harita_var = Sahra_Harita::hazir( $sahra_salon ) || $sahra_salon['venueMapImage'];
+							$sahra_neden      = $sahra_harita_var ? '' : Sahra_Harita::son_hata( $sahra_salon );
+							?>
+							<span<?php echo $sahra_harita_var ? '' : ' style="color:var(--c-danger)"'; ?>>
+								<?php
+								if ( $sahra_harita_var ) {
+									esc_html_e( 'harita hazır', 'sahra-davetiye' );
+								} elseif ( $sahra_neden ) {
+									echo esc_html( $sahra_neden );
+								} else {
+									esc_html_e( 'harita yok', 'sahra-davetiye' );
+								}
+								?>
+							</span>
 							<span>
 								<?php
 								/* translators: %d: özellik sayısı. */

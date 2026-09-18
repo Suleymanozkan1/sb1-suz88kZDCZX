@@ -18,7 +18,6 @@ $sahra_yonetici  = Sahra_Roles::is_manager();
 
 $sahra_yollar = array(
 	'sahra-panel'      => __( 'Davetiyeler', 'sahra-davetiye' ),
-	'sahra-davetliler' => __( 'Davetli Listesi', 'sahra-davetiye' ),
 	'sahra-hesap'      => __( 'Katılım & Albüm', 'sahra-davetiye' ),
 );
 
@@ -48,6 +47,19 @@ $sahra_yollar['sahra-ayarlar'] = __( 'Hesap Ayarları', 'sahra-davetiye' );
 			<p class="t-display" style="margin-top:0.4rem"><?php esc_html_e( 'Sahra Davetiye', 'sahra-davetiye' ); ?></p>
 			<p class="t-body muted" style="margin-top:0.2rem">
 				<?php echo esc_html( $sahra_kullanici->display_name ? $sahra_kullanici->display_name : $sahra_kullanici->user_login ); ?>
+				<?php if ( $sahra_yonetici ) : ?>
+					<?php
+					/*
+					 * KURULU SÜRÜM yöneticinin ekranında yazıyor.
+					 *
+					 * "Bende görünmüyor" denen şeylerin birkaçında sorun
+					 * ölçüde değil, sunucuda hangi sürümün kurulu
+					 * olduğundaydı ve bunu görmenin yolu yoktu — zip
+					 * yüklendi mi, önbellek mi eski, anlaşılmıyordu.
+					 */
+					?>
+					<span style="opacity:.6">· v<?php echo esc_html( SAHRA_VERSION ); ?></span>
+				<?php endif; ?>
 			</p>
 		</div>
 

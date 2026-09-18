@@ -41,26 +41,26 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `eski-link.php` | dağıtılmış eski link yenisine taşınıyor mu | 6/6 |
 | `qr-omur.php` | basılmış QR adres değişince de çalışıyor mu | 10/10 |
 | `adres-kenar.php` | taşımanın kenarları: devralınan adres, döngü, kapalı davetiye | 7/7 |
-| `kurulum-denetim.php` | her kurulum koşulu kurulup bulgu çıkıyor mu | 19/19 |
-| `kurulum-ekran.js` | bulgu ekranda çiziliyor, çift görmüyor | 4/4 |
+| `kurulum-denetim.php` | her kurulum koşulu kurulup bulgu çıkıyor mu (haritasız salon dahil) | 23/23 |
+| `kurulum-ekran.js` | bulgu ekranda çiziliyor, çift görmüyor, kurulu sürüm yöneticinin ekranında yazıyor, tur ortamı çalışır bırakıyor | 7/7 |
 | `musteri-istekleri.php` | çocuk varsayılanı, salon alanları, paylaşım açıklaması, tarih koruması | 16/16 |
 | `musteri-ekran.js` | tarih yalnızca takvimden, adımlar veri kaybetmiyor, çıkış uyarısı | 10/10 |
 | `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 58/58 |
 | `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç, işletme imzası | 28/28 |
-| `isletme-yetki.js` | işletme yöneticisi rolünün sınırı: eklentinin her ekranı açılıyor, WordPress kapalı, yetki yükseltmesi yok | 24/24 |
+| `isletme-yetki.js` | işletme yöneticisi rolünün sınırı: eklentinin her ekranı açılıyor, WordPress kapalı, yetki yükseltmesi yok; elle kurulmuş rol de çift hesaplarını yönetiyor | 27/27 |
 | `tarih-takvim.js` | dokununca takvim açılıyor; takvimsiz tarayıcıda alan kullanılabilir | 5/5 |
 | `yazim-okuma.php` | güncellemeden önce girilmiş davetiyenin yazımı ekranda düzeliyor mu | 24/24 |
 | `istek10.php` | kalkan alanlar, hediye Yok/Var, otomatik program, marka, katılım raporu (listesiz kip) | 63/63 |
 | `yukari-qa.js` | yukarı çık butonu (masaüstü + mobil), konumda seçim alanı yok | 18/18 |
 | `form-qa.js` | panelin GERÇEK form POST'u: katılım anahtarı yöneticide, çift kurcalayamıyor, çelişen iki denetim yok | 18/18 |
 | `davetli.php` | davetli listesi: eşleştirme (ad/telefon), sayılar, rapor, gizlilik, kademeli silme | 43/43 |
-| `davetli-ekran.js` | davetli ekranı: form kaydediyor, durum tablosu modelle uyuşuyor, başkasının listesi sızmıyor | 17/17 |
+| `davetli-kaldirildi.js` | davetli listesi EKRANI kalktı mı (menü, elle adres, kayıt yolu) ve veri + rapor eşleştirmesi duruyor mu | 9/9 |
 | `sosyal-punto.php` | sürüm damgası, marka hesabı, kullanıcı adından bağlantı, ekranda @kullanıcı, açılış videosu | 27/27 |
 | `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
 | `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, mobilde en küçük punto 16px (girdiler dahil), uçtan uca sıkıştırma | 36/36 |
 | `harita.php` | koordinat çözümü (iğne/görüntü/query/kısa link/adres), karo birleştirme, imleç, önbellek, elle/türetilmiş koordinat, ağ yokken, bakım kuyruğu, rota, silme | 50/50 |
-| `harita-ekran.js` | konumda gerçek harita çiziliyor, yükleniyor, gezilebilir harita sızmıyor, karo sağlayıcısının adı misafire görünmüyor, elle yüklenen görsel eziyor, haritasız salonda panel, panelden yenileme | 27/27 |
+| `harita-ekran.js` | konumda gerçek harita çiziliyor, yükleniyor, gezilebilir harita sızmıyor, karo sağlayıcısının adı misafire görünmüyor, elle yüklenen görsel eziyor, haritasız salonda panel, panelde durum ve yenileme | 30/30 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -429,6 +429,20 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   ÖLÇÜLEMEDİ yolundan çıkıldı ve turun açtığı salon ortada kaldı; dört
   öksüz salon birikti ve arkasından koşan turlar onları ölçerdi.
   Temizlik hem başarı hem hata yolunda koşar.
+- **Durumu BOZAN tur, bıraktığı ortamın çalıştığını da doğrular.**
+  `kurulum-ekran.js` kalıcı bağlantıyı bilerek "Düz"e çekiyor ve geri
+  alıyor; bir koşuda arkasından gelen `gorsel-punto.js` beş ölçütü
+  düşürdü — sayfayı hâlâ 404 okumuştu. "Geri aldım" yetmiyor: tur
+  gerçek bir davetiye adresini çekip 200 aldığını görmeden çıkmıyor.
+- **Ekran KALKINCA da turların sayfa listesi güncellenir.** Bunun aynası
+  CLAUDE.md'de zaten vardı (yeni ekran listeye eklenir); tersi de geçerli:
+  davetli listesi ekranı kaldırılınca beş turun sabit listesinde kalsaydı
+  turlar WordPress'in yetki sayfasını ölçüp ürünü suçlardı.
+- **Olmayan anahtara bakmak "0 sonuç" verir ve ürünü suçlatır.**
+  `davetli-kaldirildi.js` eşleşmeyi `$x["rsvp"]` diye aradı; öyle bir
+  anahtar yok (eşleşmenin işareti `durum`un 'cevapsiz' olmaktan
+  çıkması). Tur "0 eşleşme" deyip eşleştirmenin bozulduğunu bildirdi.
+  Dönen yapının anahtarları üründen okunur.
 - **Yeniden yazma kuralları SÜRÜME bağlı yazılıyor.** Harita rotasını
   `.png`'den `.jpg`'ye çevirdim; `sahra_rewrite_version` zaten
   SAHRA_VERSION'a eşit olduğu için kurallar yenilenmedi ve rota 404
@@ -467,9 +481,13 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   mümkün değil.
 - Günün programı düğün tipinden (gündüz/akşam) ÜRETİLİR, elle
   girilmez. Tek soru nikah: yoksa o satır hiç çizilmez.
-- Davetli listesi ÇİFTİN özel verisi: davetiyede hiç görünmez, başka
-  çift göremez. Katılımlarla telefon (öncelik) ve ada göre eşleşir;
-  eşleşmeyen bildirim "listede olmayan" olarak ayrıca gösterilir.
+- Davetli listesi EKRANI kaldırıldı (kullanıcı gereksiz buldu): panelde
+  liste girilecek bir yer yok, menüde görünmüyor, adresi elle yazan da
+  açamıyor ve `save_guests` kayıt yolu kapalı. VERİ katmanı ve
+  eşleştirme duruyor: girilmiş listeler silinmedi, katılım raporu hâlâ
+  telefon (öncelik) ve ada göre eşleştiriyor, eşleşmeyen bildirim
+  "listede olmayan" olarak ayrılıyor. Liste yine ÇİFTİN özel verisi:
+  davetiyede hiç görünmez.
 - Katılım formu YÖNETİCİNİN anahtarı (`Sahra_Fields::MANAGER_KEYS`):
   salona kaç kişi geleceğini işletme sayıyor. Çift göremez, gönderse de
   yok sayılır. Kapalıyken kahramandaki "Katılım Durumunu Belirt"
@@ -519,6 +537,10 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
     Yenile" düğmesiyle ve günlük bakımda (tur başına en çok 5 salon)
     koşar. Çözülemeyen salon kayda geçer ve aynı adresle bir daha
     denenmez; panelde nedeni yazar.
+- **Kurulu sürüm yöneticinin panelinde yazar** (başlıkta `· v1.6.2`).
+  "Bende görünmüyor" denen şeylerin birkaçında sorun ölçüde değil,
+  sunucuda hangi sürümün kurulu olduğundaydı ve bunu görmenin yolu
+  yoktu. Çiftin ekranında yazmaz.
 - **Her yayında `SAHRA_VERSION` yükseltilir**, ama artık tek güvence o
   değil: varlık adresleri (stil, betik, VİDEO — üç şablonda da)
   `sahra_varlik()` ile üretiliyor ve dosyanın

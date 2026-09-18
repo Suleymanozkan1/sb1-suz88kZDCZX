@@ -27,7 +27,14 @@ class Sahra_Admin {
 	 * bekçisinde kullanılıyor. Ayrı ayrı yazılıyordu ve biri güncellenmeyi
 	 * unutunca çift, kendi hesap ayarları sayfasından dışarı atılıyordu.
 	 */
-	const COUPLE_PAGES = array( 'sahra-panel', 'sahra-davetiye-duzenle', 'sahra-davetliler', 'sahra-hesap', 'sahra-ayarlar' );
+	/*
+	 * Davetli listesi ekranı KALDIRILDI (kullanıcı gereksiz buldu).
+	 * Veri katmanı ve katılımlarla eşleştirme duruyor — rapor hâlâ
+	 * "listede olmayan" ayrımını gösteriyor — ama panelde girilecek bir
+	 * ekran yok, o yüzden bu listede de yok: burada kalsaydı çift
+	 * adresi elle yazıp olmayan bir sayfaya girebilirdi.
+	 */
+	const COUPLE_PAGES = array( 'sahra-panel', 'sahra-davetiye-duzenle', 'sahra-hesap', 'sahra-ayarlar' );
 
 	/** Yalnızca yöneticinin girebildiği ekranlar. */
 	const MANAGER_PAGES = array( 'sahra-salonlar', 'sahra-menuler', 'sahra-hesaplar', 'sahra-depolama', 'sahra-isletme' );
@@ -53,7 +60,6 @@ class Sahra_Admin {
 
 		add_submenu_page( 'sahra-panel', __( 'Davetiyeler', 'sahra-davetiye' ), __( 'Davetiyeler', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-panel', array( __CLASS__, 'page_list' ) );
 		add_submenu_page( 'sahra-panel', __( 'Davetiye Düzenle', 'sahra-davetiye' ), __( 'Yeni Davetiye', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-davetiye-duzenle', array( __CLASS__, 'page_edit' ) );
-		add_submenu_page( 'sahra-panel', __( 'Davetli Listesi', 'sahra-davetiye' ), __( 'Davetli Listesi', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-davetliler', array( __CLASS__, 'page_guests' ) );
 		add_submenu_page( 'sahra-panel', __( 'Katılım & Albüm', 'sahra-davetiye' ), __( 'Katılım & Albüm', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-hesap', array( __CLASS__, 'page_inbox' ) );
 		add_submenu_page( 'sahra-panel', __( 'Hesap Ayarları', 'sahra-davetiye' ), __( 'Hesap Ayarları', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-ayarlar', array( __CLASS__, 'page_account' ) );
 
@@ -182,9 +188,6 @@ class Sahra_Admin {
 			case 'save_invitation':
 				self::save_invitation();
 				break;
-			case 'save_guests':
-				self::save_guests();
-				break;
 			case 'save_venue':
 				self::save_venue();
 				break;
@@ -307,30 +310,6 @@ class Sahra_Admin {
 		self::redirect( array( 'page' => 'sahra-davetiye-duzenle', 'id' => $id, 'kaydedildi' => 1 ) );
 	}
 
-	/**
-	 * Davetli listesini kaydeder.
-	 *
-	 * Yetki DAVETİYE üzerinden: çift yalnızca kendi davetiyesinin
-	 * listesini değiştirebiliyor. Sadece `CAPABILITY` bakılsaydı bir çift
-	 * başka bir çiftin listesini yazabilirdi.
-	 */
-	private static function save_guests() {
-		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
-		}
-		check_admin_referer( 'sahra_save_guests' );
-
-		$id = isset( $_POST['invitation_id'] ) ? (int) $_POST['invitation_id'] : 0; // phpcs:ignore
-		if ( ! $id || ! Sahra_Invitation::can_edit( $id ) ) {
-			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
-		}
-
-		$metin = isset( $_POST['davetliler'] ) ? wp_unslash( $_POST['davetliler'] ) : ''; // phpcs:ignore
-		$sonuc = Sahra_Guests::replace_from_text( $id, $metin );
-
-		self::redirect( array( 'page' => 'sahra-davetliler', 'id' => $id, 'kaydedildi' => (int) $sonuc['eklendi'] + 1 ) );
-	}
-
 	private static function save_venue() {
 		if ( ! Sahra_Roles::is_manager() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
@@ -440,7 +419,7 @@ class Sahra_Admin {
 	 * gösterilir; bu, çifte iletilebileceği tek andır.
 	 */
 	private static function create_user() {
-		if ( ! current_user_can( Sahra_Roles::ACCOUNTS ) ) {
+		if ( ! Sahra_Roles::can_accounts() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 
@@ -473,7 +452,7 @@ class Sahra_Admin {
 	}
 
 	private static function reset_password() {
-		if ( ! current_user_can( Sahra_Roles::ACCOUNTS ) ) {
+		if ( ! Sahra_Roles::can_accounts() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 
@@ -519,7 +498,7 @@ class Sahra_Admin {
 	}
 
 	private static function delete_user() {
-		if ( ! current_user_can( Sahra_Roles::ACCOUNTS ) ) {
+		if ( ! Sahra_Roles::can_accounts() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 
@@ -701,10 +680,27 @@ class Sahra_Admin {
 		 * salon kaydedilirken, "Haritayı Yenile" düğmesiyle ve günlük
 		 * bakımda (Sahra_Harita::bakim). Sayfa yalnızca SONUCU
 		 * gösteriyor.
+		 *
+		 * Eksik harita varsa bakım işi KUYRUĞA alınıyor: kullanıcının
+		 * kurulumunda harita hiç gelmedi ve nedeni "arka plan işi henüz
+		 * koşmadı"ydı — kuyruğa alınmış iş bir sonraki istekte koşuyor,
+		 * sayfa beklemiyor. Zamanlayıcısı kapalı kurulumlar için de
+		 * listede her salonun durumu ve "Haritayı Yenile" düğmesi var.
 		 */
 		$salonlar = Sahra_Settings::venues();
 		$duzenle  = isset( $_GET['salon'] ) ? Sahra_Settings::venue_by_id( sanitize_key( wp_unslash( $_GET['salon'] ) ) ) : null; // phpcs:ignore WordPress.Security.NonceVerification
 		$venue    = $duzenle ? $duzenle : Sahra_Settings::empty_venue();
+
+		$harita_eksik = array();
+		foreach ( $salonlar as $sahra_salon ) {
+			if ( ! Sahra_Harita::hazir( $sahra_salon ) && ! $sahra_salon['venueMapImage'] ) {
+				$harita_eksik[] = $sahra_salon['id'];
+			}
+		}
+		if ( $harita_eksik ) {
+			Sahra_Harita::kuyruga_al();
+		}
+
 		include SAHRA_DIR . 'templates/admin-venues.php';
 	}
 
@@ -827,29 +823,6 @@ class Sahra_Admin {
 
 	public static function page_account() {
 		include SAHRA_DIR . 'templates/admin-account.php';
-	}
-
-	/**
-	 * Davetli listesi ekranı.
-	 *
-	 * Davetiye seçiliyor, liste metin olarak giriliyor ve karşısında
-	 * kimin cevap verdiği duruyor. Liste MİSAFİRE gösterilmiyor —
-	 * davetiye şablonu bu tabloya hiç bakmıyor.
-	 */
-	public static function page_guests() {
-		$davetiyeler = Sahra_Invitation::all_for_user();
-
-		$id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0; // phpcs:ignore WordPress.Security.NonceVerification
-		if ( ! $id || ! Sahra_Invitation::can_edit( $id ) ) {
-			// Seçim yoksa çiftin ilk davetiyesi: boş bir ekran işe yaramıyor.
-			$id = $davetiyeler ? (int) $davetiyeler[0]['id'] : 0;
-		}
-
-		$secili = $id ? Sahra_Invitation::get( $id ) : null;
-		$metin  = $id ? Sahra_Guests::to_text( $id ) : '';
-		$durum  = $id ? Sahra_Guests::reconcile( $id ) : null;
-
-		include SAHRA_DIR . 'templates/admin-guests.php';
 	}
 
 	public static function page_inbox() {
