@@ -60,7 +60,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
 | `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, mobilde en küçük punto 16px (girdiler dahil), uçtan uca sıkıştırma | 36/36 |
 | `harita.php` | koordinat çözümü (iğne/görüntü/query/kısa link/adres), karo birleştirme, imleç, önbellek, elle/türetilmiş koordinat, ağ yokken, bakım kuyruğu, rota, silme | 50/50 |
-| `harita-ekran.js` | konumda gerçek harita çiziliyor, yükleniyor, gezilebilir harita sızmıyor, atıf okunuyor, elle yüklenen görsel eziyor, haritasız salonda panel, panelden yenileme | 30/30 |
+| `harita-ekran.js` | konumda gerçek harita çiziliyor, yükleniyor, gezilebilir harita sızmıyor, karo sağlayıcısının adı misafire görünmüyor, elle yüklenen görsel eziyor, haritasız salonda panel, panelden yenileme | 27/27 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -498,16 +498,23 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
     (eski nokta artık başka bir yeri gösteriyor) ve yeniden çözülür.
   - Kayıt katmanı AĞA ÇIKMAZ: çözüm yönetici yolunda, kayıttan sonra
     koşar.
-  - Görsel 768x480 (16/10) ve yakınlık 17. Ölçü keyfi değil: kutu
+  - Görsel 768x480 (16/10) ve yakınlık 18. Ölçü keyfi değil: kutu
     telefonda ~360px, yani görsel 2,1 kat küçülüyor ve iki kat küçülme
     bir yakınlık basamağı demek. 1024x640/z16 ile başlandı ve harita
-    ekranda z14,5 gibi uzak görünüyordu.
+    ekranda z14,5 gibi uzak görünüyordu; z17'de sokak adları ancak
+    seçiliyordu. Yakınlık, 768px'lik görsele değil telefondaki GERÇEK
+    360px'lik kutuya bakılarak seçildi.
   - Dosya JPEG 82 (~90 KB): aynı harita PNG olarak 526 KB ve davetiyenin
     en pahalı isteği olurdu.
-  - Atıf (`© OpenStreetMap katkıcıları`) karoların kullanım koşulu ve
-    HTML metni olarak haritanın altında durur — görselin İÇİNE basılınca
-    telefonda 6px'e düşüyor, hem okunmuyor hem punto tabanı onu hiç
-    ölçmüyor.
+  - MİSAFİRE karo sağlayıcısının adı görünmez: davetiyede başka bir
+    markanın adının yazması istenmedi (kullanıcının kararı). Bir dönem
+    haritanın altında `© OpenStreetMap katkıcıları` yazıyordu, kaldırıldı;
+    `harita-ekran.js` sayfanın tamamında (metin + bağlantı/görsel
+    adresleri) bu adın geçmediğini ölçüyor. Karoların kullanım koşulu
+    görünür atıf istiyor — bilgi, yöneticinin salon ekranında yazılı
+    duruyor; tamamen kurallı kalmak istenirse anahtarlı bir sağlayıcıya
+    (Google Static Maps / Mapbox) geçilir, orada marka görselin kendi
+    içinde geliyor.
   - Üretim MİSAFİR yolunda hiç koşmaz: salon kaydedilirken, "Haritayı
     Yenile" düğmesiyle ve günlük bakımda (tur başına en çok 5 salon)
     koşar. Çözülemeyen salon kayda geçer ve aynı adresle bir daha

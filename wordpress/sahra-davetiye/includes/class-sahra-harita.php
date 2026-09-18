@@ -46,11 +46,15 @@ class Sahra_Harita {
 	 * Daha uzağı "şehir neresi" sorusuna cevap veriyor ama misafirin
 	 * sorusu "hangi sokak".
 	 *
-	 * 17, ekrandaki KÜÇÜLTMEYE karşılık geliyor: görsel kutusundan
-	 * 2,1 kat büyük çiziliyor, yani bir basamak yakından başlamak
-	 * gerekiyor (iki kat = bir yakınlık basamağı).
+	 * Ekrandaki KÜÇÜLTME de hesaba katılıyor: görsel kutusundan 2,1 kat
+	 * büyük çiziliyor, yani bir basamak yakından başlamak gerekiyor
+	 * (iki kat = bir yakınlık basamağı). 16 ile başlandı, harita uzak
+	 * göründü; 17'de sokak adları ancak seçiliyordu. 18, telefondaki
+	 * gerçek 360px'lik kutuda binaları ve sokak adlarını okunur
+	 * kılıyor — ölçüm 768px'lik görsele değil, o kutuya bakılarak
+	 * yapıldı.
 	 */
-	const YAKINLIK = 17;
+	const YAKINLIK = 18;
 
 	/** OSM karo sunucusu, kullanım politikası gereği tanıtıcı istiyor. */
 	const KARO_SUNUCU = 'https://tile.openstreetmap.org/';

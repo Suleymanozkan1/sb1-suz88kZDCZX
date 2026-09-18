@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SAHRA_VERSION', '1.6.0' );
+define( 'SAHRA_VERSION', '1.6.1' );
 define( 'SAHRA_FILE', __FILE__ );
 define( 'SAHRA_DIR', plugin_dir_path( __FILE__ ) );
 

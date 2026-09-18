@@ -686,16 +686,11 @@ $geri_sayim = $d['weddingDate']
 					 * çözülemeyen bir salon yüzünden bölüm boşalmasın.
 					 */
 					$harita_hedef  = $d['mapUrl'] ? $d['mapUrl'] : 'https://www.google.com/maps/search/?api=1&query=' . $konum_sorgu;
-					$harita_uretilen = '';
-					$harita_gorsel   = $d['venueMapImage'];
-
-					if ( ! $harita_gorsel ) {
-						$harita_uretilen = Sahra_Harita::url( Sahra_Settings::venue_for( $d['venueId'] ) );
-						$harita_gorsel   = $harita_uretilen;
-					}
+					$harita_gorsel = $d['venueMapImage']
+						? $d['venueMapImage']
+						: Sahra_Harita::url( Sahra_Settings::venue_for( $d['venueId'] ) );
 					?>
 					<?php if ( $harita_gorsel ) : ?>
-					<div class="map-sutun">
 						<a class="map-frame map-gorsel reveal"
 							href="<?php echo esc_url( $harita_hedef ); ?>"
 							target="_blank" rel="noopener"
@@ -709,29 +704,6 @@ $geri_sayim = $d['weddingDate']
 								<?php esc_html_e( 'Haritada Aç', 'sahra-davetiye' ); ?>
 							</span>
 						</a>
-						<?php if ( $harita_uretilen ) : ?>
-							<?php
-							/*
-							 * Atıf, üretilen harita için ZORUNLU: karolar
-							 * OpenStreetMap'ten geliyor. Görselin İÇİNE
-							 * basılmıyordu — 1024px'lik görsel telefonda
-							 * 358px'e inince yazı 6px'e düşüyor ve atıf
-							 * okunmaz oluyor. Bağlantı da ancak burada
-							 * olabiliyor: görselin kendisi bir bağlantının
-							 * içinde ve iç içe bağlantı kurulamıyor.
-							 */
-							?>
-							<p class="map-atif">
-								<?php
-								printf(
-									/* translators: %s: OpenStreetMap bağlantısı. */
-									esc_html__( '%s katkıcıları', 'sahra-davetiye' ),
-									'<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap</a>'
-								);
-								?>
-							</p>
-						<?php endif; ?>
-					</div>
 					<?php else : ?>
 						<div class="map-frame reveal">
 							<div class="map-fallback">

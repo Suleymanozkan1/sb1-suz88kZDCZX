@@ -141,7 +141,7 @@ $sahra_duzenliyor = ! empty( $venue['id'] );
 				<span class="field-label"><?php esc_html_e( 'Harita Görünümü', 'sahra-davetiye' ); ?></span>
 
 				<?php if ( $sahra_harita_hazir ) : ?>
-					<p class="ipucu" style="margin-bottom:0.6rem"><?php esc_html_e( 'Davetiyenin konum bölümünde bu harita görünüyor.', 'sahra-davetiye' ); ?></p>
+					<p class="ipucu" style="margin-bottom:0.6rem"><?php esc_html_e( 'Davetiyenin konum bölümünde bu harita görünüyor. Harita verisi OpenStreetMap katkıcılarından geliyor.', 'sahra-davetiye' ); ?></p>
 					<img src="<?php echo esc_url( $sahra_harita_url ); ?>" alt="" style="width:100%;max-width:30rem;border-radius:0.5rem;display:block">
 				<?php elseif ( $sahra_duzenliyor ) : ?>
 					<p class="ipucu" style="color:var(--c-danger)">

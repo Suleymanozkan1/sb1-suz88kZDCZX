@@ -1314,35 +1314,6 @@ html.sahra-html {
   padding: var(--sp-lg) var(--sp-md);
 }
 
-/* Harita ve altındaki atıf tek bir grid hücresinde durmalı: ikisi
-   doğrudan `.konum-duzen`un çocuğu olunca atıf ÜÇÜNCÜ öğe sayılıp alt
-   satıra, metin sütununun altına düşüyordu. */
-.map-sutun {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-/*
- * OpenStreetMap atfı.
- *
- * Karoları kullanmanın koşulu, yani KAYBOLAMAZ. Görselin içine
- * basılmıyor: 1024px'lik harita telefonda 358px'e ölçekleniyor ve
- * içindeki yazı 6px'e düşüyor. Buradaki punto ölçeğe bağlı ve
- * davetiyenin 16px tabanına uyuyor.
- */
-.map-atif {
-  font-size: var(--t-label);
-  line-height: 1.5;
-  color: var(--c-on-light-faint);
-}
-
-.map-atif a {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
 /* Harita GÖRSELİ: gezilemeyen, dokununca harita uygulamasını açan bir
    bağlantı. Görsel bağlantının içinde olduğu için tıklama alanı haritanın
    tamamı; misafirin küçük bir düğme aramasına gerek yok. */
