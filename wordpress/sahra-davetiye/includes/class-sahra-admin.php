@@ -32,6 +32,14 @@ class Sahra_Admin {
 	/** Yalnızca yöneticinin girebildiği ekranlar. */
 	const MANAGER_PAGES = array( 'sahra-salonlar', 'sahra-menuler', 'sahra-hesaplar', 'sahra-depolama', 'sahra-isletme' );
 
+	/**
+	 * Yalnızca SİTE yöneticisinin girebildiği ekranlar.
+	 *
+	 * `MANAGER_PAGES`'e yazılmıyor: işletme yöneticisi buraya girerse
+	 * kendi gibi yönetici üretebilir ve verilen yetkinin dışına çıkar.
+	 */
+	const ADMIN_PAGES = array( 'sahra-yoneticiler' );
+
 	public static function menu() {
 		add_menu_page(
 			__( 'Sahra Davetiye', 'sahra-davetiye' ),
@@ -50,11 +58,29 @@ class Sahra_Admin {
 		add_submenu_page( 'sahra-panel', __( 'Hesap Ayarları', 'sahra-davetiye' ), __( 'Hesap Ayarları', 'sahra-davetiye' ), self::CAPABILITY, 'sahra-ayarlar', array( __CLASS__, 'page_account' ) );
 
 		if ( Sahra_Roles::is_manager() ) {
-			add_submenu_page( 'sahra-panel', __( 'Salonlar', 'sahra-davetiye' ), __( 'Salonlar', 'sahra-davetiye' ), 'manage_options', 'sahra-salonlar', array( __CLASS__, 'page_venues' ) );
-			add_submenu_page( 'sahra-panel', __( 'Menüler', 'sahra-davetiye' ), __( 'Menüler', 'sahra-davetiye' ), 'manage_options', 'sahra-menuler', array( __CLASS__, 'page_menus' ) );
-			add_submenu_page( 'sahra-panel', __( 'Çift Hesapları', 'sahra-davetiye' ), __( 'Çift Hesapları', 'sahra-davetiye' ), 'manage_options', 'sahra-hesaplar', array( __CLASS__, 'page_users' ) );
-			add_submenu_page( 'sahra-panel', __( 'İşletme', 'sahra-davetiye' ), __( 'İşletme', 'sahra-davetiye' ), 'manage_options', 'sahra-isletme', array( __CLASS__, 'page_business' ) );
-			add_submenu_page( 'sahra-panel', __( 'Depolama', 'sahra-davetiye' ), __( 'Depolama', 'sahra-davetiye' ), 'manage_options', 'sahra-depolama', array( __CLASS__, 'page_storage' ) );
+			/*
+			 * Yetki `manage_options` DEĞİL, eklentinin kendi yetkisi.
+			 * Öyleyken bu ekranlara yalnızca WordPress yöneticisi
+			 * girebiliyordu; işletme yöneticisi rolü menüyü hiç
+			 * görmüyordu.
+			 */
+			$y = Sahra_Roles::MANAGE;
+			add_submenu_page( 'sahra-panel', __( 'Salonlar', 'sahra-davetiye' ), __( 'Salonlar', 'sahra-davetiye' ), $y, 'sahra-salonlar', array( __CLASS__, 'page_venues' ) );
+			add_submenu_page( 'sahra-panel', __( 'Menüler', 'sahra-davetiye' ), __( 'Menüler', 'sahra-davetiye' ), $y, 'sahra-menuler', array( __CLASS__, 'page_menus' ) );
+			add_submenu_page( 'sahra-panel', __( 'Çift Hesapları', 'sahra-davetiye' ), __( 'Çift Hesapları', 'sahra-davetiye' ), $y, 'sahra-hesaplar', array( __CLASS__, 'page_users' ) );
+			add_submenu_page( 'sahra-panel', __( 'İşletme', 'sahra-davetiye' ), __( 'İşletme', 'sahra-davetiye' ), $y, 'sahra-isletme', array( __CLASS__, 'page_business' ) );
+			add_submenu_page( 'sahra-panel', __( 'Depolama', 'sahra-davetiye' ), __( 'Depolama', 'sahra-davetiye' ), $y, 'sahra-depolama', array( __CLASS__, 'page_storage' ) );
+		}
+
+		/*
+		 * İşletme yöneticisi hesaplarını yalnızca SİTE YÖNETİCİSİ açar.
+		 *
+		 * İşletme yöneticisinin kendi gibi yönetici üretmesi (ya da
+		 * birbirlerini silmesi) istenen yetkinin dışında; o yüzden bu
+		 * ekran `manage_options` ile korunuyor.
+		 */
+		if ( Sahra_Roles::is_site_admin() ) {
+			add_submenu_page( 'sahra-panel', __( 'İşletme Yöneticileri', 'sahra-davetiye' ), __( 'İşletme Yöneticileri', 'sahra-davetiye' ), 'manage_options', 'sahra-yoneticiler', array( __CLASS__, 'page_managers' ) );
 		}
 	}
 
@@ -195,6 +221,15 @@ class Sahra_Admin {
 			case 'toggle_invitation':
 				self::toggle_invitation();
 				break;
+			case 'create_manager':
+				self::create_manager();
+				break;
+			case 'reset_manager':
+				self::reset_manager();
+				break;
+			case 'delete_manager':
+				self::delete_manager();
+				break;
 		}
 	}
 
@@ -294,7 +329,7 @@ class Sahra_Admin {
 	}
 
 	private static function save_venue() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Sahra_Roles::is_manager() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 		$sonuc = Sahra_Settings::save_venue( wp_unslash( $_POST['venue'] ?? array() ) ); // phpcs:ignore
@@ -305,7 +340,7 @@ class Sahra_Admin {
 	}
 
 	private static function delete_venue() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Sahra_Roles::is_manager() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 		Sahra_Settings::delete_venue( sanitize_key( wp_unslash( $_POST['venue_id'] ?? '' ) ) ); // phpcs:ignore
@@ -313,7 +348,7 @@ class Sahra_Admin {
 	}
 
 	private static function save_menu() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Sahra_Roles::is_manager() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 		$sonuc = Sahra_Settings::save_menu( wp_unslash( $_POST['menu'] ?? array() ) ); // phpcs:ignore
@@ -324,7 +359,7 @@ class Sahra_Admin {
 	}
 
 	private static function delete_menu() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Sahra_Roles::is_manager() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 		Sahra_Settings::delete_menu( sanitize_key( wp_unslash( $_POST['menu_id'] ?? '' ) ) ); // phpcs:ignore
@@ -332,7 +367,7 @@ class Sahra_Admin {
 	}
 
 	private static function save_business() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Sahra_Roles::is_manager() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 		Sahra_Settings::save_brand( wp_unslash( $_POST['brand'] ?? array() ) );         // phpcs:ignore
@@ -341,7 +376,7 @@ class Sahra_Admin {
 	}
 
 	private static function save_storage() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Sahra_Roles::is_manager() ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 
@@ -366,7 +401,7 @@ class Sahra_Admin {
 	 * gösterilir; bu, çifte iletilebileceği tek andır.
 	 */
 	private static function create_user() {
-		if ( ! current_user_can( 'create_users' ) ) {
+		if ( ! current_user_can( Sahra_Roles::ACCOUNTS ) ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 
@@ -399,7 +434,7 @@ class Sahra_Admin {
 	}
 
 	private static function reset_password() {
-		if ( ! current_user_can( 'edit_users' ) ) {
+		if ( ! current_user_can( Sahra_Roles::ACCOUNTS ) ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 
@@ -407,6 +442,19 @@ class Sahra_Admin {
 		$hesap   = get_userdata( $id );
 		if ( ! $hesap ) {
 			self::redirect( array( 'page' => 'sahra-hesaplar' ) );
+		}
+
+		/*
+		 * HEDEF gerçekten çift hesabı mı?
+		 *
+		 * Eskiden yalnızca yetki soruluyordu, hedef sorulmuyordu: bu
+		 * ekrana giren biri hazırlanmış bir istekle SİTE YÖNETİCİSİNİN
+		 * parolasını sıfırlayıp siteyi devralabilirdi. Yalnızca WordPress
+		 * yöneticisi girdiği sürece görünmüyordu; işletme yöneticisi rolü
+		 * eklendiğinde gerçek bir yetki yükseltmesi olurdu.
+		 */
+		if ( ! Sahra_Roles::is_couple( $id ) ) {
+			self::redirect( array( 'page' => 'sahra-hesaplar', 'hata' => rawurlencode( __( 'Bu hesap bir çift hesabı değil.', 'sahra-davetiye' ) ) ) );
 		}
 
 		$parola = wp_generate_password( 14, false );
@@ -432,12 +480,19 @@ class Sahra_Admin {
 	}
 
 	private static function delete_user() {
-		if ( ! current_user_can( 'delete_users' ) ) {
+		if ( ! current_user_can( Sahra_Roles::ACCOUNTS ) ) {
 			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
 		}
 
+		$id = (int) ( $_POST['user_id'] ?? 0 ); // phpcs:ignore
+
+		// Yalnızca ÇİFT hesapları silinir — bkz. reset_password().
+		if ( ! Sahra_Roles::is_couple( $id ) ) {
+			self::redirect( array( 'page' => 'sahra-hesaplar', 'hata' => rawurlencode( __( 'Bu hesap bir çift hesabı değil.', 'sahra-davetiye' ) ) ) );
+		}
+
 		require_once ABSPATH . 'wp-admin/includes/user.php';
-		wp_delete_user( (int) ( $_POST['user_id'] ?? 0 ) ); // phpcs:ignore
+		wp_delete_user( $id );
 		self::redirect( array( 'page' => 'sahra-hesaplar', 'silindi' => 1 ) );
 	}
 
@@ -629,6 +684,96 @@ class Sahra_Admin {
 			delete_transient( 'sahra_cred_' . get_current_user_id() );
 		}
 		include SAHRA_DIR . 'templates/admin-users.php';
+	}
+
+	/**
+	 * İşletme yöneticisi hesapları.
+	 *
+	 * Eklentideki her şeye erişen, WordPress'in geri kalanına hiç
+	 * erişmeyen hesaplar. Yalnızca SİTE yöneticisi açar (bkz. menu()).
+	 */
+	public static function page_managers() {
+		if ( ! Sahra_Roles::is_site_admin() ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+		$hesaplar = get_users( array( 'role' => Sahra_Roles::MANAGER ) );
+		$kimlik   = get_transient( 'sahra_cred_' . get_current_user_id() );
+		if ( $kimlik ) {
+			delete_transient( 'sahra_cred_' . get_current_user_id() );
+		}
+		include SAHRA_DIR . 'templates/admin-managers.php';
+	}
+
+	private static function create_manager() {
+		if ( ! Sahra_Roles::is_site_admin() ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+
+		$kullanici = sanitize_user( wp_unslash( $_POST['username'] ?? '' ), true ); // phpcs:ignore
+		$ad        = sanitize_text_field( wp_unslash( $_POST['display_name'] ?? '' ) ); // phpcs:ignore
+		$eposta    = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ); // phpcs:ignore
+
+		if ( '' === $kullanici ) {
+			self::redirect( array( 'page' => 'sahra-yoneticiler', 'hata' => rawurlencode( __( 'Kullanıcı adı zorunlu.', 'sahra-davetiye' ) ) ) );
+		}
+
+		$parola = wp_generate_password( 14, false );
+
+		$id = wp_insert_user(
+			array(
+				'user_login'   => $kullanici,
+				'user_pass'    => $parola,
+				'user_email'   => $eposta ? $eposta : '',
+				'display_name' => $ad ? $ad : $kullanici,
+				'role'         => Sahra_Roles::MANAGER,
+			)
+		);
+
+		if ( is_wp_error( $id ) ) {
+			self::redirect( array( 'page' => 'sahra-yoneticiler', 'hata' => rawurlencode( $id->get_error_message() ) ) );
+		}
+
+		set_transient( 'sahra_cred_' . get_current_user_id(), array( 'user' => $kullanici, 'pass' => $parola ), 5 * MINUTE_IN_SECONDS );
+		self::redirect( array( 'page' => 'sahra-yoneticiler', 'yeni' => 1 ) );
+	}
+
+	/**
+	 * Hedefin gerçekten İŞLETME YÖNETİCİSİ olduğu doğrulanır.
+	 *
+	 * Yetki sorup hedefi sormamak, hazırlanmış bir istekle başka bir
+	 * kullanıcıya (site yöneticisine) dokunmak demekti.
+	 */
+	private static function manager_target() {
+		$id = (int) ( $_POST['user_id'] ?? 0 ); // phpcs:ignore
+		if ( ! $id || ! user_can( $id, Sahra_Roles::MANAGE ) || Sahra_Roles::is_site_admin( $id ) ) {
+			self::redirect( array( 'page' => 'sahra-yoneticiler', 'hata' => rawurlencode( __( 'Bu hesap bir işletme yöneticisi değil.', 'sahra-davetiye' ) ) ) );
+		}
+		return $id;
+	}
+
+	private static function reset_manager() {
+		if ( ! Sahra_Roles::is_site_admin() ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+		$id    = self::manager_target();
+		$hesap = get_userdata( $id );
+
+		$parola = wp_generate_password( 14, false );
+		wp_set_password( $parola, $id );
+
+		set_transient( 'sahra_cred_' . get_current_user_id(), array( 'user' => $hesap->user_login, 'pass' => $parola ), 5 * MINUTE_IN_SECONDS );
+		self::redirect( array( 'page' => 'sahra-yoneticiler', 'yeni' => 1 ) );
+	}
+
+	private static function delete_manager() {
+		if ( ! Sahra_Roles::is_site_admin() ) {
+			wp_die( esc_html__( 'Yetkiniz yok.', 'sahra-davetiye' ) );
+		}
+		$id = self::manager_target();
+
+		require_once ABSPATH . 'wp-admin/includes/user.php';
+		wp_delete_user( $id );
+		self::redirect( array( 'page' => 'sahra-yoneticiler', 'silindi' => 1 ) );
 	}
 
 	public static function page_account() {

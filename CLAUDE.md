@@ -29,7 +29,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `wp-misafir.js` | katılım, dilek, fotoğraf yükleme | 3/3 |
 | `panel-kontrast.js` | panelin her metninin kontrastı | ~2200 metin, 0 sorun |
 | `on-tara.sh` (`wpon.js`) | ön yüz kontrastı — 5 tema × 5 tasarım | 25 birleşim temiz |
-| `mobil.js` | 390px'te yatay taşma (misafir + panel) **ve punto tabanı — yalnızca MİSAFİR sayfaları**, girdiler dahil | taşma yok, misafirde 21px altı metin yok |
+| `mobil.js` | 390px'te yatay taşma (misafir + panel) **ve punto tabanı — yalnızca MİSAFİR sayfaları**, girdiler dahil | taşma yok, misafirde 16px altı metin yok |
 | `fark-olc.js <alan> <seçenekler>` | tasarım/tema seçenekleri gerçekten farklı mı | en yakın çift ≥ %2 |
 | `ayirt.js <etiket> <url> seal <mühürler>` | 9 mühür ayrı mı | 9/9 |
 | `yol-tara.js` | panelde dosya yolu görünüyor mu | çift: hiç |
@@ -47,6 +47,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `musteri-ekran.js` | tarih yalnızca takvimden, adımlar veri kaybetmiyor, çıkış uyarısı | 10/10 |
 | `tema-denetim.js` | tarayıcının çizdiği parçalar iki işletim sistemi temasında | 58/58 |
 | `musteri2.php` | salon adı, yazım onarımı, dilek başlığı yöneticide, sabit bağlaç, işletme imzası | 28/28 |
+| `isletme-yetki.js` | işletme yöneticisi rolünün sınırı: eklentinin her ekranı açılıyor, WordPress kapalı, yetki yükseltmesi yok | 24/24 |
 | `tarih-takvim.js` | dokununca takvim açılıyor; takvimsiz tarayıcıda alan kullanılabilir | 5/5 |
 | `yazim-okuma.php` | güncellemeden önce girilmiş davetiyenin yazımı ekranda düzeliyor mu | 24/24 |
 | `istek10.php` | kalkan alanlar, hediye Yok/Var, otomatik program, marka, katılım raporu (listesiz kip) | 63/63 |
@@ -57,7 +58,7 @@ kurulabilir), yardımcı PHP dosyaları `/tmp/wp-*.php`.
 | `sosyal-punto.php` | sürüm damgası, marka hesabı, kullanıcı adından bağlantı, ekranda @kullanıcı, açılış videosu | 27/27 |
 | `sikistir.php` | yükleme öncesi küçültme ve yeniden sıkıştırma | 10/10 |
 | `dilek-onay.php` | dilek onaysız yayımlanmıyor, adressiz istek hiçbir davetiyeye yazmıyor | 15/15 |
-| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, mobilde en küçük punto 21px (girdiler dahil), uçtan uca sıkıştırma | 36/36 |
+| `gorsel-punto.js` | görsel adresleri gizli, hediye alanları seçime bağlı, açılış videosu, her bölümdeki Kaydır düğmeleri, mobilde en küçük punto 16px (girdiler dahil), uçtan uca sıkıştırma | 36/36 |
 
 Sıfırdan kurmak için: `wp-sifirla.php` → zip'i `plugins/`e aç →
 `wp-kur-test.php` → `wp-tohum.php` → `wp-roller-kur.php` → `wp-fixture.php`.
@@ -363,6 +364,41 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   (x 328→750, y 1325→1428, t≥2sn). Açılış parlamasında bütün kare aydınlık
   olduğu için kutu ancak t≥2sn'den sonra açılır; sürekli açık bir siyah
   kutu parlamanın üstünde görünürdü.
+- **WordPress'in kullanıcı yetkileri bu iş için fazla geniş.**
+  `create_users`/`edit_users`/`delete_users` HER kullanıcıyı kapsıyor;
+  çift hesabı ekranı bu yetkilerle korunuyordu ve hedefin kim olduğu
+  SORULMUYORDU. Yalnızca WordPress yöneticisi girdiği sürece görünmedi;
+  işletme yöneticisi rolü eklenince gerçek bir yetki yükseltmesi olurdu.
+  Gerileme sınaması bunu kanıtladı: koruma kaldırılınca tur SİTE
+  YÖNETİCİSİNİ SİLDİ. Yetki eklenti yetkisine indirildi ve hedefin çift
+  olduğu doğrulanıyor.
+- **Yıkıcı sınamanın hedefi TEK KULLANIMLIK olur.** O gerileme sınaması
+  doğrudan kimlik 1'i hedefliyordu ve ürün gerçekten açık olduğu için
+  bütün ortamı bozdu (yöneticiyi elle yeniden kurmak gerekti). Ölçüt aynı
+  kalır ("çift olmayan bir hesaba dokunulamıyor"), hedef atılabilir bir
+  hesap olur.
+- **Tur, VAR OLAN veriyi kurcalamaz; kendi hesabını kurar.**
+  `isletme-yetki.js` "çift parolası sıfırlanabiliyor" ölçütü için var olan
+  ilk çift hesabını (audit-cift) hedefliyordu; parolasını değiştirdi ve
+  arkasından koşan `audit-wp-rest.mjs` 401 alıp "çift kendi katılımlarını
+  okuyamıyor" diye ürünü suçladı. Tur kendi hesabını açar ve siler;
+  `wp-roller-kur.php` de var olan hesabın parolasını tazeliyor
+  (önkoşul kendini onarmalı).
+- **404 sayfasını ölçmek ürünü suçlamaya dönüşür.** Ömür turları
+  davetiyeyi taslağa çekince `mobil.js` WordPress'in KENDİ 404 temasını
+  ölçtü ve "The page you are looking for…" 18px, "Search" 16px diye punto
+  tabanının düştüğünü bildirdi. Tur artık sayfanın ürüne ait olduğunu
+  (`.sahra-page`/`.sahra-panel`) doğruluyor, değilse yüksek sesle düşüyor.
+- **Ekran doğrulaması tahmin edilen BAŞLIKLA yapılmaz.** `isletme-yetki.js`
+  ilk koşuda 'Davetiye Sihirbazı' gibi metinler arıyordu; menü CSS ile
+  BÜYÜK HARFE çevrildiği ve Türkçe noktalı İ kaybolduğu için ("DAVETLI
+  LISTESI") sayfalar açık olduğu hâlde dört ölçüt düştü. Ölçüt şablonun
+  kendi beyanı: `$sahra_sayfa` → `aria-current="page"`, menüde yer almayan
+  ekran için kendi form eylemi. Ayrıca gövde NAV DIŞINDAN okunur — gezinme
+  çubuğu her ekranda bütün sayfa adlarını içeriyor.
+- **403 "engellendi" demektir.** Aynı turda WordPress ekranlarının kapalı
+  olduğunu ölçerken 403'ü başarısız saymıştım; engel üç biçimde geliyor:
+  HTTP 403, bekçinin yönlendirmesi, ya da WordPress'in kendi yetki metni.
 - **Sonucu olmayan bulgu yoktur:** yanlış alarmsa nedeni yazılır
   (`.notice-*` WordPress'in kendi sınıfları; `planla`/`bitti` işlev
   *referansı* olarak geçiyor), gerçekse düzeltilir.
@@ -378,6 +414,15 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   deneyim, Sahra Davet tarafından çiftimize armağan edilmiştir." Sabit
   metin — davetiyeyi armağan eden işletme imzasını da kendisi atar, çift
   değiştiremez.
+- **İşletme yöneticisi rolü** (`sahra_isletme`): eklentideki her şeye
+  erişir (davetiyeler, davetli listeleri, salonlar, menüler, çift
+  hesapları, işletme, depolama), WordPress'in geri kalanına HİÇ erişmez.
+  Yönetim ekranları `manage_options` değil eklentinin kendi yetkisiyle
+  (`sahra_manage_invitations`) korunuyor. Yönetici hesabı AÇMAK ve SİLMEK
+  sitenin WordPress yöneticisinde kalır — işletme yöneticisi kendi gibi
+  yönetici üretemez. Çift hesabı açma/sıfırlama/silme yetkisi
+  (`sahra_manage_accounts`) yalnızca ÇİFT hesaplarını kapsar; hedefin
+  gerçekten çift olduğu ayrıca doğrulanıyor.
 - Çiftin ekranında dosya yolu görünmez. Depolama sayfası istisna:
   ayarın kendisi orada ve çift giremiyor.
 - Salon bilgisi (adres, yol tarifi, özellikler) yöneticinin; çift seçer,
@@ -413,9 +458,12 @@ Bunların hepsi bu projede gerçekten oldu; tekrar edilmesin.
   yükseltmeyi unutmak ya da sunucuda önbellek eklentisi bulunmak yeni
   dosyanın gelmemesine yol açıyordu; damga dosya değişince kendiliğinden
   değişiyor.
-- **Büyük punto YALNIZCA davetiye sayfasında.** Misafirin gördüğü
-  davetiyede mobilde hiçbir metin 21px'in altında değil (girdiler
-  dahil) — davetiyeyi yaşlı misafirler de okuyor. PANEL kendi ölçeğinde
+- **Punto ölçüsü YALNIZCA davetiye sayfasında ayrı tutulur.** Misafirin
+  gördüğü davetiyede mobilde hiçbir metin 16px'in altında değil (girdiler
+  dahil); gövde 18px. Bir ara taban 21px'e çıkarılmıştı, ama o ölçü
+  kullanıcının ekranında ÖNBELLEKTEN küçük görünen bir sayfayı telafi
+  etmek için seçilmişti — önbellek düzelince fazla iri kaldı. PANEL kendi
+  ölçeğinde
   kalır (`admin.css`): orası çiftin doldurduğu bir form ekranı, davetiye
   değil. İki dosya ayrı belirteç tanımlıyor ve bu BİLEREK böyle; birini
   büyütürken ötekine dokunulmaz.

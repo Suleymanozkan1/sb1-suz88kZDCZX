@@ -59,6 +59,8 @@ class Sahra_Plugin {
 		Sahra_Render::add_rewrite_rules();
 		Sahra_Render::maybe_flush();
 		Sahra_Tables::maybe_upgrade();
+		// Yeni rol, zip üzerine yazıldığında da oluşsun.
+		Sahra_Roles::maybe_upgrade();
 		Sahra_Lifecycle::schedule();
 	}
 

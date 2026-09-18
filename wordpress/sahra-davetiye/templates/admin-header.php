@@ -30,6 +30,14 @@ if ( $sahra_yonetici ) {
 	$sahra_yollar['sahra-depolama'] = __( 'Depolama', 'sahra-davetiye' );
 }
 
+/*
+ * Yönetici hesapları bağlantısı yalnızca SİTE yöneticisine: işletme
+ * yöneticisi bu ekrana giremiyor, menüde görmesi de yanıltıcı olurdu.
+ */
+if ( Sahra_Roles::is_site_admin() ) {
+	$sahra_yollar['sahra-yoneticiler'] = __( 'İşletme Yöneticileri', 'sahra-davetiye' );
+}
+
 $sahra_yollar['sahra-ayarlar'] = __( 'Hesap Ayarları', 'sahra-davetiye' );
 ?>
 <div class="sahra-panel">
@@ -44,7 +52,16 @@ $sahra_yollar['sahra-ayarlar'] = __( 'Hesap Ayarları', 'sahra-davetiye' );
 		</div>
 
 		<div class="yollar">
-			<?php if ( $sahra_yonetici ) : ?>
+			<?php
+			/*
+			 * WordPress paneli bağlantısı yalnızca SİTE yöneticisine.
+			 *
+			 * `$sahra_yonetici` işletme yöneticisini de kapsıyor; o kişi
+			 * bu bağlantıya bastığında bekçi onu geri getiriyor — gidecek
+			 * yeri olmayan bir bağlantı gösterilmez.
+			 */
+			?>
+			<?php if ( Sahra_Roles::is_site_admin() ) : ?>
 				<a class="eylem-link" href="<?php echo esc_url( admin_url() ); ?>"><?php esc_html_e( 'WordPress Paneli', 'sahra-davetiye' ); ?></a>
 			<?php endif; ?>
 			<?php
